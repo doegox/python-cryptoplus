@@ -1,3 +1,5 @@
+from util import xor
+
 MODE_ECB = 1
 MODE_CBC = 2
 MODE_CFB = 3
@@ -53,13 +55,6 @@ class ECB:
 		"""
 		pass
 
-	def __xor(self,str1,str2):
-		#move this to a math module
-		outlist = []
-		for k in range(len(str1)):
-			outlist += [chr( ord(str1[k])^ord(str2[k]) )]
-		return ''.join(outlist)
-
 class CBC:
 	def __init__(self, blocksize, IV):
 		self.IV = IV
@@ -78,7 +73,7 @@ class CBC:
 			if len(self.cache) < self.blocksize:
 				return ''
 			for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
-				self.IV = func(self.__xor(self.cache[i:i+self.blocksize],self.IV))
+				self.IV = func(xor(self.cache[i:i+self.blocksize],self.IV))
 				encrypted_blocks.append(self.IV)
 			self.cache = self.cache[i+self.blocksize:]
 			return ''.join(encrypted_blocks)
@@ -88,7 +83,7 @@ class CBC:
 			if len(self.cache) < self.blocksize:
 				return ''
 			for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
-					plaintext = self.__xor(self.IV,func(self.cache[i:i + self.blocksize]))
+					plaintext = xor(self.IV,func(self.cache[i:i + self.blocksize]))
 					self.IV = self.cache[i:i + self.blocksize]
 					decrypted_blocks.append(plaintext)
 			self.cache = self.cache[i+self.blocksize:]
@@ -103,10 +98,3 @@ class CBC:
 			=> finalize when submitted plaintext or ciphertext == '' ?
 		"""
 		pass
-
-	def __xor(self,str1,str2):
-		#move this to a math module
-		outlist = []
-		for k in range(len(str1)):
-			outlist += [chr( ord(str1[k])^ord(str2[k]) )]
-		return ''.join(outlist)

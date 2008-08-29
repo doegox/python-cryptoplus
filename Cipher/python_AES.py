@@ -1,3 +1,9 @@
+# wrapper for rijndael.py. rijndael.py can be found here:
+#	http://bitconjurer.org/rijndael.py
+# other possible python AES implementations:
+#	http://psionicist.online.fr/code/rijndael.py.txt
+#	http://jclement.ca/software/pyrijndael/
+
 import blockcipher
 from rijndael import rijndael
 

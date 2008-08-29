@@ -2,9 +2,9 @@ import blockcipher
 import pyDes
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return python_3DES(key,mode,IV)
+	return python_DES3(key,mode,IV)
 
-class python_3DES(blockcipher.BlockCipher):
+class python_DES3(blockcipher.BlockCipher):
 	"""wrapper for pure python 3DES implementation pyDes.py
 	"""
 	def __init__(self,key,mode,IV):
