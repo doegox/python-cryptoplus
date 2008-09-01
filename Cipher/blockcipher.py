@@ -14,7 +14,7 @@ class BlockCipher():
 	""" Base class for all blockciphers
 	"""
 
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.key = key
 		self.mode = mode
 		self.cache = ''
@@ -23,7 +23,8 @@ class BlockCipher():
 		elif mode == MODE_CBC:
 			self.chain = CBC(self.blocksize,IV)
 		elif mode == MODE_CTR:
-			self.chain = CTR(self.blocksize,IV)
+			assert counter != None
+			self.chain = CTR(self.blocksize,counter)
 		elif mode == MODE_XTS:
 			self.chain = XTS()
 
@@ -120,22 +121,14 @@ class CTR:
 	"""
 	#TODO:
 	# mogelijkheid om slecht een aantal bytes van IV te gebruiken als counter
-	def __init__(self, blocksize, IV):
-		self.IV = IV
+	def __init__(self, blocksize, counter):
+		self.counter = counter
 		self.cache = ''
 		self.blocksize = blocksize
 		self.pos = 0
 
 	def update(self, data,ed,codebook):
-	        from binascii import unhexlify,hexlify
-
-		def long2string(i):
-  		  s=hex(i)[2:-1]
-		  if len(s) % 2:
-		      s='0'+s
-		  return unhexlify(s)
-
-        	# fancier version of CTR mode might have to deal with different
+	        # fancier version of CTR mode might have to deal with different
         	# endianness options for the counter, etc.
         	n = len(data)
         	blocksize = self.blocksize
@@ -145,9 +138,8 @@ class CTR:
         	for i in xrange(n):
         	    if not keystream:
         	        xpos = self.pos + i
-        	        block = codebook.encrypt(self.IV)
+        	        block = codebook.encrypt(self.counter())
         	        keystream = array('B', block[xpos % blocksize:])
-			self.IV = long2string( (long(hexlify(self.IV),16)+1)%pow(2,(len(self.IV)*8)) )
         	    output[i] ^= keystream.pop(0)
         	self.pos += n
         	return output.tostring()
@@ -161,7 +153,7 @@ class XTS:
 		self.cache = ''
 
 	def update(self, data, ed, codebook, codebook2,i=0,n=0):
-		"""Perform a XTS decrypt operation."""
+		"""Perform a XTS encrypt/decrypt operation."""
 
     		def str2int(str):
     		    N = 0

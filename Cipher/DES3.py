@@ -7,8 +7,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return DES3(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return DES3(key,mode,IV,counter)
 
 class DES3(blockcipher.BlockCipher):
 	#need test vectors
@@ -28,10 +28,10 @@ class DES3(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'84401f78fe6c10876d8ea23094ea5309'
 	"""
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.DES3.new(key)
 		self.blocksize = Crypto.Cipher.DES3.block_size
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest

@@ -14,8 +14,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return python_Serpent(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return python_Serpent(key,mode,IV,counter)
 
 class python_Serpent(blockcipher.BlockCipher):
 	#need test vectors for other modes than ecb
@@ -45,10 +45,10 @@ class python_Serpent(blockcipher.BlockCipher):
 	'33B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D14919365'
 	"""
 	
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = Serpent(key)
 		self.blocksize = self.cipher.get_block_size()
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest

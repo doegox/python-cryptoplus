@@ -7,8 +7,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return python_DES3(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return python_DES3(key,mode,IV,counter)
 
 class python_DES3(blockcipher.BlockCipher):
 	"""wrapper for pure python 3DES implementation pyDes.py
@@ -27,10 +27,10 @@ class python_DES3(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'84401f78fe6c10876d8ea23094ea5309'
 	"""
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = pyDes.triple_des(key)
 		self.blocksize = self.cipher.block_size
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest

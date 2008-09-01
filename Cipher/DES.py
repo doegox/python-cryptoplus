@@ -7,8 +7,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return DES(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return DES(key,mode,IV,counter)
 
 class DES(blockcipher.BlockCipher):
 	"""DES using pycrypto for algo en pycryptoplus for ciphermode
@@ -24,10 +24,10 @@ class DES(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'01a1d6d039776742'
 	"""
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.DES.new(key)
 		self.blocksize = Crypto.Cipher.DES.block_size
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest

@@ -11,8 +11,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return python_Twofish(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return python_Twofish(key,mode,IV,counter)
 
 class python_Twofish(blockcipher.BlockCipher):
 	"""Wrapper for pure python implementation pytwofish.py
@@ -28,10 +28,10 @@ class python_Twofish(blockcipher.BlockCipher):
 	'6363977DE839486297E661C6C9D668EB'
 	"""
 	
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = Twofish(key)
 		self.blocksize = self.cipher.get_block_size()
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest

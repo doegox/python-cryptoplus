@@ -7,8 +7,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return AES(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return AES(key,mode,IV,counter)
 
 class AES(blockcipher.BlockCipher):
 	"""AES using pycrypto for algo en pycryptoplus for ciphermode
@@ -53,10 +53,10 @@ class AES(blockcipher.BlockCipher):
 	>>> hexlify(decipher.decrypt(ciphertext[22:]))
 	'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 	"""
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.AES.new(key)
 		self.blocksize = Crypto.Cipher.AES.block_size
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest

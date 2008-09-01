@@ -7,8 +7,8 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None):
-	return Blowfish(key,mode,IV)
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	return Blowfish(key,mode,IV,counter)
 
 class Blowfish(blockcipher.BlockCipher):
 	"""Blowfish using pycrypto for algo en pycryptoplus for ciphermode
@@ -35,10 +35,10 @@ class Blowfish(blockcipher.BlockCipher):
 	>>> hexlify(ciphertext).upper()
 	'6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
 	"""
-	def __init__(self,key,mode,IV):
+	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.Blowfish.new(key)
 		self.blocksize = Crypto.Cipher.Blowfish.block_size
-		blockcipher.BlockCipher.__init__(self,key,mode,IV)
+		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
 	import doctest
