@@ -1,11 +1,14 @@
 from util import xor
 from array import array
+from gf2n import *
+import struct
 
 MODE_ECB = 1
 MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+MODE_XTS = 7
 
 class BlockCipher():
 	""" Base class for all blockciphers
@@ -21,12 +24,20 @@ class BlockCipher():
 			self.chain = CBC(self.blocksize,IV)
 		elif mode == MODE_CTR:
 			self.chain = CTR(self.blocksize,IV)
+		elif mode == MODE_XTS:
+			self.chain = XTS()
 
 	def encrypt(self,plaintext):
-		return self.chain.update(plaintext,'e',self.cipher)
+		if self.mode == MODE_XTS:
+			return self.chain.update(plaintext,'e',self.cipher,self.cipher2)
+		else:
+			return self.chain.update(plaintext,'e',self.cipher)
 	
 	def decrypt(self,ciphertext):
-		return self.chain.update(ciphertext,'d',self.cipher)
+		if self.mode == MODE_XTS:
+			return self.chain.update(ciphertext,'d',self.cipher,self.cipher2)
+		else:
+			return self.chain.update(ciphertext,'d',self.cipher)
 
 class ECB:
 	def __init__(self, blocksize):
@@ -140,6 +151,68 @@ class CTR:
         	    output[i] ^= keystream.pop(0)
         	self.pos += n
         	return output.tostring()
+
+	def finish(self):
+		pass
+
+class XTS:
+
+	def __init__(self):
+		self.cache = ''
+
+	def update(self, data, ed, codebook, codebook2,i=0,n=0):
+		"""Perform a XTS decrypt operation."""
+
+    		def str2int(str):
+    		    N = 0
+    		    for c in reversed(str):
+    		        N <<= 8
+    		        N |= ord(c)
+    		    return N
+	
+    		def int2str(N):
+    		    str = ''
+    		    while N:
+    		        str += chr(N & 0xff)
+    		        N >>= 8
+    		    return str
+		
+    		def xorstring16(a, b):
+    		    new = ''
+    		    for p in xrange(16):
+    		        new += chr(ord(a[p]) ^ ord(b[p]))
+    		    return new
+
+		def gf2pow128powof2(n):
+		    """2^n in GF(2^128)."""
+		    if n < 128:
+		        return 2**n
+		    return reduce(gf2pow128mul, (2 for x in xrange(n)), 1)
+
+		self.cache += data
+		output = ''
+		
+		for i in xrange(len(self.cache) // 16):
+    			# e_k2_n = E_K2(n)
+	    		n_txt = struct.pack('< Q', n) + '\x00' * 8
+    			e_k2_n = codebook2.encrypt(n_txt)
+			
+    			# a_i = (a pow i)
+    			a_i = gf2pow128powof2(i)
+			
+    			# e_mul_a = E_K2(n) mul (a pow i)
+    			e_mul_a = gf2pow128mul(str2int(e_k2_n), a_i)
+    			e_mul_a = int2str(e_mul_a)
+    			e_mul_a = '\x00' * (16 - len(e_mul_a)) + e_mul_a
+			
+    			# C = E_K1(P xor e_mul_a) xor e_mul_a
+			if ed == 'd':
+		    		output += xorstring16(e_mul_a, codebook.decrypt(xorstring16(e_mul_a, self.cache[i*16:(i+1)*16])))
+			else:
+				output += xorstring16(e_mul_a, codebook.encrypt(xorstring16(e_mul_a, self.cache[i*16:(i+1)*16])))
+		
+		self.cache = self.cache[(i+1)*16:]
+		return output
 
 	def finish(self):
 		pass

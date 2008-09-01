@@ -12,6 +12,7 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+MODE_XTS = 7
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None):
 	return python_AES(key,mode,IV)
@@ -73,9 +74,32 @@ class python_AES(blockcipher.BlockCipher):
 	>>> decipher = python_AES.new(key,python_AES.MODE_CTR,counter_start)
 	>>> hexlify(decipher.decrypt(ciphertext))
 	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
+
+	XTS EXAMPLE:
+	cipher/decipher plaintext of 3 blocks, provided as a 2 pieces (31 bytes + 33 bytes)
+	------------
+	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c'*2)
+	>>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
+	>>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
+	>>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
+	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
+	>>> ciphertext = cipher.encrypt(plaintext1 + plaintext2[:15])
+	>>> decipher = python_AES.new(key,python_AES.MODE_XTS)
+	>>> deciphertext = decipher.decrypt(ciphertext)
+	>>> hexlify(deciphertext)
+	'6bc1bee22e409f96e93d7e117393172a'
+	>>> ciphertext2 = cipher.encrypt(plaintext2[15:]+plaintext3)
+	>>> deciphertext2 = decipher.decrypt(ciphertext2)
+	>>> hexlify(deciphertext2)
+	'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 	"""
 	def __init__(self,key,mode,IV):
-		self.cipher = rijndael(key, 16)
+		if mode == MODE_XTS:
+			assert len(key) == 32
+			self.cipher = rijndael(key[:16], 16)
+			self.cipher2 = rijndael(key[16:], 16)
+		else:
+			self.cipher = rijndael(key, 16)
 		self.blocksize = 16
 		blockcipher.BlockCipher.__init__(self,key,mode,IV)
 
