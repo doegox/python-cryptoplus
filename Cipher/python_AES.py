@@ -58,6 +58,21 @@ class python_AES(blockcipher.BlockCipher):
 	'6bc1bee22e409f96e93d7e117393172a'
 	>>> hexlify(decipher.decrypt(ciphertext[22:]))
 	'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
+
+	CTR EXAMPLE:
+	------------
+	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
+	>>> counter_start = unhexlify('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff')
+	>>> cipher = python_AES.new(key,python_AES.MODE_CTR,counter_start)
+	>>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
+	>>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
+	>>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
+	>>> ciphertext = cipher.encrypt(plaintext1 + plaintext2 + plaintext3)
+	>>> hexlify(ciphertext)
+	'874d6191b620e3261bef6864990db6ce9806f66b7970fdff8617187bb9fffdff5ae4df3edbd5d35e5b4f09020db03eab'
+	>>> decipher = python_AES.new(key,python_AES.MODE_CTR,counter_start)
+	>>> hexlify(decipher.decrypt(ciphertext))
+	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 	"""
 	def __init__(self,key,mode,IV):
 		self.cipher = rijndael(key, 16)

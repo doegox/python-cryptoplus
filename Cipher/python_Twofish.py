@@ -15,7 +15,6 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None):
 	return python_Twofish(key,mode,IV)
 
 class python_Twofish(blockcipher.BlockCipher):
-	#need test vectors for other modes than ecb
 	"""Wrapper for pure python implementation pytwofish.py
 
 	EXAMPLE:

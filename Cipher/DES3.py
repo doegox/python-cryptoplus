@@ -14,16 +14,19 @@ class DES3(blockcipher.BlockCipher):
 	#need test vectors
 	"""DES using pycrypto for algo en pycryptoplus for ciphermode
 	
-	EXAMPLE:
+	EXAMPLE (using test vectors from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf):
 	>>> import DES3	
 	>>> from binascii import hexlify, unhexlify
-	>>> cipher = DES3.new(unhexlify(''))
-	>>> ciphertext = cipher.encrypt(unhexlify(''))
+	>>> key = unhexlify('37ae5ebf46dff2dc0754b94f31cbb3855e7fd36dc870bfae')
+	>>> IV = unhexlify('3d1de3cc132e3b65')
+	>>> cipher = DES3.new(key, DES3.MODE_CBC, IV)
+	>>> ciphertext = cipher.encrypt(unhexlify('84401f78fe6c10876d8ea23094ea5309'))
 	>>> hexlify(ciphertext)
-	''
-	>>> plaintext = cipher.decrypt(ciphertext)
+	'7b1f7c7e3b1c948ebd04a75ffba7d2f5'
+	>>> decipher = DES3.new(key, DES3.MODE_CBC, IV)
+	>>> plaintext = decipher.decrypt(ciphertext)
 	>>> hexlify(plaintext)
-	''
+	'84401f78fe6c10876d8ea23094ea5309'
 	"""
 	def __init__(self,key,mode,IV):
 		self.cipher = Crypto.Cipher.DES3.new(key)
