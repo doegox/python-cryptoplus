@@ -6,6 +6,7 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return python_DES3(key,mode,IV,counter)
@@ -26,6 +27,16 @@ class python_DES3(blockcipher.BlockCipher):
 	>>> plaintext = decipher.decrypt(ciphertext)
 	>>> hexlify(plaintext)
 	'84401f78fe6c10876d8ea23094ea5309'
+
+	CMAC EXAMPLE:
+	-------------
+	testvector: http://csrc.nist.gov/publications/nistpubs/800-38B/Updated_CMAC_Examples.pdf
+
+	>>> key = '8aa83bf8cbda10620bc1bf19fbb6cd58bc313d4a371ca8b5'.decode('hex')
+	>>> plaintext = '6bc1bee22e409f96e93d7e117393172aae2d8a57'.decode('hex')
+	>>> cipher = python_DES3.new(key, python_DES3.MODE_CMAC)
+	>>> cipher.encrypt(plaintext).encode('hex')
+	'743ddbe0ce2dc2ed'
 	"""
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = pyDes.triple_des(key)

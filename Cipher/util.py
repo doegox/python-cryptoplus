@@ -1,9 +1,25 @@
-def xor(str1,str2):
-		#move this to a math module
-		outlist = []
-		for k in range(len(str1)):
-			outlist += [chr( ord(str1[k])^ord(str2[k]) )]
-		return ''.join(outlist)
+from gf2n import *
+
+def long2string(i):
+    s=hex(i)[2:-1]
+    if len(s) % 2:
+        s='0'+s
+    return s.decode('hex')
+
+def xorstring(a,b):
+	outlist = []
+	minlength = min(len(a),len(b))
+	if minlength == len(a):
+		maxstr = b
+		minstr = a
+	else:
+		maxstr = a
+		minstr = b	
+	for k in range(len(minstr)):
+		outlist += [chr( ord(a[k])^ord(b[k]) )]
+	for i in maxstr[len(minstr):]:
+		outlist += i
+	return ''.join(outlist)
 
 class Counter(str):
 	#found here: http://www.lag.net/pipermail/paramiko/2008-February.txt
@@ -22,3 +38,33 @@ class Counter(str):
             ctr = ("%032x" % (self.c,)).decode('hex')
             self.c += 1
             return ctr
+
+## Following code is from XTS.py => add appropriate copyright notice?
+
+def str2int(str):
+	N = 0
+	for c in reversed(str):
+    		N <<= 8
+    	        N |= ord(c)
+    	return N
+	
+def int2str(N):
+	str = ''
+    	while N:
+    		str += chr(N & 0xff)
+    		N >>= 8
+    	return str
+		
+def xorstring16(a, b):
+ 	new = ''
+    	for p in xrange(16):
+    		new += chr(ord(a[p]) ^ ord(b[p]))
+    	return new
+
+def gf2pow128powof2(n):
+	"""2^n in GF(2^128)."""
+	if n < 128:
+	        return 2**n
+	return reduce(gf2pow128mul, (2 for x in xrange(n)), 1)
+
+## end of code from XTS.py

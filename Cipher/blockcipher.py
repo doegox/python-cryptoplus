@@ -1,6 +1,5 @@
-from util import xor
+import util
 from array import array
-from gf2n import *
 import struct
 
 MODE_ECB = 1
@@ -9,6 +8,7 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 MODE_XTS = 7
+MODE_CMAC = 8
 
 class BlockCipher():
 	""" Base class for all blockciphers
@@ -27,6 +27,8 @@ class BlockCipher():
 			self.chain = CTR(self.blocksize,counter)
 		elif mode == MODE_XTS:
 			self.chain = XTS()
+		elif mode == MODE_CMAC:
+			self.chain = CMAC(self.cipher,self.blocksize)
 
 	def encrypt(self,plaintext):
 		if self.mode == MODE_XTS:
@@ -88,7 +90,7 @@ class CBC:
 			if len(self.cache) < self.blocksize:
 				return ''
 			for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
-				self.IV = codebook.encrypt(xor(self.cache[i:i+self.blocksize],self.IV))
+				self.IV = codebook.encrypt(util.xorstring(self.cache[i:i+self.blocksize],self.IV))
 				encrypted_blocks.append(self.IV)
 			self.cache = self.cache[i+self.blocksize:]
 			return ''.join(encrypted_blocks)
@@ -98,7 +100,7 @@ class CBC:
 			if len(self.cache) < self.blocksize:
 				return ''
 			for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
-					plaintext = xor(self.IV,codebook.decrypt(self.cache[i:i + self.blocksize]))
+					plaintext = util.xorstring(self.IV,codebook.decrypt(self.cache[i:i + self.blocksize]))
 					self.IV = self.cache[i:i + self.blocksize]
 					decrypted_blocks.append(plaintext)
 			self.cache = self.cache[i+self.blocksize:]
@@ -119,8 +121,6 @@ class CTR:
 
 	Implemented so it can be accessed as a stream cipher.
 	"""
-	#TODO:
-	# mogelijkheid om slecht een aantal bytes van IV te gebruiken als counter
 	def __init__(self, blocksize, counter):
 		self.counter = counter
 		self.cache = ''
@@ -128,13 +128,13 @@ class CTR:
 		self.pos = 0
 
 	def update(self, data,ed,codebook):
-	        # fancier version of CTR mode might have to deal with different
-        	# endianness options for the counter, etc.
+            # fancier version of CTR mode might have to deal with different
+            # endianness options for the counter, etc.
         	n = len(data)
         	blocksize = self.blocksize
         	keystream = None
         	output = array('B', data)
-	
+
         	for i in xrange(n):
         	    if not keystream:
         	        xpos = self.pos + i
@@ -148,38 +148,11 @@ class CTR:
 		pass
 
 class XTS:
-
 	def __init__(self):
 		self.cache = ''
 
 	def update(self, data, ed, codebook, codebook2,i=0,n=0):
 		"""Perform a XTS encrypt/decrypt operation."""
-
-    		def str2int(str):
-    		    N = 0
-    		    for c in reversed(str):
-    		        N <<= 8
-    		        N |= ord(c)
-    		    return N
-	
-    		def int2str(N):
-    		    str = ''
-    		    while N:
-    		        str += chr(N & 0xff)
-    		        N >>= 8
-    		    return str
-		
-    		def xorstring16(a, b):
-    		    new = ''
-    		    for p in xrange(16):
-    		        new += chr(ord(a[p]) ^ ord(b[p]))
-    		    return new
-
-		def gf2pow128powof2(n):
-		    """2^n in GF(2^128)."""
-		    if n < 128:
-		        return 2**n
-		    return reduce(gf2pow128mul, (2 for x in xrange(n)), 1)
 
 		self.cache += data
 		output = ''
@@ -190,21 +163,81 @@ class XTS:
     			e_k2_n = codebook2.encrypt(n_txt)
 			
     			# a_i = (a pow i)
-    			a_i = gf2pow128powof2(i)
+    			a_i = util.gf2pow128powof2(i)
 			
     			# e_mul_a = E_K2(n) mul (a pow i)
-    			e_mul_a = gf2pow128mul(str2int(e_k2_n), a_i)
-    			e_mul_a = int2str(e_mul_a)
+    			e_mul_a = util.gf2pow128mul(util.str2int(e_k2_n), a_i)
+    			e_mul_a = util.int2str(e_mul_a)
     			e_mul_a = '\x00' * (16 - len(e_mul_a)) + e_mul_a
 			
     			# C = E_K1(P xor e_mul_a) xor e_mul_a
 			if ed == 'd':
-		    		output += xorstring16(e_mul_a, codebook.decrypt(xorstring16(e_mul_a, self.cache[i*16:(i+1)*16])))
+		    		output += util.xorstring16(e_mul_a, codebook.decrypt(util.xorstring16(e_mul_a, self.cache[i*16:(i+1)*16])))
 			else:
-				output += xorstring16(e_mul_a, codebook.encrypt(xorstring16(e_mul_a, self.cache[i*16:(i+1)*16])))
+				output += util.xorstring16(e_mul_a, codebook.encrypt(util.xorstring16(e_mul_a, self.cache[i*16:(i+1)*16])))
 		
 		self.cache = self.cache[(i+1)*16:]
 		return output
+
+	def finish(self):
+		pass
+
+class CMAC:
+	"""CMAC chaining mode
+
+	Supports every cipher with a blocksize available in de Rb_dictionary.
+	Calling update() immediately calculates the hash. No finishing needed.
+	"""
+	def __init__(self,codebook,blocksize):
+		#blocksize (in bytes): to select the Rb constant in the dictionary
+		#Rb as a dictionary: adding support for other blocksizes is easy
+		self.cache=''
+		self.blocksize = blocksize
+
+		Rb_dictionary = {64:0x000000000000001b,128:0x00000000000000000000000000000087}
+		self.Rb = Rb_dictionary[blocksize*8]
+
+		mask1 = int(('\xff'*blocksize).encode('hex'),16)
+		mask2 = int(('\x80' + '\x00'*(blocksize-1) ).encode('hex'),16)
+		
+		L = int(codebook.encrypt('\x00'*blocksize).encode('hex'),16)
+		
+		if L & mask2:
+            		Lu = (L << 1) ^ self.Rb
+		else:
+		        Lu = L << 1
+		        Lu = Lu & mask1
+		 
+	       	if Lu & mask2:
+	            Lu2 = (Lu << 1) ^ self.Rb
+               	else:
+	            Lu2 = Lu << 1
+		Lu2 = Lu2 & mask1
+
+		self.Lu =Lu
+		self.Lu2=Lu2
+		
+	def update(self,data,ed,codebook):
+		assert ed == 'e'
+		blocksize = self.blocksize
+	
+		m = (len(data)+blocksize-1)/blocksize #m = amount of datablocks
+		y = '\x00'*blocksize
+		i=0
+		for i in range(1,m):
+			y = codebook.encrypt( util.xorstring(data[(i-1)*blocksize:(i)*blocksize],y) )
+		
+		if len(data[(i)*blocksize:])==blocksize:
+			Lu_string = util.long2string(self.Lu)
+			X = util.xorstring(util.xorstring(data[(i)*blocksize:],y),Lu_string)
+		else:
+			tmp = data[(i)*blocksize:] + '\x80' + '\x00'*(len(data[(i)*blocksize:])-1) 
+			Lu2_string = util.long2string(self.Lu2)
+			Lu2_string = '\x00'*(blocksize - len(Lu2_string)) + Lu2_string
+			X = util.xorstring(util.xorstring(tmp,y),Lu2_string)
+
+		T = codebook.encrypt(X)
+		return T
 
 	def finish(self):
 		pass

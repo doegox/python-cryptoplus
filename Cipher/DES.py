@@ -6,6 +6,7 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return DES(key,mode,IV,counter)
@@ -14,6 +15,7 @@ class DES(blockcipher.BlockCipher):
 	"""DES using pycrypto for algo en pycryptoplus for ciphermode
 	
 	EXAMPLE:
+	--------
 	>>> import DES	
 	>>> from binascii import hexlify, unhexlify
 	>>> cipher = DES.new(unhexlify('7CA110454A1A6E57'))
@@ -23,6 +25,10 @@ class DES(blockcipher.BlockCipher):
 	>>> plaintext = cipher.decrypt(ciphertext)
 	>>> hexlify(plaintext)
 	'01a1d6d039776742'
+
+	CMAC EXAMPLE:
+	-------------
+	
 	"""
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.DES.new(key)
