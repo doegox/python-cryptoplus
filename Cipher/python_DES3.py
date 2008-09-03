@@ -7,6 +7,7 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 MODE_CMAC = 8
+#TODO: XTS nog niet mogelijk -> blocksize des = 8, XTS = 16
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return python_DES3(key,mode,IV,counter)
@@ -14,7 +15,20 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 class python_DES3(blockcipher.BlockCipher):
 	"""wrapper for pure python 3DES implementation pyDes.py
 
-	EXAMPLE (using test vectors from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf):
+	Create a DES-EDE3 or DES-EDE2 cipher object
+
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the 2/3 keys
+			- DES-EDE2: supply 2 keys as 1 single concatenated 16byte key= key1|key2
+			- DES-EDE3: supply 3 keys as 1 single concatenated 24byte key= key1|key2|key3
+		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
+		IV = IV as a raw string
+			-> only needed for CBC mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
+
+	CBC TDES-EDE3 EXAMPLE: (using test vectors from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf)
+	------------
 	>>> import python_DES3	
 	>>> from binascii import hexlify, unhexlify
 	>>> key = unhexlify('37ae5ebf46dff2dc0754b94f31cbb3855e7fd36dc870bfae')
@@ -28,7 +42,7 @@ class python_DES3(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'84401f78fe6c10876d8ea23094ea5309'
 
-	CMAC EXAMPLE:
+	CMAC TDES-EDE3 EXAMPLE:
 	-------------
 	testvector: http://csrc.nist.gov/publications/nistpubs/800-38B/Updated_CMAC_Examples.pdf
 
@@ -37,8 +51,21 @@ class python_DES3(blockcipher.BlockCipher):
 	>>> cipher = python_DES3.new(key, python_DES3.MODE_CMAC)
 	>>> cipher.encrypt(plaintext).encode('hex')
 	'743ddbe0ce2dc2ed'
+
+	CMAC TDES-EDE2 EXAMPLE:
+	-----------------------
+	testvector: http://csrc.nist.gov/groups/STM/cavp/documents/mac/cmactestvectors.zip
+
+	>>> key1 = "5104f2c76180c1d3".decode('hex')
+	>>> key2 = "b9df763e31ada716".decode('hex')
+	>>> key = key1 + key2
+	>>> plaintext = 'a6866be2fa6678f264a19c4474968e3f4eec24f5086d'.decode('hex')
+	>>> cipher = python_DES3.new(key, python_DES3.MODE_CMAC)
+	>>> cipher.encrypt(plaintext).encode('hex')
+	'32e7758f3f614dbf'
 	"""
 	def __init__(self,key,mode,IV,counter):
+		assert len(key) in (16,24)
 		self.cipher = pyDes.triple_des(key)
 		self.blocksize = self.cipher.block_size
 		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)

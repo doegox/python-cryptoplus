@@ -26,13 +26,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 			-> only needed for CBC mode
 		counter = counter object (Cipher/util.py:Counter)
 			-> only needed for CTR mode
-	"""
-	return python_AES(key,mode,IV,counter)
-
-class python_AES(blockcipher.BlockCipher):
-	"""Wrapper for pure python implementation rijndael.py
-
-	EXAMPLE:
+    
+    	EXAMPLE:
 	----------
 	>>> import python_AES
 	>>> cipher = python_AES.new('0123456789012345')
@@ -135,6 +130,12 @@ class python_AES(blockcipher.BlockCipher):
 	>>> cipher = python_AES.new(key,python_AES.MODE_CMAC)
 	>>> cipher.encrypt(plaintext).encode('hex')
 	'dfa66747de9ae63030ca32611497c827'
+	"""
+	return python_AES(key,mode,IV,counter)
+
+class python_AES(blockcipher.BlockCipher):
+	"""Wrapper for pure python implementation rijndael.py
+
 	"""
 	def __init__(self,key,mode,IV,counter):
 		if mode == MODE_XTS:

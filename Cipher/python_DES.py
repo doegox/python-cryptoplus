@@ -15,6 +15,7 @@ class python_DES(blockcipher.BlockCipher):
 	"""wrapper for pure python implementation pyDes.py
 	
 	EXAMPLE (test vectors from NESSIE):
+	-----------------------------------
 	>>> import python_DES	
 	>>> from binascii import hexlify, unhexlify
 	>>> cipher = python_DES.new(unhexlify('7CA110454A1A6E57'))

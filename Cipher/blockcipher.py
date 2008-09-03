@@ -128,19 +128,19 @@ class CTR:
 		self.pos = 0
 
 	def update(self, data,ed,codebook):
-            # fancier version of CTR mode might have to deal with different
-            # endianness options for the counter, etc.
+		# fancier version of CTR mode might have to deal with different
+		# endianness options for the counter, etc.
         	n = len(data)
         	blocksize = self.blocksize
         	keystream = None
         	output = array('B', data)
 
         	for i in xrange(n):
-        	    if not keystream:
-        	        xpos = self.pos + i
-        	        block = codebook.encrypt(self.counter())
-        	        keystream = array('B', block[xpos % blocksize:])
-        	    output[i] ^= keystream.pop(0)
+			if not keystream:
+				xpos = self.pos + i
+				block = codebook.encrypt(self.counter())
+				keystream = array('B', block[xpos % blocksize:])
+			output[i] ^= keystream.pop(0)
         	self.pos += n
         	return output.tostring()
 
@@ -151,23 +151,23 @@ class XTS:
 	def __init__(self):
 		self.cache = ''
 
-	def update(self, data, ed, codebook, codebook2,i=0,n=0):
+	def update(self, data, ed, codebook, codebook2):
 		"""Perform a XTS encrypt/decrypt operation."""
 
 		self.cache += data
 		output = ''
-		
+
 		for i in xrange(len(self.cache) // 16):
     			# e_k2_n = E_K2(n)
-	    		n_txt = struct.pack('< Q', n) + '\x00' * 8
-    			e_k2_n = codebook2.encrypt(n_txt)
+	    		# was: n_txt = struct.pack('< Q', n) + '\x00' * 8
+    			e_k2_n = codebook2.encrypt('\x00' * 16)[::-1]
 			
     			# a_i = (a pow i)
     			a_i = util.gf2pow128powof2(i)
 			
     			# e_mul_a = E_K2(n) mul (a pow i)
-    			e_mul_a = util.gf2pow128mul(util.str2int(e_k2_n), a_i)
-    			e_mul_a = util.int2str(e_mul_a)
+    			e_mul_a = util.gf2pow128mul(util.string2number(e_k2_n), a_i)
+    			e_mul_a = util.number2string(e_mul_a)[::-1]
     			e_mul_a = '\x00' * (16 - len(e_mul_a)) + e_mul_a
 			
     			# C = E_K1(P xor e_mul_a) xor e_mul_a
@@ -186,14 +186,14 @@ class CMAC:
 	"""CMAC chaining mode
 
 	Supports every cipher with a blocksize available in de Rb_dictionary.
-	Calling update() immediately calculates the hash. No finishing needed.
+	Calling update(), immediately calculates the hash. No finishing needed.
 	"""
 	def __init__(self,codebook,blocksize):
 		#blocksize (in bytes): to select the Rb constant in the dictionary
 		#Rb as a dictionary: adding support for other blocksizes is easy
 		self.cache=''
 		self.blocksize = blocksize
-
+		
 		Rb_dictionary = {64:0x000000000000001b,128:0x00000000000000000000000000000087}
 		self.Rb = Rb_dictionary[blocksize*8]
 
@@ -203,16 +203,16 @@ class CMAC:
 		L = int(codebook.encrypt('\x00'*blocksize).encode('hex'),16)
 		
 		if L & mask2:
-            		Lu = (L << 1) ^ self.Rb
+            		Lu = ((L << 1) & mask1) ^ self.Rb
 		else:
 		        Lu = L << 1
 		        Lu = Lu & mask1
 		 
 	       	if Lu & mask2:
-	            Lu2 = (Lu << 1) ^ self.Rb
+	            Lu2 = ((Lu << 1) & mask1)^ self.Rb
                	else:
 	            Lu2 = Lu << 1
-		Lu2 = Lu2 & mask1
+		    Lu2 = Lu2 & mask1
 
 		self.Lu =Lu
 		self.Lu2=Lu2
@@ -228,12 +228,12 @@ class CMAC:
 			y = codebook.encrypt( util.xorstring(data[(i-1)*blocksize:(i)*blocksize],y) )
 		
 		if len(data[(i)*blocksize:])==blocksize:
-			Lu_string = util.long2string(self.Lu)
+			Lu_string = util.number2string(self.Lu)
 			X = util.xorstring(util.xorstring(data[(i)*blocksize:],y),Lu_string)
 		else:
-			tmp = data[(i)*blocksize:] + '\x80' + '\x00'*(len(data[(i)*blocksize:])-1) 
-			Lu2_string = util.long2string(self.Lu2)
-			Lu2_string = '\x00'*(blocksize - len(Lu2_string)) + Lu2_string
+			tmp = data[(i)*blocksize:] + '\x80' + '\x00'*(blocksize - len(data[(i)*blocksize:])-1) 
+			Lu2_string = util.number2string(self.Lu2)
+			#Lu2_string = '\x00'*(blocksize - len(Lu2_string)) + Lu2_string
 			X = util.xorstring(util.xorstring(tmp,y),Lu2_string)
 
 		T = codebook.encrypt(X)

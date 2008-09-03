@@ -10,11 +10,17 @@ MODE_XTS = 7
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return AES(key,mode,IV,counter)
+	"""Create a new cipher object
 
-class AES(blockcipher.BlockCipher):
-	"""AES using pycrypto for algo en pycryptoplus for ciphermode
-	
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the key, AES-128..256 will be selected according to the key length
+			-> when using XTS mode: the key should be a concatenation of the 2 keys needed
+		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+		IV = IV as a raw string
+			-> only needed for CBC mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
+    
 	EXAMPLE:
 	----------
 	>>> import AES
@@ -115,6 +121,11 @@ class AES(blockcipher.BlockCipher):
 	>>> cipher.encrypt(plaintext).encode('hex')
 	'dfa66747de9ae63030ca32611497c827'
 	"""
+	return AES(key,mode,IV,counter)
+
+class AES(blockcipher.BlockCipher):
+	"""AES using pycrypto for algo en pycryptoplus for ciphermode
+	"""	
 	def __init__(self,key,mode,IV,counter):
 		if mode == MODE_XTS:
 			assert len(key) == 32

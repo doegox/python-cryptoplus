@@ -14,8 +14,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 class DES(blockcipher.BlockCipher):
 	"""DES using pycrypto for algo en pycryptoplus for ciphermode
 	
-	EXAMPLE:
-	--------
+	EXAMPLE (test vectors from NESSIE):
+	-----------------------------------
 	>>> import DES	
 	>>> from binascii import hexlify, unhexlify
 	>>> cipher = DES.new(unhexlify('7CA110454A1A6E57'))
