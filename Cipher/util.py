@@ -53,7 +53,9 @@ class Counter(str):
 	
 	Initializing a counter object (ctr = Counter('xxx'), gives a value to the counter object.
 	Everytime the object is called ( ctr() ) it returns the current value and increments it by 1.
-	Input/output is a raw string."""
+	Input/output is a raw string.
+
+	Counter value is big endian"""
 	def __init__(self, initial_ctr):
 		if not isinstance(initial_ctr, str):
 			raise TypeError("nonce must be str")

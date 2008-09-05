@@ -23,10 +23,13 @@ class BlockCipher():
 		if mode == MODE_ECB:
 			self.chain = ECB(self.cipher, self.blocksize)
 		elif mode == MODE_CBC:
+			assert IV <> None, "Provide an IV!"
 			self.chain = CBC(self.cipher, self.blocksize,IV)
 		elif mode == MODE_CFB:
+			assert IV <> None, "Provide an IV!"
 			self.chain = CFB(self.cipher, self.blocksize,IV)
 		elif mode == MODE_OFB:
+			assert IV <> None, "Provide an IV!"
 			self.chain = OFB(self.cipher, self.blocksize,IV)
 		elif mode == MODE_CTR:
 			assert counter != None
@@ -52,8 +55,12 @@ class BlockCipher():
 		else:
 			return self.chain.update(ciphertext,'d')
 	
-	def final(self,data=''):
-		return self.chain.final(data,self.ed)
+	def final(self,padding='PKCS7'):
+		if self.ed == 'e':
+			return self.chain.final(padding)
+		else:
+		# final function doesn't make sense when decrypting => padding should be removed manually
+			pass
 
 class ECB:
 	def __init__(self, codebook, blocksize):
@@ -129,20 +136,15 @@ class CBC:
 			return ''.join(decrypted_blocks)
 				
 
-	def final(self,data,ed,padding='PKCS7'):
+	def final(self,padding):
 		"""finalizes the chain by padding
 
-		padding codebooktion can be provided as an argument
+		padding function can be provided as an argument
 		no way to finalize with standart pycrypto API
 			=> finalize when submitted plaintext or ciphertext == '' ?
 		"""
-		assert ed <> None
-		output = ''
-		if ed == 'e':
-			padder = Padding(self.blocksize)
-			output += self.update(data,ed)
-			output += self.update(padder.pad(self.cache,padding)[len(self.cache):],ed)
-		return output
+		padder = Padding(self.blocksize)
+		return self.update(padder.pad(self.cache,padding)[len(self.cache):],'e') # pad the cache and then only supply the padding to the update function
 			
 
 class CFB:
@@ -215,6 +217,7 @@ class CTR:
 	"""
 	# other implementation: counter always starts from zero but can decode starting from anywhere by giving a position
 	# this implementation: initial counter value can be choosen, decryption always starts from beginning
+	# 	-> you can start from anywhere yourself: just feed the cipher encoded blocks and feed a cipher with the corresponding value
 	def __init__(self, codebook, blocksize, counter):
 		self.codebook = codebook
 		self.counter = counter
@@ -243,64 +246,76 @@ class CTR:
 		pass
 
 class XTS:
-	# TODO: allow other blocksizes besides 16bytes (= AES)
+	# TODO: allow other blocksizes besides 16bytes?
 	def __init__(self,codebook1, codebook2):
 		self.cache = ''
 		self.codebook1 = codebook1
 		self.codebook2 = codebook2
 
-	def update(self, data, ed,n=''):
+	def update(self, data, ed,tweak=''):
 		# supply n as a raw string
-		# n = data sequence number
+		# tweak = data sequence number
 		"""Perform a XTS encrypt/decrypt operation.
 
 		In contrast to the other chaining modes: the whole data block has to encrypted at once."""
 
 		output = ''
-		assert len(data) > 15
-
-		def xts_step(tocrypt):
-			# e_k2_n = E_K2(n)
-	    		# was: n_txt = struct.pack('< Q', n) + '\x00' * 8
-			n_number = util.string2number(n.rjust(1,'\x00'))
-			e_k2_n = self.codebook2.encrypt(struct.pack('< Q', n_number)+ '\x00' * 8)[::-1]
-
-    			# a_i = (a pow i)
-    			a_i = util.gf2pow128powof2(i)
-			
-    			# e_mul_a = E_K2(n) mul (a pow i)
-    			e_mul_a = util.gf2pow128mul(util.string2number(e_k2_n), a_i)
-    			e_mul_a = util.number2string(e_mul_a)[::-1]
-    			e_mul_a = '\x00' * (16 - len(e_mul_a)) + e_mul_a
-			
-    			# C = E_K1(P xor e_mul_a) xor e_mul_a
-			if ed == 'd':
-		    		return util.xorstring16(e_mul_a, self.codebook1.decrypt(util.xorstring16(e_mul_a, tocrypt)))
-			else:
-				return util.xorstring16(e_mul_a, self.codebook1.encrypt(util.xorstring16(e_mul_a, tocrypt)))
+		assert len(data) > 15, "At least one block of 128 bits needs to be supplied"
+		assert len(data) < 128*pow(2,20)
 
 		i=0
-		for i in xrange((len(data) // 16) - 1):
-			output += xts_step(data[i*16:(i+1)*16])
+		for i in xrange((len(data) // 16) - 1): #Decrypt all the blocks but the last two
+			output += self.__xts_step(ed,data[i*16:(i+1)*16],i,tweak)
 		i+=1
+		# Check if the data supplied is a multiple of 16 bytes
 		if len(data[i*16:]) == 16:
-			output += xts_step(data[i*16:(i+1)*16])
-		else:
+			output += self.__xts_step(ed,data[i*16:(i+1)*16],i,tweak)
+		elif ed=='e':
+			# Encrypt the last two blocks when data is not a multiple of 16 bytes
 			if i == 1 : i-=1 #no output blocks have been calculated yet => have to start from the beginning
-			Pm1 = data[i*16:(i+1)*16]
-			Pm = data[(i+1)*16:]
-			CC = xts_step(Pm1)
+			Cm1 = data[i*16:(i+1)*16]
+			Cm = data[(i+1)*16:]
+			PP = self.__xts_step(ed,Cm1,i,tweak)
+			Cp = PP[len(Cm):]
+			Pm = PP[:len(Cm)]
+			CC = Cm+Cp
+			i+=1
+			Pm1 = self.__xts_step(ed,CC,i,tweak)
+			output += Pm1 + Pm
+		else:
+			# Decrypt the last two blocks when data is not a multiple of 16 bytes
+			Pm1 = data[(i-1)*16:(i)*16]
+			Pm = data[(i)*16:]
+			CC = self.__xts_step(ed,Pm1,i,tweak)
 			Cp = CC[len(Pm):]
 			Cm = CC[:len(Pm)]
 			PP = Pm+Cp
-			i+=1
-			Cm1 = xts_step(PP)
+			i-=1
+			Cm1 = self.__xts_step(ed,PP,i,tweak)
 			output += Cm1 + Cm
     				
 		return output
 
 	def final(self):
 		pass
+
+	def __xts_step(self,ed,tocrypt,i,tweak):
+			# e_k2_n = E_K2(tweak)
+			e_k2_n = self.codebook2.encrypt(tweak+ '\x00' * (16-len(tweak)))[::-1]
+
+    			# alfalfa_i = (alfa pow i)
+    			alfa_i = util.gf2pow128powof2(i)
+			
+    			# T = E_K2(n) mul (a pow i)
+    			T = util.gf2pow128mul(util.string2number(e_k2_n), alfa_i)
+    			T = util.number2string(T)[::-1]
+    			T = '\x00' * (16 - len(T)) + T
+			
+    			# C = E_K1(P xor T) xor T
+			if ed == 'd':
+		    		return util.xorstring16(T, self.codebook1.decrypt(util.xorstring16(T, tocrypt)))
+			else:
+				return util.xorstring16(T, self.codebook1.encrypt(util.xorstring16(T, tocrypt)))
 
 class CMAC:
 	"""CMAC chaining mode
@@ -342,6 +357,7 @@ class CMAC:
 		
 	def update(self,data,ed):
 		# not really an update function: everytime the function is called, the hash from the input data is calculated
+		# TODO: keep it under block ciphers or move it to hashing
 		# TODO: change update behaviour
 		# TODO: add possibility for other hash lengths?
 		# other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
