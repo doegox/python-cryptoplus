@@ -35,11 +35,28 @@ class BlockCipher():
 			assert counter != None
 			self.chain = CTR(self.cipher,self.blocksize,counter)
 		elif mode == MODE_XTS:
+			assert self.blocksize == 16
 			self.chain = XTS(self.cipher, self.cipher2)
 		elif mode == MODE_CMAC:
 			self.chain = CMAC(self.cipher,self.blocksize)
 
 	def encrypt(self,plaintext,n=''):
+		"""Encrypt some plaintext
+		
+		encrypt(plaintext,n='')
+			plaintext 	= a string of binary data
+			n		= the 'tweak' value when the chaining mode is XTS
+
+		The encrypt function will encrypt the supplied plaintext. When the supplied plaintext is not a multiple of the blocksize of the cipher,
+		then the remaining plaintext will be cached. The next time the encrypt function is called with some plaintext, the new plaintext will be concatenated
+		to the cache and then cache+plaintext will be encrypted.
+
+		When the chaining mode allows the cipher to act as a stream cipher (CFB, OFB, CTR), the encrypt function will always encrypt all of the
+		supplied plaintext immediately. No cache will be kept.
+
+		For XTS the behavious is somewhat different: it needs the whole block of plaintext to be supplied at once. Every encrypt function called on a XTS cipher
+		will output an encrypted block based on the current supplied plaintext block.
+		"""
 		assert self.ed in ('e',None) # makes sure you don't encrypt with a cipher that has started decrypting
 		self.ed = 'e'
 		if self.mode == MODE_XTS:
@@ -48,6 +65,23 @@ class BlockCipher():
 			return self.chain.update(plaintext,'e')
 	
 	def decrypt(self,ciphertext,n=''):
+		"""Decrypt some ciphertext
+		
+		decrypt(plaintext,n='')
+			ciphertext 	= a string of binary data
+			n		= the 'tweak' value when the chaining mode is XTS
+
+		The decrypt function will decrypt the supplied ciphertext. When the supplied ciphertext is not a multiple of the blocksize of the cipher,
+		then the remaining ciphertext will be cached. The next time the decrypt function is called with some ciphertext, the new ciphertext will be concatenated
+		to the cache and then cache+ciphertext will be decrypted.
+
+		When the chaining mode allows the cipher to act as a stream cipher (CFB, OFB, CTR), the decrypt function will always decrypt all of the
+		supplied ciphertext immediately. No cache will be kept.
+
+		For XTS the behavious is somewhat different: it needs the whole block of ciphertext to be supplied at once. Every decrypt function called on a XTS cipher
+		will output an decrypted block based on the current supplied ciphertext block.
+		"""
+		
 		assert self.ed in ('d',None) # makes sure you don't decrypt with a cipher that has started encrypting
 		self.ed = 'd'
 		if self.mode == MODE_XTS:
@@ -56,10 +90,34 @@ class BlockCipher():
 			return self.chain.update(ciphertext,'d')
 	
 	def final(self,padding='PKCS7'):
+		# TODO: after calling final, reset the IV? so the cipher is as good as new?
+		"""finalizes the chain by padding
+
+		final(padding='PKCS7'):
+			padding = padding function provided as an argument. Possible padding functions:
+				- 'zerosPadding'
+				- 'bitPadding'
+				- 'PKCS7'
+				- 'ANSI_X923'
+				- 'ISO_10126'
+
+		While a cipher object is in encryption mode, the final function will pad the remaining cache and encrypt it.
+		If the cipher has been used for decryption, the final function won't do antyhing. You have to manually unpad if necessary or
+		construct a Padder yourself en use its unpad function.
+
+		After finalization, the chain can still be used but the IV, counter etc aren't reset but just continu as they were after the last step (finalization step).
+		"""
+		assert self.mode not in (MODE_XTS, MODE_CMAC) # finalizing (=padding) doesn't make sense when in XTS or CMAC mode
 		if self.ed == 'e':
-			return self.chain.final(padding)
+			# when the chain is in encryption mode, finalizing will pad the cache and encrypt this last block
+			padder = Padding(self.blocksize)
+			if self.mode in (MODE_OFB,MODE_CFB,MODE_CTR):
+				dummy = '0'*(self.blocksize - self.chain.keystream.buffer_info()[1]) # a dummy string that will be used to get a valid padding			
+			else: #ECB, CBC
+				dummy = self.chain.cache
+			return self.chain.update(padder.pad(dummy,padding)[len(dummy):],'e') # pad the cache and then only supply the padding to the update function
 		else:
-		# final function doesn't make sense when decrypting => padding should be removed manually
+			# final function doesn't make sense when decrypting => padding should be removed manually
 			pass
 
 class ECB:
@@ -79,28 +137,13 @@ class ECB:
 		if len(self.cache) < self.blocksize:
 			return ''
 		for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
-			#the only difference between encryption/decryption is the cipher block
+			#the only difference between encryption/decryption in the chain is the cipher block
 			if ed == 'e':
 				output_blocks.append(self.codebook.encrypt( self.cache[i:i + self.blocksize] ))
 			else:
 				output_blocks.append(self.codebook.decrypt( self.cache[i:i + self.blocksize] ))
 		self.cache = self.cache[i+self.blocksize:]
 		return ''.join(output_blocks)
-
-	def final(self):
-		"""finalizes the chain by padding
-
-		padding function can be provided as an argument
-		no way to finalize with standart pycrypto API
-			=> finalize when submitted plaintext or ciphertext == '' ?
-		"""
-		assert ed <> None
-		output = ''
-		if ed == 'e':
-			padder = Padding(self.blocksize)
-			output += self.update(data,ed)
-			output += self.update(padder.pad(self.cache,padding)[len(self.cache):],ed)
-		return output
 
 class CBC:
 	def __init__(self, codebook, blocksize, IV):
@@ -133,19 +176,7 @@ class CBC:
 					self.IV = self.cache[i:i + self.blocksize]
 					decrypted_blocks.append(plaintext)
 			self.cache = self.cache[i+self.blocksize:]
-			return ''.join(decrypted_blocks)
-				
-
-	def final(self,padding):
-		"""finalizes the chain by padding
-
-		padding function can be provided as an argument
-		no way to finalize with standart pycrypto API
-			=> finalize when submitted plaintext or ciphertext == '' ?
-		"""
-		padder = Padding(self.blocksize)
-		return self.update(padder.pad(self.cache,padding)[len(self.cache):],'e') # pad the cache and then only supply the padding to the update function
-			
+			return ''.join(decrypted_blocks)			
 
 class CFB:
 	"""CFB Chaining Mode
@@ -178,9 +209,6 @@ class CFB:
 				output[i] ^= self.keystream.pop(0)
         	return output.tostring()
 
-	def final(self):
-		pass
-
 class OFB:
 	"""OFB Chaining Mode
 
@@ -203,21 +231,13 @@ class OFB:
 			output[i] ^= self.keystream.pop(0) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
         	return output.tostring()
 
-	def final(self):
-		""" finalize the cipher
-		
-		Dummy function: cipher can be accessed as a stream cipher => no need for padding at the end"""
-		pass
-
-
 class CTR:
 	"""CTR Mode
 
 	Implemented so it can be accessed as a stream cipher.
 	"""
-	# other implementation: counter always starts from zero but can decode starting from anywhere by giving a position
-	# this implementation: initial counter value can be choosen, decryption always starts from beginning
-	# 	-> you can start from anywhere yourself: just feed the cipher encoded blocks and feed a cipher with the corresponding value
+	# initial counter value can be choosen, decryption always starts from beginning
+	# 	-> you can start from anywhere yourself: just feed the cipher encoded blocks and feed a counter with the corresponding value
 	def __init__(self, codebook, blocksize, counter):
 		self.codebook = codebook
 		self.counter = counter
@@ -226,8 +246,6 @@ class CTR:
 
 	def update(self, data,ed):
 		# no need for the encryption/decryption distinction: both are the same
-		# fancier version of CTR mode might have to deal with different
-		# endianness options for the counter, etc.
         	n = len(data)
         	blocksize = self.blocksize
        
@@ -238,12 +256,6 @@ class CTR:
 				self.keystream = array('B', block)
 			output[i] ^= self.keystream.pop(0) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
         	return output.tostring()
-
-	def final(self):
-		""" finalize the cipher
-		
-		Dummy function: cipher can be accessed as a stream cipher => no need for padding at the end"""
-		pass
 
 class XTS:
 	# TODO: allow other blocksizes besides 16bytes?
@@ -296,9 +308,6 @@ class XTS:
     				
 		return output
 
-	def final(self):
-		pass
-
 	def __xts_step(self,ed,tocrypt,i,tweak):
 			# e_k2_n = E_K2(tweak)
 			e_k2_n = self.codebook2.encrypt(tweak+ '\x00' * (16-len(tweak)))[::-1]
@@ -321,9 +330,13 @@ class CMAC:
 	"""CMAC chaining mode
 
 	Supports every cipher with a blocksize available in de Rb_dictionary.
-	Calling update(), immediately calculates the hash. No finaling needed.
+	Calling update(), immediately calculates the hash. No finalizing needed.
+	The hashlenght is equal to block size of the used block cipher
 	"""
-	# TODO: move to hash module
+	# TODO: move to hash module?
+	# TODO: add possibility for other hash lengths?
+	# TODO: change update behaviour
+	# other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
 	def __init__(self,codebook,blocksize):
 		# Purpose of init: calculate Lu & Lu2
 		#blocksize (in bytes): to select the Rb constant in the dictionary
@@ -357,10 +370,6 @@ class CMAC:
 		
 	def update(self,data,ed):
 		# not really an update function: everytime the function is called, the hash from the input data is calculated
-		# TODO: keep it under block ciphers or move it to hashing
-		# TODO: change update behaviour
-		# TODO: add possibility for other hash lengths?
-		# other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
 		assert ed == 'e'
 		blocksize = self.blocksize
 	
@@ -380,8 +389,5 @@ class CMAC:
 			X = util.xorstring(util.xorstring(tmp,y),Lu2_string)
 
 		T = self.codebook.encrypt(X)
-		return T[:8]
-
-	def final(self):
-		pass
+		return T
 

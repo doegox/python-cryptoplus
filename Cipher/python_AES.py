@@ -24,9 +24,15 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
 			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
 		IV = IV as a raw string
-			-> only needed for CBC mode
+			-> needed for CBC, CFB and OFB mode
 		counter = counter object (Cipher/util.py:Counter)
 			-> only needed for CTR mode
+			-> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
+				see CTR example further on in the docstring
+
+	Notes:
+		- Always construct a seperate cipher object for encryption and decryption. Once a cipher object has been used for encryption, 
+		  it can't be used for decryption because it keeps a state (if necessary) for the IV.
     
     	EXAMPLE:
 	----------
@@ -37,6 +43,16 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> decipher = python_AES.new('0123456789012345')
 	>>> decipher.decrypt(_)
 	'0123456789012345'
+
+	PADDING EXAMPLE:
+	----------------
+	>>> import python_AES
+	>>> cipher = python_AES.new('0123456789012345')
+	>>> crypt = cipher.encrypt('0123456789012')
+	>>> crypt += cipher.final()
+	>>> decipher = python_AES.new('0123456789012345')
+	>>> decipher.decrypt(crypt)
+	'0123456789012\\x03\\x03\\x03'
 
 	CBC EXAMPLE (plaintext = 3 blocksizes):
 	-----------------------------------------
@@ -233,7 +249,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> plaintext = '6bc1bee22e409f96e93d7e117393172a'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_CMAC)
-	>>> cipher.encrypt(plaintext).encode('hex')
+	>>> cipher.encrypt(plaintext).encode('hex')[:16]
 	'070a16b46b4d4144'
 
 	CMAC EXAMPLE2:
@@ -241,7 +257,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> plaintext = '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_CMAC)
-	>>> cipher.encrypt(plaintext).encode('hex')
+	>>> cipher.encrypt(plaintext).encode('hex')[:16]
 	'dfa66747de9ae630'
 	"""
 	return python_AES(key,mode,IV,counter)
