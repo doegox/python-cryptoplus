@@ -20,7 +20,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		key = raw string containing the key, AES-128..256 will be selected according to the key length
-			-> when using XTS mode: the key should be a concatenation of the 2 keys needed
+			-> when using XTS mode: the key should be a tuple containing the 2 keys needed
 		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
 			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
 		IV = IV as a raw string
@@ -36,7 +36,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     
     	EXAMPLE:
 	----------
-	>>> import python_AES
+	>>> from CryptoPlus.Cipher import python_AES
 	>>> cipher = python_AES.new('0123456789012345')
 	>>> cipher.encrypt('0123456789012345')
 	'_}\\xf0\\xbf\\x10:\\x8cJ\\xe6\\xfa\\xad\\x99\\x06\\xac;*'
@@ -46,7 +46,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	PADDING EXAMPLE:
 	----------------
-	>>> import python_AES
+	>>> from CryptoPlus.Cipher import python_AES
 	>>> cipher = python_AES.new('0123456789012345')
 	>>> crypt = cipher.encrypt('0123456789012')
 	>>> crypt += cipher.final()
@@ -57,7 +57,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	CBC EXAMPLE (plaintext = 3 blocksizes):
 	-----------------------------------------
 	>>> from binascii import hexlify,unhexlify
-	>>> import python_AES
+	>>> from CryptoPlus.Cipher import python_AES
 	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
 	>>> IV = unhexlify('000102030405060708090a0b0c0d0e0f')
 	>>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
@@ -166,7 +166,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	XTS-AES-128 applied for a data unit of 512 bytes
 	testvector: http://grouper.ieee.org/groups/1619/email/pdf00086.pdf
 
-	>>> key = '2718281828459045235360287471352631415926535897932384626433832795'.decode('hex')
+	>>> key = ('27182818284590452353602874713526'.decode('hex'),'31415926535897932384626433832795'.decode('hex'))
 	>>> plaintext = '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
 	>>> ciphertext = cipher.encrypt(plaintext)
@@ -178,7 +178,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	
 	using data sequence number n
 
-	>>> key = 'fffefdfcfbfaf9f8f7f6f5f4f3f2f1f022222222222222222222222222222222'.decode('hex')
+	>>> key = ('fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0'.decode('hex'),'22222222222222222222222222222222'.decode('hex'))
 	>>> plain ='4444444444444444444444444444444444444444444444444444444444444444'.decode('hex')
 	>>> n = '3333333333'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
@@ -189,14 +189,14 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> decipher.decrypt(ciphertext,n).encode('hex')
 	'4444444444444444444444444444444444444444444444444444444444444444'
 
-	>>> key = '2718281828459045235360287471352631415926535897932384626433832795'.decode('hex')
+	>>> key = ('27182818284590452353602874713526'.decode('hex'),'31415926535897932384626433832795'.decode('hex'))
 	>>> plain ='72efc1ebfe1ee25975a6eb3aa8589dda2b261f1c85bdab442a9e5b2dd1d7c3957a16fc08e526d4b1223f1b1232a11af274c3d70dac57f83e0983c498f1a6f1aecb021c3e70085a1e527f1ce41ee5911a82020161529cd82773762daf5459de94a0a82adae7e1703c808543c29ed6fb32d9e004327c1355180c995a07741493a09c21ba01a387882da4f62534b87bb15d60d197201c0fd3bf30c1500a3ecfecdd66d8721f90bcc4c17ee925c61b0a03727a9c0d5f5ca462fbfa0af1c2513a9d9d4b5345bd27a5f6e653f751693e6b6a2b8ead57d511e00e58c45b7b8d005af79288f5c7c22fd4f1bf7a898b03a5634c6a1ae3f9fae5de4f296a2896b23e7ed43ed14fa5a2803f4d28f0d3ffcf24757677aebdb47bb388378708948a8d4126ed1839e0da29a537a8c198b3c66ab00712dd261674bf45a73d67f76914f830ca014b65596f27e4cf62de66125a5566df9975155628b400fbfb3a29040ed50faffdbb18aece7c5c44693260aab386c0a37b11b114f1c415aebb653be468179428d43a4d8bc3ec38813eca30a13cf1bb18d524f1992d44d8b1a42ea30b22e6c95b199d8d182f8840b09d059585c31ad691fa0619ff038aca2c39a943421157361717c49d322028a74648113bd8c9d7ec77cf3c89c1ec8718ceff8516d96b34c3c614f10699c9abc4ed0411506223bea16af35c883accdbe1104eef0cfdb54e12fb230a'.decode('hex')
 	>>> n = 'ff'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
 	>>> cipher.encrypt(plain,n).encode('hex')
 	'3260ae8dad1f4a32c5cafe3ab0eb95549d461a67ceb9e5aa2d3afb62dece0553193ba50c75be251e08d1d08f1088576c7efdfaaf3f459559571e12511753b07af073f35da06af0ce0bbf6b8f5ccc5cea500ec1b211bd51f63b606bf6528796ca12173ba39b8935ee44ccce646f90a45bf9ccc567f0ace13dc2d53ebeedc81f58b2e41179dddf0d5a5c42f5d8506c1a5d2f8f59f3ea873cbcd0eec19acbf325423bd3dcb8c2b1bf1d1eaed0eba7f0698e4314fbeb2f1566d1b9253008cbccf45a2b0d9c5c9c21474f4076e02be26050b99dee4fd68a4cf890e496e4fcae7b70f94ea5a9062da0daeba1993d2ccd1dd3c244b8428801495a58b216547e7e847c46d1d756377b6242d2e5fb83bf752b54e0df71e889f3a2bb0f4c10805bf3c590376e3c24e22ff57f7fa965577375325cea5d920db94b9c336b455f6e894c01866fe9fbb8c8d3f70a2957285f6dfb5dcd8cbf54782f8fe7766d4723819913ac773421e3a31095866bad22c86a6036b2518b2059b4229d18c8c2ccbdf906c6cc6e82464ee57bddb0bebcb1dc645325bfb3e665ef7251082c88ebb1cf203bd779fdd38675713c8daadd17e1cabee432b09787b6ddf3304e38b731b45df5df51b78fcfb3d32466028d0ba36555e7e11ab0ee0666061d1645d962444bc47a38188930a84b4d561395c73c087021927ca638b7afc8a8679ccb84c26555440ec7f10445cd'
 
-	>>> key = '27182818284590452353602874713526624977572470936999595749669676273141592653589793238462643383279502884197169399375105820974944592'.decode('hex')
+	>>> key = ('2718281828459045235360287471352662497757247093699959574966967627'.decode('hex'),'3141592653589793238462643383279502884197169399375105820974944592'.decode('hex'))
 	>>> plain ='000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex')
 	>>> n = 'ffffffffff'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
@@ -209,7 +209,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	
 	using plaintext not a multiple of 16
 
-	>>> key = 'fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0bfbebdbcbbbab9b8b7b6b5b4b3b2b1b0'.decode('hex')
+	>>> key = ('fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0'.decode('hex'),'bfbebdbcbbbab9b8b7b6b5b4b3b2b1b0'.decode('hex'))
 	>>> plaintext = '000102030405060708090a0b0c0d0e0f10111213'.decode('hex')
 	>>> n = '9a78563412'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
@@ -220,7 +220,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> decipher.decrypt(ciphertext,n).encode('hex')
 	'000102030405060708090a0b0c0d0e0f10111213'
 
-	>>> key = 'fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0bfbebdbcbbbab9b8b7b6b5b4b3b2b1b0'.decode('hex')
+	>>> key = ('fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0'.decode('hex'),'bfbebdbcbbbab9b8b7b6b5b4b3b2b1b0'.decode('hex'))
 	>>> plaintext = '000102030405060708090a0b0c0d0e0f10'.decode('hex')
 	>>> n = '9a78563412'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
@@ -231,7 +231,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> decipher.decrypt(ciphertext,n).encode('hex')
 	'000102030405060708090a0b0c0d0e0f10'
 
-	>>> key = 'e0e1e2e3e4e5e6e7e8e9eaebecedeeefc0c1c2c3c4c5c6c7c8c9cacbcccdcecf'.decode('hex')
+	>>> key = ('e0e1e2e3e4e5e6e7e8e9eaebecedeeef'.decode('hex'),'c0c1c2c3c4c5c6c7c8c9cacbcccdcecf'.decode('hex'))
 	>>> plaintext = '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex')
 	>>> n = '21436587a9'.decode('hex')
 	>>> cipher = python_AES.new(key,python_AES.MODE_XTS)
@@ -268,9 +268,9 @@ class python_AES(blockcipher.BlockCipher):
 	"""
 	def __init__(self,key,mode,IV,counter):
 		if mode == MODE_XTS:
-			assert len(key)/2 in (16, 24, 32)
-			self.cipher = rijndael(key[:len(key)/2], 16)
-			self.cipher2 = rijndael(key[len(key)/2:], 16)
+			assert type(key) is tuple
+			self.cipher = rijndael(key[0], 16)
+			self.cipher2 = rijndael(key[1], 16)
 		else:
 			self.cipher = rijndael(key, 16)
 		self.blocksize = 16

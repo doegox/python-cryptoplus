@@ -16,11 +16,12 @@ MODE_CTR = 6
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	#key length can be any multiple of 4 bytes between 0 and 32 bytes (=256bits)
 	return python_Serpent(key,mode,IV,counter)
 
 class python_Serpent(blockcipher.BlockCipher):
 	#need test vectors for other modes than ecb
-	"""Wrapper for pure python implementation pyblowfish.py
+	"""Wrapper for pure python implementation pyserpent.py
 
 	EXAMPLE:
 	----------

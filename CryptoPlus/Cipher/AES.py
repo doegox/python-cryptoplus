@@ -23,7 +23,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     
 	EXAMPLE:
 	----------
-	>>> import AES
+	>>> from CryptoPlus.Cipher import AES
 	>>> cipher = AES.new('0123456789012345')
 	>>> cipher.encrypt('0123456789012345')
 	'_}\\xf0\\xbf\\x10:\\x8cJ\\xe6\\xfa\\xad\\x99\\x06\\xac;*'
@@ -33,7 +33,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	CBC EXAMPLE (plaintext = 3 blocksizes):
 	-----------------------------------------
 	>>> from binascii import hexlify,unhexlify
-	>>> import AES
+	>>> from CryptoPlus.Cipher import AES
 	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
 	>>> IV = unhexlify('000102030405060708090a0b0c0d0e0f')
 	>>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
@@ -90,11 +90,11 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> decipher = AES.new(key,AES.MODE_XTS)
 	>>> deciphertext = decipher.decrypt(ciphertext)
 	>>> hexlify(deciphertext)
-	'6bc1bee22e409f96e93d7e117393172a'
+	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e'
 	>>> ciphertext2 = cipher.encrypt(plaintext2[15:]+plaintext3)
 	>>> deciphertext2 = decipher.decrypt(ciphertext2)
 	>>> hexlify(deciphertext2)
-	'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
+	'5130c81c46a35ce411e5fbc1191a0a52ef'
 
 	XTS-AES-128 applied for a data unit of 512 bytes
 	testvector: http://grouper.ieee.org/groups/1619/email/pdf00086.pdf

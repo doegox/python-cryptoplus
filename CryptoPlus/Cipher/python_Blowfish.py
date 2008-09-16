@@ -21,7 +21,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 class python_Blowfish(blockcipher.BlockCipher):
 	"""Wrapper for pure python implementation pyblowfish.py
 
-	EXAMPLE:
+	EXAMPLE: (http://www.schneier.com/code/vectors.txt)
 	----------
 	>>> import python_Blowfish
 	>>> from binascii import hexlify, unhexlify
@@ -31,17 +31,26 @@ class python_Blowfish(blockcipher.BlockCipher):
 	>>> hexlify( cipher.decrypt(unhexlify(_)) )
 	'5cd54ca83def57da'
 
-	CBC EXAMPLE:
-	-----------------------------------------
-	>>> from binascii import hexlify,unhexlify
-	>>> import python_AES
-	>>> key = unhexlify('0123456789ABCDEFF0E1D2C3B4A59687')
-	>>> IV = unhexlify('FEDCBA9876543210')
-	>>> plaintext = unhexlify('37363534333231204E6F77206973207468652074696D6520')
+	Examples from: http://www.schneier.com/code/vectors.txt
+	-------------------------------------------------------
+	>>> key = '0123456789ABCDEFF0E1D2C3B4A59687'.decode('hex')
+	>>> iv = 'FEDCBA9876543210'.decode('hex')
+	>>> plaintext = '37363534333231204E6F77206973207468652074696D6520666F722000'.decode('hex')
+	
 	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CBC,IV)
 	>>> ciphertext = cipher.encrypt(plaintext)
 	>>> hexlify(ciphertext).upper()
 	'6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
+
+	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CFB,iv)
+	>>> ciphertext = cipher.encrypt(plaintext)
+	>>> hexlify(ciphertext).upper()
+	'E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3'
+
+	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_OFB,iv)
+	>>> ciphertext = cipher.encrypt(plaintext)
+	>>> hexlify(ciphertext).upper()
+	'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'
 	"""
 	
 	def __init__(self,key,mode,IV,counter):
