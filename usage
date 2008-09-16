@@ -1,8 +1,0 @@
-import pycrypto_AES
-test = pycrypto_AES.new()
-test.encrypt('0123456789012345')
-test.decrypt(_)
-
-licenses
-	rijndael.py -> public domain but with modification or TREV from tlslite
-	pyDes.py -> public domain

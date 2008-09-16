@@ -63,7 +63,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	CTR EXAMPLE:
 	------------
-	>>> from util import Counter
+	>>> from CryptoPlus.Util.util import Counter
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> counter = Counter('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex'))
 	>>> cipher = AES.new(key,AES.MODE_CTR,counter=counter)

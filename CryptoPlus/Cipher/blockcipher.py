@@ -1,7 +1,7 @@
-import util
+from ..Util import util
 from array import array
 import struct
-from padding import Padding
+from ..Util.padding import Padding
 
 MODE_ECB = 1
 MODE_CBC = 2
@@ -57,7 +57,7 @@ class BlockCipher():
 		For XTS the behavious is somewhat different: it needs the whole block of plaintext to be supplied at once. Every encrypt function called on a XTS cipher
 		will output an encrypted block based on the current supplied plaintext block.
 		"""
-		assert self.ed in ('e',None) # makes sure you don't encrypt with a cipher that has started decrypting
+		#assert self.ed in ('e',None) # makes sure you don't encrypt with a cipher that has started decrypting
 		self.ed = 'e'
 		if self.mode == MODE_XTS:
 			return self.chain.update(plaintext,'e',n)
@@ -82,7 +82,7 @@ class BlockCipher():
 		will output an decrypted block based on the current supplied ciphertext block.
 		"""
 		
-		assert self.ed in ('d',None) # makes sure you don't decrypt with a cipher that has started encrypting
+		#assert self.ed in ('d',None) # makes sure you don't decrypt with a cipher that has started encrypting
 		self.ed = 'd'
 		if self.mode == MODE_XTS:
 			return self.chain.update(ciphertext,'d',n)
