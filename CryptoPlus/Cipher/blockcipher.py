@@ -16,6 +16,9 @@ class BlockCipher():
 	"""
 
 	def __init__(self,key,mode,IV,counter):
+		# Cipher classes inhereting from this one take care of:
+		#	self.blocksize
+		#	self.cipher
 		self.key = key
 		self.mode = mode
 		self.cache = ''
@@ -57,9 +60,11 @@ class BlockCipher():
 		For XTS the behavious is somewhat different: it needs the whole block of plaintext to be supplied at once. Every encrypt function called on a XTS cipher
 		will output an encrypted block based on the current supplied plaintext block.
 		"""
+		#self.ed = 'e' if chain is encrypting, 'd' if decrypting, None if nothing happened with the chain yet
 		#assert self.ed in ('e',None) # makes sure you don't encrypt with a cipher that has started decrypting
 		self.ed = 'e'
 		if self.mode == MODE_XTS:
+			# data sequence number (or 'tweak') has to be provided when in XTS mode
 			return self.chain.update(plaintext,'e',n)
 		else:
 			return self.chain.update(plaintext,'e')
@@ -81,10 +86,11 @@ class BlockCipher():
 		For XTS the behavious is somewhat different: it needs the whole block of ciphertext to be supplied at once. Every decrypt function called on a XTS cipher
 		will output an decrypted block based on the current supplied ciphertext block.
 		"""
-		
+		#self.ed = 'e' if chain is encrypting, 'd' if decrypting, None if nothing happened with the chain yet
 		#assert self.ed in ('d',None) # makes sure you don't decrypt with a cipher that has started encrypting
 		self.ed = 'd'
 		if self.mode == MODE_XTS:
+			# data sequence number (or 'tweak') has to be provided when in XTS mode
 			return self.chain.update(ciphertext,'d',n)
 		else:
 			return self.chain.update(ciphertext,'d')
@@ -154,7 +160,6 @@ class CBC:
 
 	def update(self, input,ed):
 		"""update the chain
-		
 		"""
 		if ed == 'e':
 			encrypted_blocks = []

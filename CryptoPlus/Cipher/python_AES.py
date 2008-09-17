@@ -17,6 +17,8 @@ MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	"""Create a new cipher object
+	
+	Wrapper for pure python implementation rijndael.py
 
 	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		key = raw string containing the key, AES-128..256 will be selected according to the key length
@@ -263,9 +265,6 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return python_AES(key,mode,IV,counter)
 
 class python_AES(blockcipher.BlockCipher):
-	"""Wrapper for pure python implementation rijndael.py
-
-	"""
 	def __init__(self,key,mode,IV,counter):
 		if mode == MODE_XTS:
 			assert type(key) is tuple

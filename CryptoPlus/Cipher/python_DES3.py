@@ -10,12 +10,9 @@ MODE_CMAC = 8
 #TODO: XTS nog niet mogelijk -> blocksize des = 8, XTS = 16
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return python_DES3(key,mode,IV,counter)
+	"""Create a DES-EDE3 or DES-EDE2 cipher object
 
-class python_DES3(blockcipher.BlockCipher):
-	"""wrapper for pure python 3DES implementation pyDes.py
-
-	Create a DES-EDE3 or DES-EDE2 cipher object
+	wrapper for pure python 3DES implementation pyDes.py
 
 	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		key = raw string containing the 2/3 keys
@@ -62,8 +59,10 @@ class python_DES3(blockcipher.BlockCipher):
 	>>> plaintext = 'a6866be2fa6678f264a19c4474968e3f4eec24f5086d'.decode('hex')
 	>>> cipher = python_DES3.new(key, python_DES3.MODE_CMAC)
 	>>> cipher.encrypt(plaintext).encode('hex')
-	'32e7758f3f614dbf'
-	"""
+	'32e7758f3f614dbf'"""
+	return python_DES3(key,mode,IV,counter)
+
+class python_DES3(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
 		assert len(key) in (16,24)
 		self.cipher = pyDes.triple_des(key)

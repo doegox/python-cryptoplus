@@ -9,11 +9,22 @@ MODE_CTR = 6
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return python_DES(key,mode,IV,counter)
+	"""Create a new cipher object
 
-class python_DES(blockcipher.BlockCipher):
-	"""wrapper for pure python implementation pyDes.py
+	wrapper for pure python implementation pyDes.py
 	
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the key			
+		mode = python_DES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
+		IV = IV as a raw string
+			-> needed for CBC, CFB and OFB mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
+			-> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
+				see CTR example further on in the docstring
+
+
 	EXAMPLE (test vectors from NESSIE):
 	-----------------------------------
 	>>> import python_DES	
@@ -26,6 +37,9 @@ class python_DES(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'01a1d6d039776742'
 	"""
+	return python_DES(key,mode,IV,counter)
+
+class python_DES(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = pyDes.des(key)
 		self.blocksize = self.cipher.block_size
@@ -36,4 +50,4 @@ def _test():
 	doctest.testmod()
 
 if __name__ == "__main__":
-	_test()
+	_test()ruct new 

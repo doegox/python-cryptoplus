@@ -12,6 +12,8 @@ MODE_CMAC = 8
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	"""Create a new cipher object
 
+	DES using pycrypto for algo en pycryptoplus for ciphermode
+
 	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		key = raw string containing the 2/3 keys
 			- DES-EDE2: supply 2 keys as 1 single concatenated 16byte key= key1|key2
@@ -61,8 +63,6 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return DES3(key,mode,IV,counter)
 
 class DES3(blockcipher.BlockCipher):
-	"""DES using pycrypto for algo en pycryptoplus for ciphermode
-	"""
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.DES3.new(key)
 		self.blocksize = Crypto.Cipher.DES3.block_size

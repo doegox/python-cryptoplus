@@ -124,7 +124,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return AES(key,mode,IV,counter)
 
 class AES(blockcipher.BlockCipher):
-	"""AES using pycrypto for algo en pycryptoplus for ciphermode
+	"""AES using pycrypto for algo and pycryptoplus for ciphermode
 	"""	
 	def __init__(self,key,mode,IV,counter):
 		if mode == MODE_XTS:

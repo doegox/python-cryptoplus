@@ -8,10 +8,17 @@ MODE_OFB = 5
 MODE_CTR = 6
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return Blowfish(key,mode,IV,counter)
+	"""Create a new cipher object
+	
+	Blowfish using pycrypto for algo en pycryptoplus for ciphermode
 
-class Blowfish(blockcipher.BlockCipher):
-	"""Blowfish using pycrypto for algo en pycryptoplus for ciphermode
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the key
+		mode = python_Blowfish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+		IV = IV as a raw string
+			-> only needed for CBC mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
 
 	EXAMPLE:
 	----------
@@ -35,6 +42,9 @@ class Blowfish(blockcipher.BlockCipher):
 	>>> hexlify(ciphertext).upper()
 	'6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
 	"""
+	return Blowfish(key,mode,IV,counter)
+
+class Blowfish(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.Blowfish.new(key)
 		self.blocksize = Crypto.Cipher.Blowfish.block_size

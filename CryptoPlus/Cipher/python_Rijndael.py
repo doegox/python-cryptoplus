@@ -16,10 +16,20 @@ MODE_XTS = 7
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
-	return python_Rijndael(key,mode,IV,counter,blocksize)
+	"""Create a new cipher object
 
-class python_Rijndael(blockcipher.BlockCipher):
-	"""Wrapper for pure python implementation rijndael.py
+	Wrapper for pure python implementation rijndael.py
+
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the key
+		mode = python_Rijndael.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
+		IV = IV as a raw string
+			-> needed for CBC, CFB and OFB mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
+			-> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
+				see CTR example further on in the docstring
 
 	EXAMPLE:
 	--------
@@ -49,6 +59,9 @@ class python_Rijndael(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 	"""
+	return python_Rijndael(key,mode,IV,counter,blocksize)
+
+class python_Rijndael(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter,blocksize):
 		assert len(key) in (16, 24, 32)
 		assert blocksize in (16, 24, 32)

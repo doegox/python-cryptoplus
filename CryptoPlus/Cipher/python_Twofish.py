@@ -13,10 +13,20 @@ MODE_CTR = 6
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return python_Twofish(key,mode,IV,counter)
+	"""Create a new cipher object
 
-class python_Twofish(blockcipher.BlockCipher):
-	"""Wrapper for pure python implementation pytwofish.py
+	Wrapper for pure python implementation pytwofish.py
+
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the key
+		mode = python_Twofish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
+		IV = IV as a raw string
+			-> needed for CBC, CFB and OFB mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
+			-> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
+				see CTR example further on in the docstring
 
 	EXAMPLE:
 	----------
@@ -28,7 +38,9 @@ class python_Twofish(blockcipher.BlockCipher):
 	>>> hexlify( cipher.decrypt(unhexlify(_)) ).upper()
 	'6363977DE839486297E661C6C9D668EB'
 	"""
-	
+	return python_Twofish(key,mode,IV,counter)
+
+class python_Twofish(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Twofish(key)
 		self.blocksize = self.cipher.get_block_size()

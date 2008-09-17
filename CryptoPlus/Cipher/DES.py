@@ -9,10 +9,17 @@ MODE_CTR = 6
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return DES(key,mode,IV,counter)
+	"""Create a new cipher object
 
-class DES(blockcipher.BlockCipher):
-	"""DES using pycrypto for algo en pycryptoplus for ciphermode
+	DES using pycrypto for algo en pycryptoplus for ciphermode
+
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the keys
+		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
+		IV = IV as a raw string
+			-> only needed for CBC mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
 	
 	EXAMPLE (test vectors from NESSIE):
 	-----------------------------------
@@ -26,10 +33,10 @@ class DES(blockcipher.BlockCipher):
 	>>> hexlify(plaintext)
 	'01a1d6d039776742'
 
-	CMAC EXAMPLE:
-	-------------
-	
 	"""
+	return DES(key,mode,IV,counter)
+
+class DES(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Crypto.Cipher.DES.new(key)
 		self.blocksize = Crypto.Cipher.DES.block_size

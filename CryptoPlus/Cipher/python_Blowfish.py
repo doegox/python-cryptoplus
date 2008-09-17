@@ -16,10 +16,9 @@ MODE_CTR = 6
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	return python_Blowfish(key,mode,IV,counter)
+	"""Create a new cipher object
 
-class python_Blowfish(blockcipher.BlockCipher):
-	"""Wrapper for pure python implementation pyblowfish.py
+	Wrapper for pure python implementation pyblowfish.py
 
 	EXAMPLE: (http://www.schneier.com/code/vectors.txt)
 	----------
@@ -37,7 +36,7 @@ class python_Blowfish(blockcipher.BlockCipher):
 	>>> iv = 'FEDCBA9876543210'.decode('hex')
 	>>> plaintext = '37363534333231204E6F77206973207468652074696D6520666F722000'.decode('hex')
 	
-	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CBC,IV)
+	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CBC,iv)
 	>>> ciphertext = cipher.encrypt(plaintext)
 	>>> hexlify(ciphertext).upper()
 	'6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
@@ -50,9 +49,10 @@ class python_Blowfish(blockcipher.BlockCipher):
 	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_OFB,iv)
 	>>> ciphertext = cipher.encrypt(plaintext)
 	>>> hexlify(ciphertext).upper()
-	'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'
-	"""
-	
+	'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'"""
+	return python_Blowfish(key,mode,IV,counter)
+
+class python_Blowfish(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Blowfish(key)
 		self.blocksize = 8

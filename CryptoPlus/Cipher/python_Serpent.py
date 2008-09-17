@@ -17,11 +17,20 @@ MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	#key length can be any multiple of 4 bytes between 0 and 32 bytes (=256bits)
-	return python_Serpent(key,mode,IV,counter)
+	"""Create a new cipher object
 
-class python_Serpent(blockcipher.BlockCipher):
-	#need test vectors for other modes than ecb
-	"""Wrapper for pure python implementation pyserpent.py
+	Wrapper for pure python implementation pyserpent.py
+
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+		key = raw string containing the key
+		mode = python_Serpent.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
+		IV = IV as a raw string
+			-> needed for CBC, CFB and OFB mode
+		counter = counter object (Cipher/util.py:Counter)
+			-> only needed for CTR mode
+			-> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
+				see CTR example further on in the docstring
 
 	EXAMPLE:
 	----------
@@ -46,7 +55,10 @@ class python_Serpent(blockcipher.BlockCipher):
 	>>> hexlify( decipher.decrypt(ciphertext)).upper()
 	'33B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D14919365'
 	"""
-	
+	return python_Serpent(key,mode,IV,counter)
+
+class python_Serpent(blockcipher.BlockCipher):
+	#need test vectors for other modes than ecb	
 	def __init__(self,key,mode,IV,counter):
 		self.cipher = Serpent(key)
 		self.blocksize = self.cipher.get_block_size()
