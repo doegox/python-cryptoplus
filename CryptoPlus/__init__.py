@@ -1,1 +1,1 @@
-__all__ = ["Cipher","PublicKey","Util"]
+__all__ = ["Cipher","PublicKey","Util","Protocol","Hash","testvectors"]

@@ -50,4 +50,4 @@ def _test():
 	doctest.testmod()
 
 if __name__ == "__main__":
-	_test()ruct new 
+	_test()

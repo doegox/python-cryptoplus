@@ -1,7 +1,9 @@
-from tester_vectors import dict_cmac_aes128,dict_cmac_aes192,dict_cmac_aes256,dict_cmac_tdes2,dict_cmac_tdes3
-from tester_vectors import dict_des,dict_tdes2,dict_tdes3
-from tester_vectors import dict_serpent128,dict_serpent192,dict_serpent256
-from tester_vectors import dict_xts_aes
+#!/usr/bin/env python
+
+from CryptoPlus.testvectors import dict_cmac_aes128,dict_cmac_aes192,dict_cmac_aes256,dict_cmac_tdes2,dict_cmac_tdes3
+from CryptoPlus.testvectors import dict_des,dict_tdes2,dict_tdes3
+from CryptoPlus.testvectors import dict_serpent128,dict_serpent192,dict_serpent256
+from CryptoPlus.testvectors import dict_xts_aes
 
 # DES,TDES2/3
 

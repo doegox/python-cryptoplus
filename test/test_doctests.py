@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest
 import doctest
 #import CryptoPlus.Cipher.python_AES 
