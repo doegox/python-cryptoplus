@@ -1,9 +1,65 @@
 #!/usr/bin/env python
 
+from CryptoPlus.testvectors import dict_ofb_aes, dict_ctr_aes, dict_cfb_aes, dict_cbc_aes
 from CryptoPlus.testvectors import dict_cmac_aes128,dict_cmac_aes192,dict_cmac_aes256,dict_cmac_tdes2,dict_cmac_tdes3
 from CryptoPlus.testvectors import dict_des,dict_tdes2,dict_tdes3
 from CryptoPlus.testvectors import dict_serpent128,dict_serpent192,dict_serpent256
 from CryptoPlus.testvectors import dict_xts_aes
+
+# CBC, CFB, OFB and CTR with AES
+
+from CryptoPlus.Cipher import python_AES
+from CryptoPlus.Util import util
+
+for i in range(1,len(dict_cbc_aes)/4+1):
+	msg = dict_cbc_aes['msg%i'%i].decode('hex')
+	iv = dict_cbc_aes['iv%i'%i].decode('hex')
+	key = dict_cbc_aes['key%i'%i].decode('hex')
+	cip = dict_cbc_aes['cip%i'%i].decode('hex')
+	cipher = python_AES.new(key,python_AES.MODE_CBC,iv)
+	decipher = python_AES.new(key,python_AES.MODE_CBC,iv)
+	if cip <> cipher.encrypt(msg):
+		print 'ERROR! for CBC-AES in %i'%i
+	if msg <> decipher.decrypt(cip):
+		print 'DECRYPTION ERROR! for CBC-AES in %i'%i
+
+for i in range(1,len(dict_ctr_aes)/4+1):
+	msg = dict_ctr_aes['msg%i'%i].decode('hex')
+	ctr = dict_ctr_aes['ctr%i'%i].decode('hex')
+	key = dict_ctr_aes['key%i'%i].decode('hex')
+	cip = dict_ctr_aes['cip%i'%i].decode('hex')
+	counter = util.Counter(ctr)
+	counter2= util.Counter(ctr)
+	cipher = python_AES.new(key,python_AES.MODE_CTR,counter=counter)
+	decipher = python_AES.new(key,python_AES.MODE_CTR,counter=counter2)
+	if cip <> cipher.encrypt(msg):
+		print 'ERROR! for CTR-AES in %i'%i
+	if msg <> decipher.decrypt(cip):
+		print 'DECRYPTION ERROR! for CTR-AES in %i'%i
+
+for i in range(1,len(dict_ofb_aes)/4+1):
+	msg = dict_ofb_aes['msg%i'%i].decode('hex')
+	iv = dict_ofb_aes['iv%i'%i].decode('hex')
+	key = dict_ofb_aes['key%i'%i].decode('hex')
+	cip = dict_ofb_aes['cip%i'%i].decode('hex')
+	cipher = python_AES.new(key,python_AES.MODE_OFB,IV=iv)
+	decipher = python_AES.new(key,python_AES.MODE_OFB,IV=iv)
+	if cip <> cipher.encrypt(msg):
+		print 'ERROR! for OFB-AES in %i'%i
+	if msg <> decipher.decrypt(cip):
+		print 'DECRYPTION ERROR! for OFB-AES in %i'%i
+
+for i in range(1,len(dict_cfb_aes)/4+1):
+	msg = dict_cfb_aes['msg%i'%i].decode('hex')
+	iv = dict_cfb_aes['iv%i'%i].decode('hex')
+	key = dict_cfb_aes['key%i'%i].decode('hex')
+	cip = dict_cfb_aes['cip%i'%i].decode('hex')
+	cipher = python_AES.new(key,python_AES.MODE_CFB,IV=iv)
+	decipher = python_AES.new(key,python_AES.MODE_CFB,IV=iv)
+	if cip <> cipher.encrypt(msg):
+		print 'ERROR! for CFB-AES in %i'%i
+	if msg <> decipher.decrypt(cip):
+		print 'DECRYPTION ERROR! for CFB-AES in %i'%i
 
 # DES,TDES2/3
 
