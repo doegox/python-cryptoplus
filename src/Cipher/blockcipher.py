@@ -323,7 +323,7 @@ class XTS:
     			# T = E_K2(n) mul (a pow i)
     			T = util.gf2pow128mul(util.string2number(e_k2_n), alfa_i)
     			T = util.number2string(T)[::-1]
-    			T = '\x00' * (16 - len(T)) + T
+    			T = T + '\x00' * (16 - len(T))
 			
     			# C = E_K1(P xor T) xor T
 			if ed == 'd':
