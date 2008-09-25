@@ -339,9 +339,8 @@ class CMAC:
 	The hashlenght is equal to block size of the used block cipher
 	"""
 	# TODO: move to hash module?
-	# TODO: add possibility for other hash lengths?
-	# TODO: change update behaviour
-	# other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
+	# TODO: change update behaviour to .update() and .digest() as for all hash modules?
+	# 	-> other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
 	def __init__(self,codebook,blocksize):
 		# Purpose of init: calculate Lu & Lu2
 		#blocksize (in bytes): to select the Rb constant in the dictionary
@@ -349,6 +348,14 @@ class CMAC:
 		self.cache=''
 		self.blocksize = blocksize
 		self.codebook = codebook		
+
+		#Rb_dictionary: holds values for Rb for different blocksizes
+		# values for 64 and 128 bits found here: http://www.nuee.nagoya-u.ac.jp/labs/tiwata/omac/omac.html
+		# explanation from: http://csrc.nist.gov/publications/nistpubs/800-38B/SP_800-38B.pdf
+		#             Rb is a representation of a certain irreducible binary polynomial of degree b, namely,
+		#             the lexicographically first among all such polynomials with the minimum possible number of
+		#             nonzero terms. If this polynomial is expressed as ub+cb-1ub-1+...+c2u2+c1u+c0, where the
+		#             coefficients cb-1, cb-2, ..., c2, c1, c0 are either 0 or 1, then Rb is the bit string cb-1cb-2...c2c1c0.
 
 		Rb_dictionary = {64:0x000000000000001b,128:0x00000000000000000000000000000087}
 		self.Rb = Rb_dictionary[blocksize*8]
