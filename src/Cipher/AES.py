@@ -81,7 +81,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	XTS EXAMPLE:
 	cipher/decipher plaintext of 3 blocks, provided as a 2 pieces (31 bytes + 33 bytes)
 	------------
-	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c'*2)
+	>>> key = (unhexlify('2b7e151628aed2a6abf7158809cf4f3c'),unhexlify('2b7e151628aed2a6abf7158809cf4f3c'))
 	>>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
 	>>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
 	>>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
@@ -99,7 +99,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	XTS-AES-128 applied for a data unit of 512 bytes
 	testvector: http://grouper.ieee.org/groups/1619/email/pdf00086.pdf
 
-	>>> key = '2718281828459045235360287471352631415926535897932384626433832795'.decode('hex')
+	>>> key = ('27182818284590452353602874713526'.decode('hex'),'31415926535897932384626433832795'.decode('hex'))
 	>>> plaintext = '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex')
 	>>> cipher = AES.new(key,AES.MODE_XTS)
 	>>> cipher.encrypt(plaintext).encode('hex')
