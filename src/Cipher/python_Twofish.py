@@ -10,6 +10,7 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+MODE_XTS = 7
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
@@ -42,7 +43,12 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 class python_Twofish(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter):
-		self.cipher = Twofish(key)
+		if mode == MODE_XTS:
+			assert type(key) is tuple
+			self.cipher = Twofish(key[1])
+			self.cipher2 = Twofish(key[2])
+		else:
+			self.cipher = Twofish(key)
 		self.blocksize = self.cipher.get_block_size()
 		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 

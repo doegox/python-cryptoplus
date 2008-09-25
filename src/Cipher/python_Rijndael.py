@@ -66,9 +66,10 @@ class python_Rijndael(blockcipher.BlockCipher):
 		assert len(key) in (16, 24, 32)
 		assert blocksize in (16, 24, 32)
 		if mode == MODE_XTS:
-			assert len(key) == 32
-			self.cipher = rijndael(key[:16], blocksize)
-			self.cipher2 = rijndael(key[16:], blocksize)
+			assert len(blocksize) == 16
+			assert type(key) is tuple
+			self.cipher = rijndael(key[0], blocksize)
+			self.cipher2 = rijndael(key[1], blocksize)
 		else:
 			self.cipher = rijndael(key, blocksize)
 		self.blocksize = blocksize

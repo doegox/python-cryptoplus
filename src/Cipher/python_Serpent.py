@@ -1,10 +1,3 @@
-# source of the used python implementation of blowfish
-#	http://www.michaelgilfix.com/files/blowfish.py
-# other possibility:
-#	http://www.4dsolutions.net/cgi-bin/py2html.cgi?script=/ocn/python/blowfish.py
-#		=> difficulties: doesn't define a class, only functions
-#				 
-
 import blockcipher
 from pyserpent import Serpent
 
@@ -13,6 +6,7 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+MODE_XTS = 7
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
@@ -58,9 +52,13 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	return python_Serpent(key,mode,IV,counter)
 
 class python_Serpent(blockcipher.BlockCipher):
-	#need test vectors for other modes than ecb	
 	def __init__(self,key,mode,IV,counter):
-		self.cipher = Serpent(key)
+		if mode == MODE_XTS:
+			assert type(key) is tuple
+			self.cipher = Serpent(key[0])
+			self.cipher2 = Serpent(key[1])
+		else:
+			self.cipher = Serpent(key)
 		self.blocksize = self.cipher.get_block_size()
 		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 

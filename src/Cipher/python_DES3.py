@@ -7,7 +7,6 @@ MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
 MODE_CMAC = 8
-#TODO: XTS nog niet mogelijk -> blocksize des = 8, XTS = 16
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	"""Create a DES-EDE3 or DES-EDE2 cipher object
