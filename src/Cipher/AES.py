@@ -128,9 +128,9 @@ class AES(blockcipher.BlockCipher):
 	"""	
 	def __init__(self,key,mode,IV,counter):
 		if mode == MODE_XTS:
-			assert len(key) == 32
-			self.cipher = Crypto.Cipher.AES.new(key[:16])
-			self.cipher2 = Crypto.Cipher.AES.new(key[16:])
+			assert type(key) is tuple
+			self.cipher = Crypto.Cipher.AES.new(key[0])
+			self.cipher2 = Crypto.Cipher.AES.new(key[1])
 		else:
 			self.cipher = Crypto.Cipher.AES.new(key)
 		self.blocksize = Crypto.Cipher.AES.block_size
