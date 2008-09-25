@@ -36,6 +36,14 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> hexlify( cipher.decrypt(unhexlify(_)) ).upper()
 	'33B3DC87EDDD9B0F6A1F407D14919365'
 
+	>>> import python_Serpent
+	>>> from binascii import hexlify, unhexlify
+	>>> cipher = python_Serpent.new(unhexlify('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'))
+	>>> hexlify(cipher.encrypt(unhexlify('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'))).upper()
+	'81F9163BDF39B5BB2932AB91DF2A5FFC'
+	>>> hexlify( cipher.decrypt(unhexlify(_)) ).upper()
+	'FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'
+
 	CBC EXAMPLE:
 	-----------------------------------------
 	>>> from binascii import hexlify,unhexlify
