@@ -6,6 +6,9 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+#XTS only works with blocksizes of 16 bytes; Blowfish -> 8 bytes
+#MODE_XTS = 7
+MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	"""Create a new cipher object
