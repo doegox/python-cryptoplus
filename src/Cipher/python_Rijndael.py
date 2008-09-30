@@ -20,8 +20,9 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
 
 	Wrapper for pure python implementation rijndael.py
 
-	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
 		key = raw string containing the key
+			-> supported key size are 16, 24 and 32 bytes
 		mode = python_Rijndael.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
 			-> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
 		IV = IV as a raw string
@@ -30,6 +31,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
 			-> only needed for CTR mode
 			-> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
 				see CTR example further on in the docstring
+		blocksize = blocksize in bytes
+			-> supported blocksizes are 16, 24 and 32 bytes
 
 	EXAMPLE:
 	--------
@@ -58,19 +61,57 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
 	>>> plaintext = decipher.decrypt(ciphertext)
 	>>> hexlify(plaintext)
 	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
+
+	XTS EXAMPLE:
+	------------
+	(Examples for XTS-AES)
+	XTS-AES-128 applied for a data unit of 512 bytes
+	testvector: http://grouper.ieee.org/groups/1619/email/pdf00086.pdf
+
+	>>> key = ('27182818284590452353602874713526'.decode('hex'),'31415926535897932384626433832795'.decode('hex'))
+	>>> plaintext = '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex')
+	>>> cipher = python_Rijndael.new(key,python_Rijndael.MODE_XTS,blocksize=16)
+	>>> ciphertext = cipher.encrypt(plaintext)
+	>>> ciphertext.encode('hex')
+	'27a7479befa1d476489f308cd4cfa6e2a96e4bbe3208ff25287dd3819616e89cc78cf7f5e543445f8333d8fa7f56000005279fa5d8b5e4ad40e736ddb4d35412328063fd2aab53e5ea1e0a9f332500a5df9487d07a5c92cc512c8866c7e860ce93fdf166a24912b422976146ae20ce846bb7dc9ba94a767aaef20c0d61ad02655ea92dc4c4e41a8952c651d33174be51a10c421110e6d81588ede82103a252d8a750e8768defffed9122810aaeb99f9172af82b604dc4b8e51bcb08235a6f4341332e4ca60482a4ba1a03b3e65008fc5da76b70bf1690db4eae29c5f1badd03c5ccf2a55d705ddcd86d449511ceb7ec30bf12b1fa35b913f9f747a8afd1b130e94bff94effd01a91735ca1726acd0b197c4e5b03393697e126826fb6bbde8ecc1e08298516e2c9ed03ff3c1b7860f6de76d4cecd94c8119855ef5297ca67e9f3e7ff72b1e99785ca0a7e7720c5b36dc6d72cac9574c8cbbc2f801e23e56fd344b07f22154beba0f08ce8891e643ed995c94d9a69c9f1b5f499027a78572aeebd74d20cc39881c213ee770b1010e4bea718846977ae119f7a023ab58cca0ad752afe656bb3c17256a9f6e9bf19fdd5a38fc82bbe872c5539edb609ef4f79c203ebb140f2e583cb2ad15b4aa5b655016a8449277dbd477ef2c8d6c017db738b18deb4a427d1923ce3ff262735779a418f20a282df920147beabe421ee5319d0568'
+	>>> decipher = python_Rijndael.new(key,python_Rijndael.MODE_XTS,blocksize=16)
+	>>> decipher.decrypt(ciphertext).encode('hex')
+	'000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'
+	
+	using data sequence number n
+
+	>>> key = ('fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0'.decode('hex'),'22222222222222222222222222222222'.decode('hex'))
+	>>> plain ='4444444444444444444444444444444444444444444444444444444444444444'.decode('hex')
+	>>> n = '3333333333'.decode('hex')
+	>>> cipher = python_Rijndael.new(key,python_Rijndael.MODE_XTS,blocksize=16)
+	>>> ciphertext = cipher.encrypt(plain,n)
+	>>> ciphertext.encode('hex')
+	'af85336b597afc1a900b2eb21ec949d292df4c047e0b21532186a5971a227a89'
+	>>> decipher = python_Rijndael.new(key,python_Rijndael.MODE_XTS,blocksize=16)
+	>>> decipher.decrypt(ciphertext,n).encode('hex')
+	'4444444444444444444444444444444444444444444444444444444444444444'
 	"""
 	return python_Rijndael(key,mode,IV,counter,blocksize)
 
 class python_Rijndael(blockcipher.BlockCipher):
 	def __init__(self,key,mode,IV,counter,blocksize):
-		assert len(key) in (16, 24, 32)
-		assert blocksize in (16, 24, 32)
+		#Limitations on key and block size:
+		# the wrapped rijndael implementation doesn't support all 32bit multiples between 128 and 256bits
 		if mode == MODE_XTS:
-			assert len(blocksize) == 16
+			#XTS implementation only works with blocksizes of 16 bytes
+			assert blocksize == 16
 			assert type(key) is tuple
+			assert len(key[0]) in (16, 24, 32)
 			self.cipher = rijndael(key[0], blocksize)
 			self.cipher2 = rijndael(key[1], blocksize)
+		elif mode == MODE_CMAC:
+			#CMAC implementation only supports blocksizes of 8 and 16 bytes
+			assert blocksize == 16
+			assert len(key) in (16, 24, 32)
+			self.cipher = rijndael(key, blocksize)
 		else:
+			assert len(key) in (16, 24, 32)
+			assert blocksize in (16, 24, 32)
 			self.cipher = rijndael(key, blocksize)
 		self.blocksize = blocksize
 		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
