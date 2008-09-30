@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='CryptoPlus',
       version='1.0',
@@ -9,7 +9,7 @@ setup(name='CryptoPlus',
       author_email='tiftof@gmail.com',
       url='http://www.python.org/sigs/distutils-sig/',
       packages = ["CryptoPlus","CryptoPlus.Cipher", "CryptoPlus.Util"],
-      requires = ('Crypto'),
+      install_requires = ['pycrypto'],
       package_dir = {'CryptoPlus': 'src'}
      )
 
