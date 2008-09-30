@@ -15,7 +15,7 @@ MODE_CTR = 6
 MODE_XTS = 7
 MODE_CMAC = 8
 
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=0):
 	"""Create a new cipher object
 
 	RC5 using pycrypto for algo en pycryptoplus for ciphermode
@@ -31,28 +31,29 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	https://www.cosic.esat.kuleuven.be/nessie/testvectors/
 	-----------------------------------------
 	>>> from CryptoPlus.Cipher import RC5
-	>>> key = "000102030405060708090A0B0C0D0E0F".decode('hex')
-	>>> plaintext = "96950DDA654A3D62".decode('hex')
-	>>> cipher = RC5.new(key,RC5.MODE_ECB)
-	>>> cipher.encrypt(plaintext).encode('hex').upper()
-	'0011223344556677'
+	>>> key = "00000000000000000000000000000000".decode('hex')
+	>>> plaintext = "0000000000000000".decode('hex')
+	>>> rounds = 12
+	>>> cipher = RC5.new(key,RC5.MODE_ECB,rounds=rounds)
+	>>> cipher.encrypt(plaintext).encode('hex')
+	'21a5dbee154b8f6d'
 	"""
-	return RC5(key,mode,IV,counter)
+	return RC5(key,mode,IV,counter,rounds)
 
 class RC5(blockcipher.BlockCipher):
-	def __init__(self,key,mode,IV,counter):
+	def __init__(self,key,mode,IV,counter,rounds):
 		if mode == MODE_XTS:
 			#XTS implementation only works with blocksizes of 16 bytes
 			assert blocksize == 16
 			assert type(key) is tuple
-			self.cipher = Crypto.Cipher.RC5.new(key[0])
-			self.cipher2 = Crypto.Cipher.RC5.new(key[1])
+			self.cipher = Crypto.Cipher.RC5.new(key[0],rounds=rounds)
+			self.cipher2 = Crypto.Cipher.RC5.new(key[1],rounds=rounds)
 		elif mode == MODE_CMAC:
 			#CMAC implementation only supports blocksizes of 8 and 16 bytes
 			assert blocksize in (8,16)
-			self.cipher = Crypto.Cipher.RC5.new(key)
+			self.cipher = Crypto.Cipher.RC5.new(key,rounds=rounds)
 		else:
-			self.cipher = Crypto.Cipher.RC5.new(key)
+			self.cipher = Crypto.Cipher.RC5.new(key,rounds=rounds)
 		self.blocksize = Crypto.Cipher.RC5.block_size
 		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
