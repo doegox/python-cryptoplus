@@ -35,7 +35,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,effective_keylen=None
 	>>> plaintext = "0000000000000000".decode('hex')
 	>>> ek = 63
 	>>> cipher = ARC2.new(key,ARC2.MODE_ECB,effective_keylen=ek)
-	>>> cipher.encrypt(plaintext)
+	>>> cipher.encrypt(plaintext).encode('hex')
 	'ebb773f993278eff'
 	"""
 	return ARC2(key,mode,IV,counter,effective_keylen)
@@ -46,7 +46,7 @@ class ARC2(blockcipher.BlockCipher):
 		if parse_version(Crypto.__version__) <= parse_version("2.0.1"):
 			self.cipher = Crypto.Cipher.ARC2.new(key)
 		else:
-			self.cipher = Crypto.Cipher.ARC2.new(key,effective_keylen)
+			self.cipher = Crypto.Cipher.ARC2.new(key,effective_keylen=effective_keylen)
 		self.blocksize = Crypto.Cipher.ARC2.block_size
 		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 

@@ -29,6 +29,10 @@ Note: for all the cipher algorithms, code has been reused from others. Appropria
 2. INSTALLING
 ==============
 
+necessary packages before installing: 
+	- python-setuptools
+	- python-pkg-resources
+
 python setup.py install
 
 3. GETTING STARTED

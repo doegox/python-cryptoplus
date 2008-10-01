@@ -31,6 +31,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	EXAMPLE:
 	----------
+	http://www.schneier.com/code/ecb_ival.txt -> test vector I=5
+
 	>>> import python_Twofish
 	>>> from binascii import hexlify, unhexlify
 	>>> cipher = python_Twofish.new(unhexlify('019F9809DE1711858FAAC3A3BA20FBC3'))

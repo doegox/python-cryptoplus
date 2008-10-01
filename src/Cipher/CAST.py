@@ -25,14 +25,24 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		counter = counter object (Cipher/util.py:Counter)
 			-> only needed for CTR mode
 
-	http://www.rfc-editor.org/rfc/rfc2144.txt
-	-----------------------------------------
+	ECB example: http://www.rfc-editor.org/rfc/rfc2144.txt
+	-------------
+	128 bit key
+
 	>>> from CryptoPlus.Cipher import CAST
 	>>> key = "0123456712345678234567893456789A".decode('hex')
 	>>> plaintext = "0123456789ABCDEF".decode('hex')
 	>>> cipher = CAST.new(key,CAST.MODE_ECB,)
 	>>> cipher.encrypt(plaintext).encode('hex')
 	'238b4fe5847e44b2'
+
+	40 bit key
+	>>> from CryptoPlus.Cipher import CAST
+	>>> key = "0123456712".decode('hex')
+	>>> plaintext = "0123456789ABCDEF".decode('hex')
+	>>> cipher = CAST.new(key,CAST.MODE_ECB,)
+	>>> cipher.encrypt(plaintext).encode('hex').upper()
+	'7AC816D16E9B302E'
 	"""
 	return CAST(key,mode,IV,counter)
 

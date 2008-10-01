@@ -36,15 +36,18 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		- Always construct a seperate cipher object for encryption and decryption. Once a cipher object has been used for encryption, 
 		  it can't be used for decryption because it keeps a state (if necessary) for the IV.
     
-    	EXAMPLE:
-	----------
+    	ECB EXAMPLE:
+	-------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+
 	>>> from CryptoPlus.Cipher import python_AES
-	>>> cipher = python_AES.new('0123456789012345')
-	>>> cipher.encrypt('0123456789012345')
-	'_}\\xf0\\xbf\\x10:\\x8cJ\\xe6\\xfa\\xad\\x99\\x06\\xac;*'
-	>>> decipher = python_AES.new('0123456789012345')
-	>>> decipher.decrypt(_)
-	'0123456789012345'
+	>>> cipher = python_AES.new('2b7e151628aed2a6abf7158809cf4f3c'.decode('hex'))
+	>>> crypted = cipher.encrypt('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'.decode('hex'))
+	>>> crypted.encode('hex')
+	'3ad77bb40d7a3660a89ecaf32466ef97f5d3d58503b9699de785895a96fdbaaf'
+	>>> decipher = python_AES.new('2b7e151628aed2a6abf7158809cf4f3c'.decode('hex'))
+	>>> decipher.decrypt(crypted).encode('hex')
+	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'
 
 	PADDING EXAMPLE:
 	----------------
@@ -58,6 +61,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	CBC EXAMPLE (plaintext = 3 blocksizes):
 	-----------------------------------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+
 	>>> from binascii import hexlify,unhexlify
 	>>> from CryptoPlus.Cipher import python_AES
 	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
@@ -87,8 +92,9 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> hexlify(decipher.decrypt(ciphertext[22:]))
 	'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
-	CFB EXAMPLE: (testvectors from: SP 800-38A) (CFB128-AES192)
+	CFB EXAMPLE: (CFB128-AES192)
 	------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
 
 	>>> key = '8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'.decode('hex')
 	>>> IV = '000102030405060708090a0b0c0d0e0f'.decode('hex')
@@ -116,8 +122,9 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> output.encode('hex')
 	'cdc80d6fddf18cab34c25909c99a417467ce7f7f81173621961a2b70171d3d7a'
 
-	OFB EXAMPLE: (testvectors from: SP 800-38A) (OFB128-AES192)
+	OFB EXAMPLE: (OFB128-AES192)
 	------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
 
 	>>> key = '8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'.decode('hex')
 	>>> IV = '000102030405060708090a0b0c0d0e0f'.decode('hex')
@@ -148,6 +155,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	CTR EXAMPLE:
 	------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+
 	>>> from CryptoPlus.Util.util import Counter
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> counter = Counter('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex'))
@@ -166,7 +175,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	XTS EXAMPLE:
 	------------
 	XTS-AES-128 applied for a data unit of 512 bytes
-	testvector: http://grouper.ieee.org/groups/1619/email/pdf00086.pdf
+	IEEE P1619/D16: http://grouper.ieee.org/groups/1619/email/pdf00086.pdf
 
 	>>> key = ('27182818284590452353602874713526'.decode('hex'),'31415926535897932384626433832795'.decode('hex'))
 	>>> plaintext = '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex')
@@ -246,7 +255,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	CMAC EXAMPLE:
 	-------------
-	testvector: http://csrc.nist.gov/publications/nistpubs/800-38B/Updated_CMAC_Examples.pdf
+	NIST publication 800-38B: http://csrc.nist.gov/publications/nistpubs/800-38B/Updated_CMAC_Examples.pdf
 	
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> plaintext = '6bc1bee22e409f96e93d7e117393172a'.decode('hex')

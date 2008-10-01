@@ -15,23 +15,29 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 		key = raw string containing the key, AES-128..256 will be selected according to the key length
 			-> when using XTS mode: the key should be a concatenation of the 2 keys needed
-		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+		mode = AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
 		IV = IV as a raw string
 			-> only needed for CBC mode
 		counter = counter object (Cipher/util.py:Counter)
 			-> only needed for CTR mode
     
-	EXAMPLE:
-	----------
+	ECB EXAMPLE:
+	-------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+
 	>>> from CryptoPlus.Cipher import AES
-	>>> cipher = AES.new('0123456789012345')
-	>>> cipher.encrypt('0123456789012345')
-	'_}\\xf0\\xbf\\x10:\\x8cJ\\xe6\\xfa\\xad\\x99\\x06\\xac;*'
-	>>> cipher.decrypt(_)
-	'0123456789012345'
+	>>> cipher = AES.new('2b7e151628aed2a6abf7158809cf4f3c'.decode('hex'))
+	>>> crypted = cipher.encrypt('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'.decode('hex'))
+	>>> crypted.encode('hex')
+	'3ad77bb40d7a3660a89ecaf32466ef97f5d3d58503b9699de785895a96fdbaaf'
+	>>> decipher = AES.new('2b7e151628aed2a6abf7158809cf4f3c'.decode('hex'))
+	>>> decipher.decrypt(crypted).encode('hex')
+	'6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'
 
 	CBC EXAMPLE (plaintext = 3 blocksizes):
 	-----------------------------------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+
 	>>> from binascii import hexlify,unhexlify
 	>>> from CryptoPlus.Cipher import AES
 	>>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
@@ -63,6 +69,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	CTR EXAMPLE:
 	------------
+	NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+
 	>>> from CryptoPlus.Util.util import Counter
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> counter = Counter('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'.decode('hex'))
@@ -107,6 +115,8 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 
 	CMAC EXAMPLE:
 	-------------
+	NIST publication 800-38B: http://csrc.nist.gov/publications/nistpubs/800-38B/Updated_CMAC_Examples.pdf
+
 	>>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
 	>>> plaintext = '6bc1bee22e409f96e93d7e117393172a'.decode('hex')
 	>>> cipher = AES.new(key,AES.MODE_CMAC)

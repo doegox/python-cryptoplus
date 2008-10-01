@@ -27,7 +27,9 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 				see CTR example further on in the docstring
 
 	EXAMPLE:
-	----------
+	---------
+	NESSIE Test Vectors: http://www.cs.technion.ac.il/~biham/Reports/Serpent/Serpent-128-128.verified.test-vectors
+
 	>>> import python_Serpent
 	>>> from binascii import hexlify, unhexlify
 	>>> cipher = python_Serpent.new(unhexlify('000102030405060708090A0B0C0D0E0F'))
@@ -45,7 +47,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	'FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'
 
 	CBC EXAMPLE:
-	-----------------------------------------
+	-------------
 	>>> from binascii import hexlify,unhexlify
 	>>> import python_Serpent
 	>>> key = unhexlify('000102030405060708090A0B0C0D0E0F')

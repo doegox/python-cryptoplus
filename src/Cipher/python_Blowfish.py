@@ -13,6 +13,8 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
+#XTS only works with blocksizes of 16 bytes; Blowfish -> 8 bytes
+#MODE_XTS = 7
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
@@ -30,8 +32,18 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
 	>>> hexlify( cipher.decrypt(unhexlify(_)) )
 	'5cd54ca83def57da'
 
-	Examples from: http://www.schneier.com/code/vectors.txt
-	-------------------------------------------------------
+	CBC, CFB, OFB EXAMPLE: http://www.schneier.com/code/vectors.txt
+	----------------------
+	>>> from binascii import hexlify,unhexlify
+	>>> key = unhexlify('0123456789ABCDEFF0E1D2C3B4A59687')
+	>>> IV = unhexlify('FEDCBA9876543210')
+	>>> plaintext = unhexlify('37363534333231204E6F77206973207468652074696D6520')
+	>>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CBC,IV)
+	>>> ciphertext = cipher.encrypt(plaintext)
+	>>> hexlify(ciphertext).upper()
+	'6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
+
+
 	>>> key = '0123456789ABCDEFF0E1D2C3B4A59687'.decode('hex')
 	>>> iv = 'FEDCBA9876543210'.decode('hex')
 	>>> plaintext = '37363534333231204E6F77206973207468652074696D6520666F722000'.decode('hex')
