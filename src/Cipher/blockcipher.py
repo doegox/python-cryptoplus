@@ -314,22 +314,31 @@ class XTS:
 		return output
 
 	def __xts_step(self,ed,tocrypt,i,tweak):
+			# based on the pseudo code in the P1619 standard
+			# pseudo: the tweak is kept as the shifted version after every xts-step
+			# here:   the tweak is supplied as the clean value every step => while loop to simulate
+			#	  previous steps
+
 			# e_k2_n = E_K2(tweak)
 			e_k2_n = self.codebook2.encrypt(tweak+ '\x00' * (16-len(tweak)))[::-1]
 
-    			# alfalfa_i = (alfa pow i)
-    			alfa_i = util.gf2pow128powof2(i)
-			
     			# T = E_K2(n) mul (a pow i)
-    			T = util.gf2pow128mul(util.string2number(e_k2_n), alfa_i)
+			T = util.string2number(e_k2_n)
+			while i:
+ 				T = T << 1
+				# if (Cout)
+				if T >> (8*16):
+					#T[0] ^= GF_128_FDBK;
+					T = T ^ 0x100000000000000000000000000000087L
+				i-=1
     			T = util.number2string(T)[::-1]
     			T = T + '\x00' * (16 - len(T))
 			
     			# C = E_K1(P xor T) xor T
 			if ed == 'd':
-		    		return util.xorstring16(T, self.codebook1.decrypt(util.xorstring16(T, tocrypt)))
+		    		return util.xorstring(T, self.codebook1.decrypt(util.xorstring(T, tocrypt)))
 			else:
-				return util.xorstring16(T, self.codebook1.encrypt(util.xorstring16(T, tocrypt)))
+				return util.xorstring(T, self.codebook1.encrypt(util.xorstring(T, tocrypt)))
 
 class CMAC:
 	"""CMAC chaining mode

@@ -1,5 +1,4 @@
 from __future__ import division #http://www.python.org/dev/peps/pep-0238/
-from gf2n import *
 import math
 
 def roundUp (n, p):
@@ -66,18 +65,3 @@ class Counter(str):
 		self.c += 1
 		return ctr
 
-## Following code is from XTS.py => add appropriate copyright notice?
-		
-def xorstring16(a, b):
-	new = ''
-	for p in xrange(16):
-		new += chr(ord(a[p]) ^ ord(b[p]))
-	return new
-
-def gf2pow128powof2(n):
-	"""2^n in GF(2^128)."""
-	if n < 128:
-		return 2**n
-	return reduce(gf2pow128mul, (2 for x in xrange(n)), 1)
-
-## end of code from XTS.py
