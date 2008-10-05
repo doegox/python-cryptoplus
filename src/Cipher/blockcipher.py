@@ -287,27 +287,20 @@ class XTS:
 		# Check if the data supplied is a multiple of 16 bytes -> one last full block and we're done
 		if len(data[i*16:]) == 16:
 			output += self.__xts_step(ed,data[i*16:(i+1)*16],i,tweak)
-		elif ed=='e':
-			# Encrypt the last two blocks when data is not a multiple of 16 bytes
-			Cm1 = data[i*16:(i+1)*16]
-			Cm = data[(i+1)*16:]
-			PP = self.__xts_step(ed,Cm1,i,tweak)
-			Cp = PP[len(Cm):]
-			Pm = PP[:len(Cm)]
-			CC = Cm+Cp
-			Pm1 = self.__xts_step(ed,CC,i+1,tweak)
-			output += Pm1 + Pm
 		else:
-			# Decrypt the last two blocks when data is not a multiple of 16 bytes
-			Pm1 = data[i*16:(i+1)*16]
-			Pm = data[(i+1)*16:]
-			CC = self.__xts_step(ed,Pm1,i+1,tweak)
-			Cp = CC[len(Pm):]
-			Cm = CC[:len(Pm)]
-			PP = Pm+Cp
-			Cm1 = self.__xts_step(ed,PP,i,tweak)
-			output += Cm1 + Cm
-    				
+		    if ed=='e':
+			(x, y) = (i, i+1)
+		    else: # Permutation of the last two indexes
+			(x, y) = (i+1, i)
+		    # Decrypt/Encrypt the last two blocks when data is not a multiple of 16 bytes
+		    Cm1 = data[i*16:(i+1)*16]
+		    Cm = data[(i+1)*16:]
+		    PP = self.__xts_step(ed,Cm1,x,tweak)
+		    Cp = PP[len(Cm):]
+		    Pm = PP[:len(Cm)]
+		    CC = Cm+Cp
+		    Pm1 = self.__xts_step(ed,CC,y,tweak)
+		    output += Pm1 + Pm
 		return output
 
 	def __xts_step(self,ed,tocrypt,i,tweak):
