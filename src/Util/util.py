@@ -2,66 +2,66 @@ from __future__ import division #http://www.python.org/dev/peps/pep-0238/
 import math
 
 def roundUp (n, p):
-	"""Round an integer up to the nearest multiple
+    """Round an integer up to the nearest multiple
 
-	A given integer n will be round up to the nearest multiple of p
+    A given integer n will be round up to the nearest multiple of p
 
-	Example:
-	>>> roundUp(13,8)
-	    16
-	"""
-	return int(math.ceil(n/p)*p)
+    Example:
+    >>> roundUp(13,8)
+        16
+    """
+    return int(math.ceil(n/p)*p)
 
 def number2string(i):
-	"""Convert a number to a string
-	    
-	Input: long or integer
-	Output: string (big-endian)
-	"""
-	s=hex(i)[2:].rstrip('L')
-	if len(s) % 2:
-		s = '0' + s
-	return s.decode('hex')
+    """Convert a number to a string
+
+    Input: long or integer
+    Output: string (big-endian)
+    """
+    s=hex(i)[2:].rstrip('L')
+    if len(s) % 2:
+        s = '0' + s
+    return s.decode('hex')
 
 def string2number(i):
-	""" Convert a string to a number
+    """ Convert a string to a number
 
-	Input: string (big-endian)
-	Output: long or integer
-	"""
-	return int(i.encode('hex'),16)
+    Input: string (big-endian)
+    Output: long or integer
+    """
+    return int(i.encode('hex'),16)
 
 def xorstring(a,b):
-	outlist = []
-	minlength = min(len(a),len(b))
-	if minlength == len(a):
-		maxstr = b
-		minstr = a
-	else:
-		maxstr = a
-		minstr = b	
-	for k in range(len(minstr)):
-		outlist += [chr( ord(a[k])^ord(b[k]) )]
-	for i in maxstr[len(minstr):]:
-		outlist += i
-	return ''.join(outlist)
+    outlist = []
+    minlength = min(len(a),len(b))
+    if minlength == len(a):
+        maxstr = b
+        minstr = a
+    else:
+        maxstr = a
+        minstr = b
+    for k in range(len(minstr)):
+        outlist += [chr( ord(a[k])^ord(b[k]) )]
+    for i in maxstr[len(minstr):]:
+        outlist += i
+    return ''.join(outlist)
 
 class Counter(str):
-	#found here: http://www.lag.net/pipermail/paramiko/2008-February.txt
-	"""Necessary for CTR chaining mode
-	
-	Initializing a counter object (ctr = Counter('xxx'), gives a value to the counter object.
-	Everytime the object is called ( ctr() ) it returns the current value and increments it by 1.
-	Input/output is a raw string.
+    #found here: http://www.lag.net/pipermail/paramiko/2008-February.txt
+    """Necessary for CTR chaining mode
 
-	Counter value is big endian"""
-	def __init__(self, initial_ctr):
-		if not isinstance(initial_ctr, str):
-			raise TypeError("nonce must be str")
-		self.c = int(initial_ctr.encode('hex'), 16)
-	def __call__(self):
-		# This might be slow, but it works as a demonstration
-		ctr = ("%032x" % (self.c,)).decode('hex')
-		self.c += 1
-		return ctr
+    Initializing a counter object (ctr = Counter('xxx'), gives a value to the counter object.
+    Everytime the object is called ( ctr() ) it returns the current value and increments it by 1.
+    Input/output is a raw string.
+
+    Counter value is big endian"""
+    def __init__(self, initial_ctr):
+        if not isinstance(initial_ctr, str):
+            raise TypeError("nonce must be str")
+        self.c = int(initial_ctr.encode('hex'), 16)
+    def __call__(self):
+        # This might be slow, but it works as a demonstration
+        ctr = ("%032x" % (self.c,)).decode('hex')
+        self.c += 1
+        return ctr
 

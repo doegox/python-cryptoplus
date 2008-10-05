@@ -1,10 +1,10 @@
 """Imports Crypto Hash
 
 Now you can do:
-	>>> from CryptoPlus.Hash import *
+    >>> from CryptoPlus.Hash import *
 OR:
-	>>> from CryptoPlus.Hash import XXX
+    >>> from CryptoPlus.Hash import XXX
 but not:
-	>>> import CryptoPlus.Hash.XXX
+    >>> import CryptoPlus.Hash.XXX
 """
 from Crypto.Hash import *

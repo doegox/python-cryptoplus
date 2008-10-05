@@ -2,7 +2,7 @@
 
 import unittest
 import doctest
-#import CryptoPlus.Cipher.python_AES 
+#import CryptoPlus.Cipher.python_AES
 from CryptoPlus.Cipher import python_AES, AES, python_DES, DES, python_DES3, DES3, python_Blowfish, Blowfish, python_Twofish, python_Serpent, python_Rijndael, CAST, ARC2, python_PRESENT
 try:
         from CryptoPlus.Cipher import IDEA

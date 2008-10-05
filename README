@@ -27,13 +27,13 @@ using the original Ciphers, the original pycrypto (C) code is used but
 the chains will still be made by my new python code.
 
 New functions:
-	Ciphers:
-		Rijndael
-		Serpent
-		Twofish
-	Chain Modes:
-		XTS
-		CMAC
+    Ciphers:
+        Rijndael
+        Serpent
+        Twofish
+    Chain Modes:
+        XTS
+        CMAC
 
 Note: for all the cipher algorithms, code has been reused from
 others. Appropriate copyright notices are in the source code.
@@ -42,8 +42,8 @@ others. Appropriate copyright notices are in the source code.
 ==============
 
 necessary packages before installing:
-	- python-setuptools
-	- python-pkg-resources
+    - python-setuptools
+    - python-pkg-resources
 
 python setup.py install
 

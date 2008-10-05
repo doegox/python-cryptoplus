@@ -5,7 +5,7 @@ class Present:
 
         def __init__(self,key,rounds=32):
                 """Generating roundkeys
-                
+
                 When a Present class initialized, the roundkeys will be generated.
                 You can supply the key as a 128bit or 80bit rawstring.
                 """
@@ -20,7 +20,7 @@ class Present:
 
         def encrypt(self,block):
                 """Encrypting 1 block (8 bytes)
-                
+
                 Supply the plaintext block as a raw string and the raw
                 ciphertext will be returned.
                 """
@@ -34,7 +34,7 @@ class Present:
 
         def decrypt(self,block):
                 """Decrypting 1 block (8 bytes)
-                
+
                 Supply the ciphertext block as a raw string and the raw
                 plaintext will be returned.
                 """
@@ -58,7 +58,7 @@ PBox = [0,16,32,48,1,17,33,49,2,18,34,50,3,19,35,51,
 
 def generateRoundkeys80(key,rounds):
         """Generate the roundkeys for a 80 bit key
-        
+
         Give a 80bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
         for i in range(1,rounds+1): # (K0 ... K32)
@@ -83,7 +83,7 @@ def generateRoundkeys80(key,rounds):
 
 def generateRoundkeys128(key,rounds):
         """Generate the roundkeys for a 128 bit key
-        
+
         Give a 80bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
         for i in range(1,rounds+1): # (K0 ... K32)
@@ -105,7 +105,7 @@ def addRoundKey(state,roundkey):
 
 def sBoxLayer(state):
         """SBox function for encryption
-        
+
         Takes a hex string as input and will output a hex string"""
         output =''
         for i in range(len(state)):
@@ -114,7 +114,7 @@ def sBoxLayer(state):
 
 def sBoxLayer_dec(state):
         """Inverse SBox function for decryption
-        
+
         Takes a hex string as input and will output a hex string"""
         output =''
         for i in range(len(state)):
@@ -123,7 +123,7 @@ def sBoxLayer_dec(state):
 
 def pLayer(state):
         """Permutation layer for encryption
-        
+
         Takes a 64bit hex string as input and will output a 64bit hex string"""
         output = ''
         state_bin = bin(int(state,16)).zfill(64)[::-1][0:64]
@@ -133,7 +133,7 @@ def pLayer(state):
 
 def pLayer_dec(state):
         """Permutation layer for decryption
-        
+
         Takes a 64bit hex string as input and will output a 64bit hex string"""
         output = ''
         state_bin = bin(int(state,16)).zfill(64)[::-1][0:64]

@@ -7,7 +7,7 @@
 # Written by Frank Stajano,
 # Olivetti Oracle Research Laboratory <http://www.orl.co.uk/~fms/> and
 # Cambridge University Computer Laboratory <http://www.cl.cam.ac.uk/~fms27/>.
-# 
+#
 # (c) 1998 Olivetti Oracle Research Laboratory (ORL)
 #
 # Original (Python) Serpent reference development started on 1998 02 12.
@@ -15,7 +15,7 @@
 #
 # Serpent cipher invented by Ross Anderson, Eli Biham, Lars Knudsen.
 # Serpent is a candidate for the Advanced Encryption Standard.
-  
+
 # --------------------------------------------------------------
 
 """This is an illustrative reference implementation of the Serpent cipher
@@ -37,31 +37,31 @@ submission to NIST.
 # My own additions
 # --------------------------------------------------------------
 class Serpent:
-	#class to 
-	def __init__(self,key):
-		key = key.encode('hex')
-		bitsInKey = keyLengthInBitsOf(key)
-        	rawKey = convertToBitstring(reverse(key.lower()), bitsInKey)
-        	self.userKey = makeLongKey(rawKey)
+    #class to
+    def __init__(self,key):
+        key = key.encode('hex')
+        bitsInKey = keyLengthInBitsOf(key)
+        rawKey = convertToBitstring(reverse(key.lower()), bitsInKey)
+        self.userKey = makeLongKey(rawKey)
 
-	def encrypt(self,block):
-		plainText = convertToBitstring(reverse(block.encode("hex").lower()), 128)
-		cipherText = encrypt(plainText, self.userKey)
-		return reverse(bitstring2hexstring(cipherText)).decode('hex')
-		
-	def decrypt(self,block):
-		cipherText = convertToBitstring(reverse(block.encode("hex").lower()), 128)
-		plainText = decrypt(cipherText, self.userKey)
-		return reverse(bitstring2hexstring(plainText)).decode('hex')
+    def encrypt(self,block):
+        plainText = convertToBitstring(reverse(block.encode("hex").lower()), 128)
+        cipherText = encrypt(plainText, self.userKey)
+        return reverse(bitstring2hexstring(cipherText)).decode('hex')
 
-	def get_block_size(self):
-		return 16
+    def decrypt(self,block):
+        cipherText = convertToBitstring(reverse(block.encode("hex").lower()), 128)
+        plainText = decrypt(cipherText, self.userKey)
+        return reverse(bitstring2hexstring(plainText)).decode('hex')
+
+    def get_block_size(self):
+        return 16
 
 def reverse(toreverse):
-	out = ""
-	for i in range(len(toreverse)/2):
-		out += toreverse[len(toreverse)-i*2-2:len(toreverse)-i*2]
-	return out
+    out = ""
+    for i in range(len(toreverse)/2):
+        out += toreverse[len(toreverse)-i*2-2:len(toreverse)-i*2]
+    return out
 # --------------------------------------------------------------
 #
 # --------------------------------------------------------------
@@ -73,7 +73,7 @@ import string
 import sys
 import getopt
 import re
-    
+
 # --------------------------------------------------------------
 # Functions used in the formal description of the cipher
 
@@ -144,7 +144,7 @@ def SBitsliceInverse(box, words):
         for j in range(4):
             result[j] = result[j] + quad[j]
     return result
-          
+
 
 def LT(input):
     """Apply the table-based version of the linear transformation to the
@@ -183,7 +183,7 @@ def LTBitslice(X):
     """Apply the equations-based version of the linear transformation to
     'X', a list of 4 32-bit bitstrings, least significant bitstring first,
     and return another list of 4 32-bit bitstrings as the result."""
-    
+
     X[0] = rotateLeft(X[0], 13)
     X[2] = rotateLeft(X[2], 3)
     X[1] = xor(X[1], X[0], X[2])
@@ -232,12 +232,12 @@ def FP(input):
 
 def IPInverse(output):
     """Apply the Initial Permutation in reverse."""
-    
+
     return FP(output)
 
 def FPInverse(output):
     """Apply the Final Permutation in reverse."""
-    
+
     return IP(output)
 
 
@@ -377,7 +377,7 @@ def encrypt(plainText, userKey):
     #O.show("fnTitle", "encrypt", None, "tu")
     #O.show("plainText", plainText, "plainText")
     #O.show("userKey", userKey, "userKey")
-    
+
     K, KHat = makeSubkeys(userKey)
 
     BHat = IP(plainText) # BHat_0 at this stage
@@ -430,7 +430,7 @@ def decrypt(cipherText, userKey):
 
     #O.show("plainText", plainText, "plainText")
     return plainText
-    
+
 
 def decryptBitslice(cipherText, userKey):
     """Decrypt the 128-bit bitstring 'cipherText' with the 256-bit
@@ -505,7 +505,7 @@ def makeSubkeys(userKey):
     KHat = []
     for i in range(33):
         KHat.append(IP(K[i]))
-        
+
         #O.show("Ki", K[i], "(i=%2d) Ki" % i)
         #O.show("KHati", KHat[i], "(i=%2d) KHati" % i)
 
@@ -519,12 +519,12 @@ def makeLongKey(k):
     l = len(k)
     if l % 32 != 0 or l < 64 or l > 256:
         raise ValueError, "Invalid key length (%d bits)" % l
-    
+
     if l == 256:
         return k
     else:
         return k + "1" + "0"*(256 -l -1)
-    
+
 # --------------------------------------------------------------
 # Generic bit-level primitives
 
@@ -649,7 +649,7 @@ def shiftLeft(input, p):
 def shiftRight(input, p):
     """Take a bitstring 'input' and shift it right by 'p' places. See the
     doc for shiftLeft for more details."""
-    
+
     return shiftLeft(input, -p)
 
 
@@ -714,10 +714,10 @@ def reverseString(s):
 def quadSplit(b128):
     """Take a 128-bit bitstring and return it as a list of 4 32-bit
     bitstrings, least significant bitstring first."""
-    
+
     if len(b128) != 128:
         raise ValueError, "must be 128 bits long, not " + len(b128)
-    
+
     result = []
     for i in range(4):
         result.append(b128[(i*32):(i+1)*32])
@@ -758,7 +758,7 @@ class Observer:
         """Add the supplied tag(s) to those that are currently active,
         i.e. those that, if a corresponding "show()" is executed, will
         print something."""
-        
+
         for t in tags:
             self.tags[t] = 1
 
@@ -776,7 +776,7 @@ class Observer:
         'variable'; if it is null, it is substituted with the 'tag'. The
         'type' of the 'variable' (giving us a clue on how to print it) must
         be one of Observer.typesOfVariable."""
-        
+
         if label == None:
             label = tag
         if "ALL" in self.tags.keys() or tag in self.tags.keys():
@@ -802,7 +802,7 @@ class Observer:
 
 # We make one global observer object that is always available
 O = Observer(["plainText", "userKey", "cipherText"])
-                
+
 # --------------------------------------------------------------
 # Constants
 phi = 0x9e3779b9L
@@ -817,15 +817,15 @@ r = 32
 # S-box is the pattern p (0, or 0x0) then the output will be the pattern v
 # (14, or 0xe).
 SBoxDecimalTable = [
-	[ 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 ], # S0
-	[15,12, 2, 7, 9, 0, 5,10, 1,11,14, 8, 6,13, 3, 4 ], # S1
-	[ 8, 6, 7, 9, 3,12,10,15,13, 1,14, 4, 0,11, 5, 2 ], # S2
-	[ 0,15,11, 8,12, 9, 6, 3,13, 1, 2, 4,10, 7, 5,14 ], # S3
-	[ 1,15, 8, 3,12, 0,11, 6, 2, 5, 4,10, 9,14, 7,13 ], # S4
-	[15, 5, 2,11, 4,10, 9,12, 0, 3,14, 8,13, 6, 7, 1 ], # S5
-	[ 7, 2,12, 5, 8, 4, 6,11,14, 9, 1,15,13, 3,10, 0 ], # S6
-	[ 1,13,15, 0,14, 8, 2,11, 7, 4,12,10, 9, 3, 5, 6 ], # S7
-    ] 
+    [ 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 ], # S0
+    [15,12, 2, 7, 9, 0, 5,10, 1,11,14, 8, 6,13, 3, 4 ], # S1
+    [ 8, 6, 7, 9, 3,12,10,15,13, 1,14, 4, 0,11, 5, 2 ], # S2
+    [ 0,15,11, 8,12, 9, 6, 3,13, 1, 2, 4,10, 7, 5,14 ], # S3
+    [ 1,15, 8, 3,12, 0,11, 6, 2, 5, 4,10, 9,14, 7,13 ], # S4
+    [15, 5, 2,11, 4,10, 9,12, 0, 3,14, 8,13, 6, 7, 1 ], # S5
+    [ 7, 2,12, 5, 8, 4, 6,11,14, 9, 1,15,13, 3,10, 0 ], # S6
+    [ 1,13,15, 0,14, 8, 2,11, 7, 4,12,10, 9, 3, 5, 6 ], # S7
+    ]
 # NB: in serpent-0, this was a list of 32 sublists (for the 32 different
 # S-boxes derived from DES). In the final version of Serpent only 8 S-boxes
 # are used, with each one being reused 4 times.
@@ -877,7 +877,7 @@ FPTable = [
     67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111, 115, 119, 123, 127,
  ]
 
-    
+
 # The Linear Transformation is represented as a list of 128 lists, one for
 # each output bit. Each one of the 128 lists is composed of a variable
 # number of integers in 0..127 specifying the positions of the input bits
@@ -1158,7 +1158,7 @@ help = """
   # Written by Frank Stajano,
   # Olivetti Oracle Research Laboratory <http://www.orl.co.uk/~fms/> and
   # Cambridge University Computer Laboratory <http://www.cl.cam.ac.uk/~fms27/>.
-  # 
+  #
   # (c) 1998 Olivetti Oracle Research Laboratory (ORL)
   #
   # Original (Python) Serpent reference development started on 1998 02 12.
@@ -1177,7 +1177,7 @@ help = """
     -e -> encrypt
     -d -> decrypt
     -h -> help (the text you're reading right now)
-    
+
     OPTIONS are:
     -p plainText  -> The 128-bit value to be encrypted. Required in mode -e,
                      ignored otherwise. Short texts are zeropadded.
@@ -1191,9 +1191,9 @@ help = """
     -t tagName    -> Turn on the observer tag with that name. This means that
                      any observer messages associated with this tag will
                      now be displayed. This option may be specified several
-                     times to add multiple tags. 
+                     times to add multiple tags.
                      The special tag ALL turns on all the messages.
-                     
+
     -b            -> Use the bitslice version instead of the traditional
                      version, which is otherwise used by default. Optional.
 
@@ -1203,7 +1203,7 @@ help = """
 
         For the non-bitslice: BHati xored SHati BHatiPlus1 wi KHati
         For the bitslice: Bi xored Si BiPlus1 wi Ki
-        Generic: plainText userKey cipherText testTitle fnTitle 
+        Generic: plainText userKey cipherText testTitle fnTitle
 
 
     I/O FORMAT:
@@ -1211,13 +1211,13 @@ help = """
     as sequences of hex digits, most significant digit first (big-endian),
     without any leading or trailing markers such as 0x, &, h or whatever.
     Example: the number ten is "a" in four bits or "000a" in sixteen bits.
-    
+
 
     USAGE EXAMPLES:
-    
+
     serpref -e -k 123456789abcdef  -p 0
         Encrypt the plaintext "all zeros" with the given key.
-        
+
     serpref -e -b -k 123456789abcdef  -p 0
         Same as above, but the extra -b requests bitslice operation. As
         things are, we won't notice the difference, but see below...
@@ -1342,13 +1342,13 @@ def main():
             plainText = decrypt(cipherText, userKey)
     elif mode == "-s":
         O.addTag("testTitle", "fnTitle")
-        
+
         printTest(test1(plainText, userKey))
         printTest(test2(plainText, userKey))
         printTest(test3(plainText, userKey))
     else:
         helpExit()
-    
+
 
 if __name__ == "__main__":
     main()

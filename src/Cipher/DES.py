@@ -9,42 +9,42 @@ MODE_CTR = 6
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-	"""Create a new cipher object
+    """Create a new cipher object
 
-	DES using pycrypto for algo en pycryptoplus for ciphermode
+    DES using pycrypto for algo en pycryptoplus for ciphermode
 
-	new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
-		key = raw string containing the keys
-		mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
-		IV = IV as a raw string
-			-> only needed for CBC mode
-		counter = counter object (Cipher/util.py:Counter)
-			-> only needed for CTR mode
-	
-	EXAMPLE (test vectors from NESSIE):
-	-----------------------------------
-	>>> import DES	
-	>>> from binascii import hexlify, unhexlify
-	>>> cipher = DES.new(unhexlify('7CA110454A1A6E57'))
-	>>> ciphertext = cipher.encrypt(unhexlify('01A1D6D039776742'))
-	>>> hexlify(ciphertext)
-	'690f5b0d9a26939b'
-	>>> plaintext = cipher.decrypt(ciphertext)
-	>>> hexlify(plaintext)
-	'01a1d6d039776742'
+    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+        key = raw string containing the keys
+        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
+        IV = IV as a raw string
+            -> only needed for CBC mode
+        counter = counter object (Cipher/util.py:Counter)
+            -> only needed for CTR mode
 
-	"""
-	return DES(key,mode,IV,counter)
+    EXAMPLE (test vectors from NESSIE):
+    -----------------------------------
+    >>> import DES
+    >>> from binascii import hexlify, unhexlify
+    >>> cipher = DES.new(unhexlify('7CA110454A1A6E57'))
+    >>> ciphertext = cipher.encrypt(unhexlify('01A1D6D039776742'))
+    >>> hexlify(ciphertext)
+    '690f5b0d9a26939b'
+    >>> plaintext = cipher.decrypt(ciphertext)
+    >>> hexlify(plaintext)
+    '01a1d6d039776742'
+
+    """
+    return DES(key,mode,IV,counter)
 
 class DES(blockcipher.BlockCipher):
-	def __init__(self,key,mode,IV,counter):
-		self.cipher = Crypto.Cipher.DES.new(key)
-		self.blocksize = Crypto.Cipher.DES.block_size
-		blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+    def __init__(self,key,mode,IV,counter):
+        self.cipher = Crypto.Cipher.DES.new(key)
+        self.blocksize = Crypto.Cipher.DES.block_size
+        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
-	import doctest
-	doctest.testmod()
+    import doctest
+    doctest.testmod()
 
 if __name__ == "__main__":
-	_test()
+    _test()
