@@ -7,4 +7,4 @@ OR:
 but not:
     >>> import CryptoPlus.Protocol.XXX
 """
-from CryptoPlus.Protocol import *
+from Crypto.Protocol import *
