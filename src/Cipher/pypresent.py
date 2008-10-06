@@ -62,7 +62,6 @@ def generateRoundkeys80(key,rounds):
         Give a 80bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
         for i in range(1,rounds+1): # (K0 ... K32)
-                print i
                 # rawKey[0:63]
                 roundkeys.append(("%x" % (int(key,16) >>16 )).zfill(64/4))
                 #1. Shift
