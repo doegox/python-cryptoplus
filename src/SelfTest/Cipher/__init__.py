@@ -32,6 +32,7 @@ __revision__ = "$Id$"
 
 def get_tests():
     tests = []
+    import test_python_AES;      tests += test_python_AES.get_tests()
     import test_AES;      tests += test_AES.get_tests()
     import test_ARC2;     tests += test_ARC2.get_tests()
     import test_ARC4;     tests += test_ARC4.get_tests()
