@@ -6,7 +6,8 @@ MODE_CBC = 2
 MODE_CFB = 3
 MODE_OFB = 5
 MODE_CTR = 6
-MODE_XTS = 7
+#Present blocksize is 8bytes, XTS requires 16bytes
+#MODE_XTS = 7
 MODE_CMAC = 8
 
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=32):
@@ -35,23 +36,50 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=32):
         ECB Test Vectors:
         ------------------
         >>> from CryptoPlus.Cipher import python_PRESENT
-
+        
         >>> key = "00000000000000000000".decode('hex')
         >>> plain = "0000000000000000".decode('hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
         >>> cipher.encrypt(plain).encode('hex')
         '5579c1387b228445'
+        
+        >>> key = "00000000000000000000000000000000".decode('hex')
+        >>> plain = "0000000000000000".decode('hex')
+        >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=64)
+        >>> cipher.encrypt(plain).encode('hex')
+        '67d38fb0f5a371fd'
+        
+        >>> key = "00000000000000000000".decode('hex')
+        >>> plain = "0000000000000000".decode('hex')
+        >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=64)
+        >>> cipher.encrypt(plain).encode('hex')
+        '13991dd588bc1288'
+        
+        Test Vectors for maximum rounds supported by PRESENT reference C code:
+        -----------------------------------------------------------------------
+        >>> key = "0123456789abcdef0123".decode('hex')
+        >>> plain = "0123456789abcdef".decode('hex')
+        >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=65534)
+        >>> ciphertext = cipher.encrypt(plain)
+        >>> ciphertext.encode('hex')
+        'a140dc5d7175ca20'
+        >>> cipher.decrypt(ciphertext).encode('hex')
+        '0123456789abcdef'
+        
+        >>> key = "0123456789abcdef0123456789abcdef".decode('hex')
+        >>> plain = "0123456789abcdef".decode('hex')
+        >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=65534)
+        >>> ciphertext = cipher.encrypt(plain)
+        >>> ciphertext.encode('hex')
+        'c913bc146bc89c4e'
+        >>> cipher.decrypt(ciphertext).encode('hex')
+        '0123456789abcdef'
         """
     return python_PRESENT(key,mode,IV,counter,rounds)
 
 class python_PRESENT(blockcipher.BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds):
-        if mode == MODE_XTS:
-            assert type(key) is tuple
-            self.cipher = Present(key[0],rounds)
-            self.cipher2 = Present(key[1],rounds)
-        else:
-            self.cipher = Present(key,rounds)
+        self.cipher = Present(key,rounds)
         self.blocksize = 8
         blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
 

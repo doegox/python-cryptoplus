@@ -47,7 +47,7 @@ class Present:
                 return decipher.decode('hex')
 
         def get_block_size(self):
-                return 16
+                return 8
 
 #        0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f
 SBox = ['c','5','6','b','9','0','a','d','3','e','f','8','4','7','1','2']
@@ -70,12 +70,10 @@ def generateRoundkeys80(key,rounds):
                 #2. SBox
                 #rawKey[76:79] = S(rawKey[76:79])
                 key = SBox[int(key[0],16)]+key[1:20]
-                #print "sbox"
-                #print key
                 #3. Salt
                 #rawKey[15:19] ^ i
                 temp = (int(key,16) >> 15)
-                temp = (temp ^ i )
+                temp = temp ^ i
                 key = ( int(key,16) & (pow(2,15)-1) ) + (temp << 15)
                 key = ("%x" % key).zfill(80/4)
         return roundkeys
@@ -83,7 +81,7 @@ def generateRoundkeys80(key,rounds):
 def generateRoundkeys128(key,rounds):
         """Generate the roundkeys for a 128 bit key
 
-        Give a 80bit hex string as input and get a list of roundkeys in return"""
+        Give a 128bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
         for i in range(1,rounds+1): # (K0 ... K32)
                 roundkeys.append(("%x" % (int(key,16) >>64)).zfill(64/4))
@@ -93,10 +91,10 @@ def generateRoundkeys128(key,rounds):
                 key = SBox[int(key[0],16)]+SBox[int(key[1],16)]+key[2:]
                 #3. Salt
                 #rawKey[15:19] ^ i
-                temp = (int(key,16) >> 62) & (pow(2,5)-1) # rawKey[15:19]
-                temp = temp ^ i
-                key = ( int(key,16) & (pow(2,62)-1) ) + (temp << 62) + ( (int(key,16) >> 67) <<67 )
-                key = "%x" % key
+                temp = (int(key,16) >> 62)
+                temp = temp ^ (i%32)
+                key = ( int(key,16) & (pow(2,62)-1) ) + (temp << 62)
+                key = ("%x" % key).zfill(128/4)
         return roundkeys
 
 def addRoundKey(state,roundkey):
