@@ -7,8 +7,7 @@ setup(name='CryptoPlus',
       description='PyCrypto Cipher extension',
       author='Christophe Oosterlynck',
       author_email='tiftof@gmail.com',
-      url='http://www.python.org/sigs/distutils-sig/',
-      packages = ["CryptoPlus","CryptoPlus.Cipher", "CryptoPlus.Util","CryptoPlus.SelfTest","CryptoPlus.Random","CryptoPlus.SelfTest.Hash"],
+      packages = ["CryptoPlus","CryptoPlus.Cipher", "CryptoPlus.Util","CryptoPlus.SelfTest"],
       install_requires = ['pycrypto'],
       package_dir = {'CryptoPlus': 'src'}
      )
