@@ -8,7 +8,7 @@ setup(name='CryptoPlus',
       author='Christophe Oosterlynck',
       author_email='tiftof@gmail.com',
       url='http://www.python.org/sigs/distutils-sig/',
-      packages = ["CryptoPlus","CryptoPlus.Cipher", "CryptoPlus.Util","CryptoPlus.SelfTest"],
+      packages = ["CryptoPlus","CryptoPlus.Cipher", "CryptoPlus.Util","CryptoPlus.SelfTest","CryptoPlus.Random","CryptoPlus.SelfTest.Hash"],
       install_requires = ['pycrypto'],
       package_dir = {'CryptoPlus': 'src'}
      )
