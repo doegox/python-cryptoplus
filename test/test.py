@@ -6,7 +6,58 @@ from CryptoPlus.testvectors import dict_des,dict_tdes2,dict_tdes3
 from CryptoPlus.testvectors import dict_serpent128,dict_serpent192,dict_serpent256
 from CryptoPlus.testvectors import dict_xts_aes
 
+# PRESENT
+print "PRESENT"
+
+from CryptoPlus.testvectors import dict_present_e80_k12_tvar, dict_present_e128_k12_tvar, dict_present_e128_kvar_t12, dict_present_e80_kvar_t12
+from CryptoPlus.Cipher import python_PRESENT
+
+for i in range(1,len(dict_present_e80_k12_tvar)/3):
+    msg = dict_present_e80_k12_tvar['msg%i'%i].decode('hex')
+    key = dict_present_e80_k12_tvar['key%i'%i].decode('hex')
+    cip = dict_present_e80_k12_tvar['cip%i'%i].decode('hex')
+    cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    decipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    if cip <> cipher.encrypt(msg):
+        print 'ERROR! for present_e80-k12_tvar in %i'%i
+    if msg <> decipher.decrypt(cip):
+        print 'DECRYPTION ERROR! for present_e80-k12_tvar in %i'%i
+
+for i in range(1,len(dict_present_e128_k12_tvar)/3):
+    msg = dict_present_e128_k12_tvar['msg%i'%i].decode('hex')
+    key = dict_present_e128_k12_tvar['key%i'%i].decode('hex')
+    cip = dict_present_e128_k12_tvar['cip%i'%i].decode('hex')
+    cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    decipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    if cip <> cipher.encrypt(msg):
+        print 'ERROR! for present_e128-k12_tvar in %i'%i
+    if msg <> decipher.decrypt(cip):
+        print 'DECRYPTION ERROR! for present_e128-k12_tvar in %i'%i
+
+for i in range(1,len(dict_present_e128_kvar_t12)/3):
+    msg = dict_present_e128_kvar_t12['msg%i'%i].decode('hex')
+    key = dict_present_e128_kvar_t12['key%i'%i].decode('hex')
+    cip = dict_present_e128_kvar_t12['cip%i'%i].decode('hex')
+    cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    decipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    if cip <> cipher.encrypt(msg):
+        print 'ERROR! for present_e128-kvar_t12 in %i'%i
+    if msg <> decipher.decrypt(cip):
+        print 'DECRYPTION ERROR! for present_e128-kvar_t12 in %i'%i
+
+for i in range(1,len(dict_present_e80_kvar_t12)/3):
+    msg = dict_present_e80_kvar_t12['msg%i'%i].decode('hex')
+    key = dict_present_e80_kvar_t12['key%i'%i].decode('hex')
+    cip = dict_present_e80_kvar_t12['cip%i'%i].decode('hex')
+    cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    decipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
+    if cip <> cipher.encrypt(msg):
+        print 'ERROR! for present_e80-kvar_t12 in %i'%i
+    if msg <> decipher.decrypt(cip):
+        print 'DECRYPTION ERROR! for present_e80-kvar_t12 in %i'%i
+
 # CBC, CFB, OFB and CTR with AES
+print "AES"
 
 from CryptoPlus.Cipher import python_AES
 from CryptoPlus.Util import util
@@ -62,6 +113,7 @@ for i in range(1,len(dict_cfb_aes)/4+1):
         print 'DECRYPTION ERROR! for CFB-AES in %i'%i
 
 # DES,TDES2/3
+print "DES TDES2/3"
 
 from CryptoPlus.Cipher import python_DES
 
@@ -85,6 +137,7 @@ for dict in dict_tdes2,dict_tdes3:
             print 'ERROR! for TDES2/3 in %i'%i
 
 # Serpent128/192/256
+print "Serpent"
 
 from CryptoPlus.Cipher import python_Serpent
 
@@ -98,6 +151,7 @@ for dict in dict_serpent128,dict_serpent192,dict_serpent256:
             print 'ERROR! for Serpent in %i'%i
 
 # CMAC-AES128/192/256
+print "CMAC-AES"
 
 from CryptoPlus.Cipher import python_AES
 
@@ -113,7 +167,7 @@ for dict in dict_cmac_aes128,dict_cmac_aes192,dict_cmac_aes256:
             print 'ERROR for %i'%i
 
 # CMAC-TDES2/3
-
+print "CMAC-TDES"
 from CryptoPlus.Cipher import python_DES3
 
 for dict in dict_cmac_tdes2,dict_cmac_tdes3:
@@ -128,6 +182,7 @@ for dict in dict_cmac_tdes2,dict_cmac_tdes3:
             print 'ERROR! on %i'%i
 
 # XTS-AES
+print "XTS-AES"
 
 from CryptoPlus.Cipher import python_AES
 
