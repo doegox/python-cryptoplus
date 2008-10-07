@@ -23,6 +23,16 @@ def number2string(i):
         s = '0' + s
     return s.decode('hex')
 
+def number2string_N(i, N):
+    """Convert a number to a string of fixed size
+
+    i: long or integer
+    N: length of string
+    Output: string (big-endian)
+    """
+    s = '%0*x' % (N*2, i)
+    return s.decode('hex')
+
 def string2number(i):
     """ Convert a string to a number
 
@@ -32,19 +42,11 @@ def string2number(i):
     return int(i.encode('hex'),16)
 
 def xorstring(a,b):
-    outlist = []
-    minlength = min(len(a),len(b))
-    if minlength == len(a):
-        maxstr = b
-        minstr = a
-    else:
-        maxstr = a
-        minstr = b
-    for k in range(len(minstr)):
-        outlist += [chr( ord(a[k])^ord(b[k]) )]
-    for i in maxstr[len(minstr):]:
-        outlist += i
-    return ''.join(outlist)
+    """XOR two strings of same length
+
+    For more complex cases, see CryptoPlus.Cipher.XOR"""
+    assert len(a) == len(b)
+    return number2string_N(string2number(a)^string2number(b), len(a))
 
 class Counter(str):
     #found here: http://www.lag.net/pipermail/paramiko/2008-February.txt
