@@ -1,24 +1,15 @@
-import blockcipher
+from blockcipher import *
 import Crypto.Cipher.AES
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None):
     """Create a new cipher object
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
         key = raw string containing the key, AES-128..256 will be selected according to the key length
-            -> when using XTS mode: the key should be a concatenation of the 2 keys needed
-        mode = AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+            -> when using XTS mode: the key should be a tuple of the 2 keys needed
+        mode = AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
-        counter = counter object (Cipher/util.py:Counter)
+        counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
     ECB EXAMPLE:
@@ -54,7 +45,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     >>> hexlify(plaintext)
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
-    OR: supply plaintext as seperate pieces:
+    OR: supply plaintext as separate pieces:
     ------------------------------------------
     >>> cipher = AES.new(key,AES.MODE_CBC,IV)
     >>> hexlify( cipher.encrypt(plaintext1 + plaintext2[:-2]) )
@@ -133,7 +124,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     """
     return AES(key,mode,IV,counter)
 
-class AES(blockcipher.BlockCipher):
+class AES(BlockCipher):
     """AES using pycrypto for algo and pycryptoplus for ciphermode
     """
     def __init__(self,key,mode,IV,counter):
@@ -144,7 +135,7 @@ class AES(blockcipher.BlockCipher):
         else:
             self.cipher = Crypto.Cipher.AES.new(key)
         self.blocksize = Crypto.Cipher.AES.block_size
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest
