@@ -21,11 +21,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         - Always construct a seperate cipher object for encryption and decryption. Once a cipher object has been used for encryption,
           it can't be used for decryption because it keeps a state (if necessary) for the IV.
 
-        ECB EXAMPLE:
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import python_AES
+
+    ECB EXAMPLE:
     -------------
     NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
 
-    >>> from CryptoPlus.Cipher import python_AES
     >>> cipher = python_AES.new('2b7e151628aed2a6abf7158809cf4f3c'.decode('hex'))
     >>> crypted = cipher.encrypt('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'.decode('hex'))
     >>> crypted.encode('hex')
@@ -35,8 +40,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'
 
     PADDING EXAMPLE:
-    ----------------
-    >>> from CryptoPlus.Cipher import python_AES
+    -----------------
     >>> cipher = python_AES.new('0123456789012345')
     >>> crypt = cipher.encrypt('0123456789012')
     >>> crypt += cipher.final()
@@ -48,33 +52,31 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     -----------------------------------------
     NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
 
-    >>> from binascii import hexlify,unhexlify
-    >>> from CryptoPlus.Cipher import python_AES
-    >>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
-    >>> IV = unhexlify('000102030405060708090a0b0c0d0e0f')
-    >>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
-    >>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
-    >>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
+    >>> key = ('2b7e151628aed2a6abf7158809cf4f3c').decode('hex')
+    >>> IV = ('000102030405060708090a0b0c0d0e0f').decode('hex')
+    >>> plaintext1 = ('6bc1bee22e409f96e93d7e117393172a').decode('hex')
+    >>> plaintext2 = ('ae2d8a571e03ac9c9eb76fac45af8e51').decode('hex')
+    >>> plaintext3 = ('30c81c46a35ce411e5fbc1191a0a52ef').decode('hex')
     >>> cipher = python_AES.new(key,python_AES.MODE_CBC,IV)
     >>> ciphertext = cipher.encrypt(plaintext1 + plaintext2 + plaintext3)
-    >>> hexlify(ciphertext)
+    >>> (ciphertext).encode('hex')
     '7649abac8119b246cee98e9b12e9197d5086cb9b507219ee95db113a917678b273bed6b8e3c1743b7116e69e22229516'
     >>> decipher = python_AES.new(key,python_AES.MODE_CBC,IV)
     >>> plaintext = decipher.decrypt(ciphertext)
-    >>> hexlify(plaintext)
+    >>> (plaintext).encode('hex')
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
     OR: supply plaintext as seperate pieces:
     ------------------------------------------
     >>> cipher = python_AES.new(key,python_AES.MODE_CBC,IV)
-    >>> hexlify( cipher.encrypt(plaintext1 + plaintext2[:-2]) )
+    >>> ( cipher.encrypt(plaintext1 + plaintext2[:-2]) ).encode('hex')
     '7649abac8119b246cee98e9b12e9197d'
-    >>> hexlify( cipher.encrypt(plaintext2[-2:] + plaintext3) )
+    >>> ( cipher.encrypt(plaintext2[-2:] + plaintext3) ).encode('hex')
     '5086cb9b507219ee95db113a917678b273bed6b8e3c1743b7116e69e22229516'
     >>> decipher = python_AES.new(key,python_AES.MODE_CBC,IV)
-    >>> hexlify(decipher.decrypt(ciphertext[:22]))
+    >>> (decipher.decrypt(ciphertext[:22])).encode('hex')
     '6bc1bee22e409f96e93d7e117393172a'
-    >>> hexlify(decipher.decrypt(ciphertext[22:]))
+    >>> (decipher.decrypt(ciphertext[22:])).encode('hex')
     'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
     CFB EXAMPLE: (CFB128-AES192)

@@ -12,11 +12,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import AES
+
     ECB EXAMPLE:
     -------------
     NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
 
-    >>> from CryptoPlus.Cipher import AES
     >>> cipher = AES.new('2b7e151628aed2a6abf7158809cf4f3c'.decode('hex'))
     >>> crypted = cipher.encrypt('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'.decode('hex'))
     >>> crypted.encode('hex')
@@ -29,33 +34,31 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     -----------------------------------------
     NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
 
-    >>> from binascii import hexlify,unhexlify
-    >>> from CryptoPlus.Cipher import AES
-    >>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
-    >>> IV = unhexlify('000102030405060708090a0b0c0d0e0f')
-    >>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
-    >>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
-    >>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
+    >>> key = ('2b7e151628aed2a6abf7158809cf4f3c').decode('hex')
+    >>> IV = ('000102030405060708090a0b0c0d0e0f').decode('hex')
+    >>> plaintext1 = ('6bc1bee22e409f96e93d7e117393172a').decode('hex')
+    >>> plaintext2 = ('ae2d8a571e03ac9c9eb76fac45af8e51').decode('hex')
+    >>> plaintext3 = ('30c81c46a35ce411e5fbc1191a0a52ef').decode('hex')
     >>> cipher = AES.new(key,AES.MODE_CBC,IV)
     >>> ciphertext = cipher.encrypt(plaintext1 + plaintext2 + plaintext3)
-    >>> hexlify(ciphertext)
+    >>> (ciphertext).encode('hex')
     '7649abac8119b246cee98e9b12e9197d5086cb9b507219ee95db113a917678b273bed6b8e3c1743b7116e69e22229516'
     >>> decipher = AES.new(key,AES.MODE_CBC,IV)
     >>> plaintext = decipher.decrypt(ciphertext)
-    >>> hexlify(plaintext)
+    >>> (plaintext).encode('hex')
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
     OR: supply plaintext as separate pieces:
     ------------------------------------------
     >>> cipher = AES.new(key,AES.MODE_CBC,IV)
-    >>> hexlify( cipher.encrypt(plaintext1 + plaintext2[:-2]) )
+    >>> ( cipher.encrypt(plaintext1 + plaintext2[:-2]) ).encode('hex')
     '7649abac8119b246cee98e9b12e9197d'
-    >>> hexlify( cipher.encrypt(plaintext2[-2:] + plaintext3) )
+    >>> ( cipher.encrypt(plaintext2[-2:] + plaintext3) ).encode('hex')
     '5086cb9b507219ee95db113a917678b273bed6b8e3c1743b7116e69e22229516'
     >>> decipher = AES.new(key,AES.MODE_CBC,IV)
-    >>> hexlify(decipher.decrypt(ciphertext[:22]))
+    >>> (decipher.decrypt(ciphertext[:22])).encode('hex')
     '6bc1bee22e409f96e93d7e117393172a'
-    >>> hexlify(decipher.decrypt(ciphertext[22:]))
+    >>> (decipher.decrypt(ciphertext[22:])).encode('hex')
     'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
     CTR EXAMPLE:
@@ -80,19 +83,19 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     XTS EXAMPLE:
     cipher/decipher plaintext of 3 blocks, provided as a 2 pieces (31 bytes + 33 bytes)
     ------------
-    >>> key = (unhexlify('2b7e151628aed2a6abf7158809cf4f3c'),unhexlify('2b7e151628aed2a6abf7158809cf4f3c'))
-    >>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
-    >>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
-    >>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
+    >>> key = (('2b7e151628aed2a6abf7158809cf4f3c').decode('hex'),('2b7e151628aed2a6abf7158809cf4f3c').decode('hex'))
+    >>> plaintext1 = ('6bc1bee22e409f96e93d7e117393172a').decode('hex')
+    >>> plaintext2 = ('ae2d8a571e03ac9c9eb76fac45af8e51').decode('hex')
+    >>> plaintext3 = ('30c81c46a35ce411e5fbc1191a0a52ef').decode('hex')
     >>> cipher = AES.new(key,AES.MODE_XTS)
     >>> ciphertext = cipher.encrypt(plaintext1 + plaintext2[:15])
     >>> decipher = AES.new(key,AES.MODE_XTS)
     >>> deciphertext = decipher.decrypt(ciphertext)
-    >>> hexlify(deciphertext)
+    >>> (deciphertext).encode('hex')
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e'
     >>> ciphertext2 = cipher.encrypt(plaintext2[15:]+plaintext3)
     >>> deciphertext2 = decipher.decrypt(ciphertext2)
-    >>> hexlify(deciphertext2)
+    >>> (deciphertext2).encode('hex')
     '5130c81c46a35ce411e5fbc1191a0a52ef'
 
     XTS-AES-128 applied for a data unit of 512 bytes

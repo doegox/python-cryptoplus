@@ -23,11 +23,14 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         - Always construct a seperate cipher object for encryption and decryption. Once a cipher object has been used for encryption,
           it can't be used for decryption because it keeps a state (if necessary) for the IV.
 
+        EXAMPLES:
+        **********
+        IMPORTING:
+        -----------
+        >>> from CryptoPlus.Cipher import python_PRESENT
 
         ECB Test Vectors:
-        ------------------
-        >>> from CryptoPlus.Cipher import python_PRESENT
-        
+        ------------------        
         >>> key = "00000000000000000000".decode('hex')
         >>> plain = "0000000000000000".decode('hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)

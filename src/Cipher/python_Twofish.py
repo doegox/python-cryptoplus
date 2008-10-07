@@ -16,16 +16,20 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import python_Twofish
+
     EXAMPLE:
     ----------
     http://www.schneier.com/code/ecb_ival.txt -> test vector I=5
 
-    >>> import python_Twofish
-    >>> from binascii import hexlify, unhexlify
-    >>> cipher = python_Twofish.new(unhexlify('019F9809DE1711858FAAC3A3BA20FBC3'))
-    >>> hexlify(cipher.encrypt(unhexlify('6363977DE839486297E661C6C9D668EB'))).upper()
+    >>> cipher = python_Twofish.new(('019F9809DE1711858FAAC3A3BA20FBC3').decode('hex'))
+    >>> (cipher.encrypt(('6363977DE839486297E661C6C9D668EB').decode('hex'))).encode('hex').upper()
     '816D5BD0FAE35342BF2A7412C246F752'
-    >>> hexlify( cipher.decrypt(unhexlify(_)) ).upper()
+    >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex').upper()
     '6363977DE839486297E661C6C9D668EB'
     """
     return python_Twofish(key,mode,IV,counter)

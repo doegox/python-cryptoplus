@@ -19,9 +19,14 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
         rounds = amount of rounds, default = 12
         word_size = RC5 word size (bits), default = 32
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import RC5
+
     https://www.cosic.esat.kuleuven.be/nessie/testvectors/
     -----------------------------------------
-    >>> from CryptoPlus.Cipher import RC5
     >>> key = "00000000000000000000000000000000".decode('hex')
     >>> plaintext = "0000000000000000".decode('hex')
     >>> rounds = 12

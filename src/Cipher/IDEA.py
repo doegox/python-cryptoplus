@@ -17,6 +17,12 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import IDEA
+
     https://www.cosic.esat.kuleuven.be/nessie/testvectors/
     -----------------------------------------
     >>> from CryptoPlus.Cipher import IDEA

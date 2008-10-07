@@ -17,37 +17,37 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import python_Serpent
+
     EXAMPLE:
     ---------
     NESSIE Test Vectors: http://www.cs.technion.ac.il/~biham/Reports/Serpent/Serpent-128-128.verified.test-vectors
 
-    >>> import python_Serpent
-    >>> from binascii import hexlify, unhexlify
-    >>> cipher = python_Serpent.new(unhexlify('000102030405060708090A0B0C0D0E0F'))
-    >>> hexlify(cipher.encrypt(unhexlify('33B3DC87EDDD9B0F6A1F407D14919365'))).upper()
+    >>> cipher = python_Serpent.new(('000102030405060708090A0B0C0D0E0F').decode('hex'))
+    >>> (cipher.encrypt(('33B3DC87EDDD9B0F6A1F407D14919365').decode('hex'))).encode('hex').upper()
     '00112233445566778899AABBCCDDEEFF'
-    >>> hexlify( cipher.decrypt(unhexlify(_)) ).upper()
+    >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex').upper()
     '33B3DC87EDDD9B0F6A1F407D14919365'
 
-    >>> import python_Serpent
-    >>> from binascii import hexlify, unhexlify
-    >>> cipher = python_Serpent.new(unhexlify('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'))
-    >>> hexlify(cipher.encrypt(unhexlify('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'))).upper()
+    >>> cipher = python_Serpent.new(('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD').decode('hex'))
+    >>> (cipher.encrypt(('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD').decode('hex'))).encode('hex').upper()
     '81F9163BDF39B5BB2932AB91DF2A5FFC'
-    >>> hexlify( cipher.decrypt(unhexlify(_)) ).upper()
+    >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex').upper()
     'FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'
 
     CBC EXAMPLE:
     -------------
-    >>> from binascii import hexlify,unhexlify
-    >>> import python_Serpent
-    >>> key = unhexlify('000102030405060708090A0B0C0D0E0F')
-    >>> IV = unhexlify('00000000000000000000000000000000')
-    >>> plaintext = unhexlify('33B3DC87EDDD9B0F6A1F407D14919365'*3)
+    >>> key = ('000102030405060708090A0B0C0D0E0F').decode('hex')
+    >>> IV = ('00000000000000000000000000000000').decode('hex')
+    >>> plaintext = ('33B3DC87EDDD9B0F6A1F407D14919365'*3).decode('hex')
     >>> cipher = python_Serpent.new(key,python_Serpent.MODE_CBC,IV)
     >>> ciphertext = cipher.encrypt(plaintext)
     >>> decipher = python_Serpent.new(key,python_Serpent.MODE_CBC,IV)
-    >>> hexlify( decipher.decrypt(ciphertext)).upper()
+    >>> ( decipher.decrypt(ciphertext)).encode('hex').upper()
     '33B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D14919365'
     """
     return python_Serpent(key,mode,IV,counter)

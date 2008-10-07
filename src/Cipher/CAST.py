@@ -13,11 +13,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import CAST
+
     ECB example: http://www.rfc-editor.org/rfc/rfc2144.txt
     -------------
     128 bit key
 
-    >>> from CryptoPlus.Cipher import CAST
     >>> key = "0123456712345678234567893456789A".decode('hex')
     >>> plaintext = "0123456789ABCDEF".decode('hex')
     >>> cipher = CAST.new(key,CAST.MODE_ECB,)

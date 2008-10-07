@@ -16,17 +16,20 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import python_DES
 
     EXAMPLE (test vectors from NESSIE):
     -----------------------------------
-    >>> import python_DES
-    >>> from binascii import hexlify, unhexlify
-    >>> cipher = python_DES.new(unhexlify('7CA110454A1A6E57'))
-    >>> ciphertext = cipher.encrypt(unhexlify('01A1D6D039776742'))
-    >>> hexlify(ciphertext)
+    >>> cipher = python_DES.new(('7CA110454A1A6E57').decode('hex'))
+    >>> ciphertext = cipher.encrypt(('01A1D6D039776742').decode('hex'))
+    >>> (ciphertext).encode('hex')
     '690f5b0d9a26939b'
     >>> plaintext = cipher.decrypt(ciphertext)
-    >>> hexlify(plaintext)
+    >>> (plaintext).encode('hex')
     '01a1d6d039776742'
     """
     return python_DES(key,mode,IV,counter)

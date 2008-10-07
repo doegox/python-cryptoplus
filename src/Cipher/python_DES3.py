@@ -15,19 +15,23 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import python_DES3
+
     CBC TDES-EDE3 EXAMPLE: (using test vectors from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf)
     ------------
-    >>> import python_DES3
-    >>> from binascii import hexlify, unhexlify
-    >>> key = unhexlify('37ae5ebf46dff2dc0754b94f31cbb3855e7fd36dc870bfae')
-    >>> IV = unhexlify('3d1de3cc132e3b65')
+    >>> key = ('37ae5ebf46dff2dc0754b94f31cbb3855e7fd36dc870bfae').decode('hex')
+    >>> IV = ('3d1de3cc132e3b65').decode('hex')
     >>> cipher = python_DES3.new(key, python_DES3.MODE_CBC, IV)
-    >>> ciphertext = cipher.encrypt(unhexlify('84401f78fe6c10876d8ea23094ea5309'))
-    >>> hexlify(ciphertext)
+    >>> ciphertext = cipher.encrypt(('84401f78fe6c10876d8ea23094ea5309').decode('hex'))
+    >>> (ciphertext).encode('hex')
     '7b1f7c7e3b1c948ebd04a75ffba7d2f5'
     >>> decipher = python_DES3.new(key, python_DES3.MODE_CBC, IV)
     >>> plaintext = decipher.decrypt(ciphertext)
-    >>> hexlify(plaintext)
+    >>> (plaintext).encode('hex')
     '84401f78fe6c10876d8ea23094ea5309'
 
     CMAC TDES-EDE3 EXAMPLE:

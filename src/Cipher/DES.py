@@ -13,16 +13,21 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import DES
+
     EXAMPLE (test vectors from NESSIE):
     -----------------------------------
-    >>> import DES
-    >>> from binascii import hexlify, unhexlify
-    >>> cipher = DES.new(unhexlify('7CA110454A1A6E57'))
-    >>> ciphertext = cipher.encrypt(unhexlify('01A1D6D039776742'))
-    >>> hexlify(ciphertext)
+
+    >>> cipher = DES.new(('7CA110454A1A6E57').decode('hex'))
+    >>> ciphertext = cipher.encrypt(('01A1D6D039776742').decode('hex'))
+    >>> (ciphertext).encode('hex')
     '690f5b0d9a26939b'
     >>> plaintext = cipher.decrypt(ciphertext)
-    >>> hexlify(plaintext)
+    >>> (plaintext).encode('hex')
     '01a1d6d039776742'
 
     """

@@ -13,25 +13,28 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import Blowfish
+
     ECB EXAMPLE: http://www.schneier.com/code/vectors.txt
     -------------
-    >>> import Blowfish
-    >>> from binascii import hexlify, unhexlify
-    >>> cipher = Blowfish.new(unhexlify('0131D9619DC1376E'))
-    >>> hexlify( cipher.encrypt(unhexlify('5CD54CA83DEF57DA')) )
+    >>> cipher = Blowfish.new(('0131D9619DC1376E').decode('hex'))
+    >>> ( cipher.encrypt(('5CD54CA83DEF57DA').decode('hex')) ).encode('hex')
     'b1b8cc0b250f09a0'
-    >>> hexlify( cipher.decrypt(unhexlify(_)) )
+    >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex')
     '5cd54ca83def57da'
 
     CBC, CFB, OFB EXAMPLE: http://www.schneier.com/code/vectors.txt
     ----------------------
-    >>> from binascii import hexlify,unhexlify
-    >>> key = unhexlify('0123456789ABCDEFF0E1D2C3B4A59687')
-    >>> IV = unhexlify('FEDCBA9876543210')
-    >>> plaintext = unhexlify('37363534333231204E6F77206973207468652074696D6520')
+    >>> key = ('0123456789ABCDEFF0E1D2C3B4A59687').decode('hex')
+    >>> IV = ('FEDCBA9876543210').decode('hex')
+    >>> plaintext = ('37363534333231204E6F77206973207468652074696D6520').decode('hex')
     >>> cipher = Blowfish.new(key,Blowfish.MODE_CBC,IV)
     >>> ciphertext = cipher.encrypt(plaintext)
-    >>> hexlify(ciphertext).upper()
+    >>> (ciphertext).encode('hex').upper()
     '6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
 
 
@@ -41,17 +44,17 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
     >>> cipher = Blowfish.new(key,Blowfish.MODE_CBC,iv)
     >>> ciphertext = cipher.encrypt(plaintext)
-    >>> hexlify(ciphertext).upper()
+    >>> (ciphertext).encode('hex').upper()
     '6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
 
     >>> cipher = Blowfish.new(key,Blowfish.MODE_CFB,iv)
     >>> ciphertext = cipher.encrypt(plaintext)
-    >>> hexlify(ciphertext).upper()
+    >>> (ciphertext).encode('hex').upper()
     'E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3'
 
     >>> cipher = Blowfish.new(key,Blowfish.MODE_OFB,iv)
     >>> ciphertext = cipher.encrypt(plaintext)
-    >>> hexlify(ciphertext).upper()
+    >>> (ciphertext).encode('hex').upper()
     'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'
     """
     return Blowfish(key,mode,IV,counter)

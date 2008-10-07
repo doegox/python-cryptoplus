@@ -17,10 +17,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,effective_keylen=None):
         effective_keylen = how much bits to effectively use from the supplied key
             -> will only be used when the pycrypto version on your system is >2.0.1
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import ARC2
+
     http://www.ietf.org/rfc/rfc2268.txt
     Doctest will fail when using pycrypto 2.0.1 and older
     ------------------------------------
-    >>> from CryptoPlus.Cipher import ARC2
     >>> key = "0000000000000000".decode('hex')
     >>> plaintext = "0000000000000000".decode('hex')
     >>> ek = 63

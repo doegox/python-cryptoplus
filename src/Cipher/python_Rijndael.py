@@ -19,10 +19,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
         blocksize = blocksize in bytes
             -> supported blocksizes are 16, 24 and 32 bytes
 
+    EXAMPLES:
+    **********
+    IMPORTING:
+    -----------
+    >>> from CryptoPlus.Cipher import python_Rijndael
+
     EXAMPLE:
     --------
     24 byte block, 32 byte key (http://fp.gladman.plus.com/cryptography_technology/rijndael/)
-    >>> import python_Rijndael
     >>> key = '2b7e151628aed2a6abf7158809cf4f3c762e7160f38b4da56a784d9045190cfe'.decode('hex')
     >>> plaintext ='3243f6a8885a308d313198a2e03707344a4093822299f31d'.decode('hex')
     >>> cipher = python_Rijndael.new(key,python_Rijndael.MODE_ECB,blocksize=24)
@@ -31,20 +36,18 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
 
     CBC EXAMPLE (plaintext = 3 blocksizes) (AES):
     -----------------------------------------
-    >>> import python_Rijndael
-    >>> from binascii import hexlify,unhexlify
-    >>> key = unhexlify('2b7e151628aed2a6abf7158809cf4f3c')
-    >>> IV = unhexlify('000102030405060708090a0b0c0d0e0f')
-    >>> plaintext1 = unhexlify('6bc1bee22e409f96e93d7e117393172a')
-    >>> plaintext2 = unhexlify('ae2d8a571e03ac9c9eb76fac45af8e51')
-    >>> plaintext3 = unhexlify('30c81c46a35ce411e5fbc1191a0a52ef')
+    >>> key = ('2b7e151628aed2a6abf7158809cf4f3c').decode('hex')
+    >>> IV = ('000102030405060708090a0b0c0d0e0f').decode('hex')
+    >>> plaintext1 = ('6bc1bee22e409f96e93d7e117393172a').decode('hex')
+    >>> plaintext2 = ('ae2d8a571e03ac9c9eb76fac45af8e51').decode('hex')
+    >>> plaintext3 = ('30c81c46a35ce411e5fbc1191a0a52ef').decode('hex')
     >>> cipher = python_Rijndael.new(key,python_Rijndael.MODE_CBC,IV,blocksize=16)
     >>> ciphertext = cipher.encrypt(plaintext1 + plaintext2 + plaintext3)
-    >>> hexlify(ciphertext)
+    >>> (ciphertext).encode('hex')
     '7649abac8119b246cee98e9b12e9197d5086cb9b507219ee95db113a917678b273bed6b8e3c1743b7116e69e22229516'
     >>> decipher = python_Rijndael.new(key,python_Rijndael.MODE_CBC,IV,blocksize=16)
     >>> plaintext = decipher.decrypt(ciphertext)
-    >>> hexlify(plaintext)
+    >>> (plaintext).encode('hex')
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
     XTS EXAMPLE:
