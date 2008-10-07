@@ -321,8 +321,7 @@ class XTS:
                 #T[0] ^= GF_128_FDBK;
                 T = T ^ 0x100000000000000000000000000000087L
             i-=1
-        T = util.number2string(T)[::-1]
-        T = T + '\x00' * (16 - len(T))
+        T = util.number2string_N(T, 16)[::-1]
 
         # C = E_K1(P xor T) xor T
         if ed == 'd':
