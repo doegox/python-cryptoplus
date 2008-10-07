@@ -6,7 +6,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
 
     Wrapper for pure python implementation rijndael.py
 
-    new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         key = raw string containing the key, AES-128..256 will be selected according to the key length
             -> when using XTS mode: the key should be a tuple containing the 2 keys needed
         mode = python_PRESENT.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
@@ -18,6 +17,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
                 rounds = amount of rounds
+        rounds = amount of rounds, default = 32
 
     Notes:
         - Always construct a seperate cipher object for encryption and decryption. Once a cipher object has been used for encryption,

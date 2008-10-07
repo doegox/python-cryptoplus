@@ -6,7 +6,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
 
     Wrapper for pure python implementation rijndael.py
 
-    new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
         key = raw string containing the key
             -> supported key size are 16, 24 and 32 bytes
         mode = python_Rijndael.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB

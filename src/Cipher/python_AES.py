@@ -6,7 +6,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
     Wrapper for pure python implementation rijndael.py
 
-    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key, AES-128..256 will be selected according to the key length
             -> when using XTS mode: the key should be a tuple containing the 2 keys needed
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB

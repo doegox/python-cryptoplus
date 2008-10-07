@@ -10,13 +10,14 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
 
     RC5 using pycrypto for algo and pycryptoplus for ciphermode
 
-    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the keys
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
+        rounds = amount of rounds, default = 12
+        word_size = RC5 word size (bits), default = 32
 
     https://www.cosic.esat.kuleuven.be/nessie/testvectors/
     -----------------------------------------

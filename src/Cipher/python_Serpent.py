@@ -7,7 +7,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
     Wrapper for pure python implementation pyserpent.py
 
-    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key
         mode = python_Serpent.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption

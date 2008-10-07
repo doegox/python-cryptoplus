@@ -6,7 +6,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
     DES using pycrypto for algo and pycryptoplus for ciphermode
 
-    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the 2/3 keys
             - DES-EDE2: supply 2 keys as 1 single concatenated 16byte key= key1|key2
             - DES-EDE3: supply 3 keys as 1 single concatenated 24byte key= key1|key2|key3

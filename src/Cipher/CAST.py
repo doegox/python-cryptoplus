@@ -6,7 +6,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
     CAST using pycrypto for algo and pycryptoplus for ciphermode
 
-    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the keys
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string

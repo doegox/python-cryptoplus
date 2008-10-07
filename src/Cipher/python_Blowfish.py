@@ -6,7 +6,6 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
     Wrapper for pure python implementation pyblowfish.py
 
-    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key
         mode = Blowfish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
         IV = IV as a raw string
