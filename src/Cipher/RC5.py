@@ -1,26 +1,18 @@
-import blockcipher
+from blockcipher import *
 try:
     import Crypto.Cipher.RC5
 except ImportError:
     print "Crypto.Cipher.RC5 isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for RC5."
     raise
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
+def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
     """Create a new cipher object
 
     RC5 using pycrypto for algo and pycryptoplus for ciphermode
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the keys
-        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
+        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
@@ -38,7 +30,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=12,word_size=3
     """
     return RC5(key,mode,IV,counter,rounds,word_size)
 
-class RC5(blockcipher.BlockCipher):
+class RC5(BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds,word_size):
         if mode == MODE_XTS:
             #XTS implementation only works with blocksizes of 16 bytes
@@ -53,7 +45,7 @@ class RC5(blockcipher.BlockCipher):
         else:
             self.cipher = Crypto.Cipher.RC5.new(key,rounds=rounds,word_size=word_size)
         self.blocksize = self.cipher.block_size
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

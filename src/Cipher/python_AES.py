@@ -1,29 +1,15 @@
-# wrapper for rijndael.py. rijndael.py can be found here:
-#   http://bitconjurer.org/rijndael.py
-# other possible python AES implementations:
-#   http://psionicist.online.fr/code/rijndael.py.txt
-#   http://jclement.ca/software/pyrijndael/
-
-import blockcipher
+from blockcipher import *
 from rijndael import rijndael
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key, AES-128..256 will be selected according to the key length
             -> when using XTS mode: the key should be a tuple containing the 2 keys needed
-        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
             -> needed for CBC, CFB and OFB mode
@@ -273,7 +259,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     """
     return python_AES(key,mode,IV,counter)
 
-class python_AES(blockcipher.BlockCipher):
+class python_AES(BlockCipher):
     def __init__(self,key,mode,IV,counter):
         if mode == MODE_XTS:
             assert type(key) is tuple
@@ -282,7 +268,7 @@ class python_AES(blockcipher.BlockCipher):
         else:
             self.cipher = rijndael(key, 16)
         self.blocksize = 16
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

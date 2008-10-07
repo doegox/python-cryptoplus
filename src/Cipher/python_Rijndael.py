@@ -1,29 +1,15 @@
-# wrapper for rijndael.py. rijndael.py can be found here:
-#   http://bitconjurer.org/rijndael.py
-# other possible python AES implementations:
-#   http://psionicist.online.fr/code/rijndael.py.txt
-#   http://jclement.ca/software/pyrijndael/
-
-import blockcipher
+from blockcipher import *
 from rijndael import rijndael
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
+    new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
         key = raw string containing the key
             -> supported key size are 16, 24 and 32 bytes
-        mode = python_Rijndael.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+        mode = python_Rijndael.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
             -> needed for CBC, CFB and OFB mode
@@ -93,7 +79,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,blocksize=None):
     """
     return python_Rijndael(key,mode,IV,counter,blocksize)
 
-class python_Rijndael(blockcipher.BlockCipher):
+class python_Rijndael(BlockCipher):
     def __init__(self,key,mode,IV,counter,blocksize):
         #Limitations on key and block size:
         # the wrapped rijndael implementation doesn't support all 32bit multiples between 128 and 256bits
@@ -114,7 +100,7 @@ class python_Rijndael(blockcipher.BlockCipher):
             assert blocksize in (16, 24, 32)
             self.cipher = rijndael(key, blocksize)
         self.blocksize = blocksize
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

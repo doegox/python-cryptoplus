@@ -1,26 +1,18 @@
-# source of the used python implementation of blowfish
-#   http://www.michaelgilfix.com/files/blowfish.py
-# other possibility:
-#   http://www.4dsolutions.net/cgi-bin/py2html.cgi?script=/ocn/python/blowfish.py
-#       => difficulties: doesn't define a class, only functions
-#
-
-import blockcipher
+from blockcipher import *
 from pyblowfish import Blowfish
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-#XTS only works with blocksizes of 16 bytes; Blowfish -> 8 bytes
-#MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation pyblowfish.py
+
+    new(key,mode=MODE_ECB,IV=None,counter=None):
+        key = raw string containing the key
+        mode = Blowfish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
+        IV = IV as a raw string
+            -> only needed for CBC mode
+        counter = counter object (CryptoPlus.Util.util.Counter)
+            -> only needed for CTR mode
 
     EXAMPLE: (http://www.schneier.com/code/vectors.txt)
     ----------
@@ -64,11 +56,11 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'"""
     return python_Blowfish(key,mode,IV,counter)
 
-class python_Blowfish(blockcipher.BlockCipher):
+class python_Blowfish(BlockCipher):
     def __init__(self,key,mode,IV,counter):
         self.cipher = Blowfish(key)
         self.blocksize = 8
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

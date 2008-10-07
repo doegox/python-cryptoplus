@@ -1,23 +1,16 @@
-import blockcipher
+from blockcipher import *
 import pyDes
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None):
     """Create a DES-EDE3 or DES-EDE2 cipher object
 
     wrapper for pure python 3DES implementation pyDes.py
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the 2/3 keys
             - DES-EDE2: supply 2 keys as 1 single concatenated 16byte key= key1|key2
             - DES-EDE3: supply 3 keys as 1 single concatenated 24byte key= key1|key2|key3
-        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
+        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
@@ -61,12 +54,12 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     '32e7758f3f614dbf'"""
     return python_DES3(key,mode,IV,counter)
 
-class python_DES3(blockcipher.BlockCipher):
+class python_DES3(BlockCipher):
     def __init__(self,key,mode,IV,counter):
         assert len(key) in (16,24)
         self.cipher = pyDes.triple_des(key)
         self.blocksize = self.cipher.block_size
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

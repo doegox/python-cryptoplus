@@ -41,6 +41,7 @@ class BlockCipher():
             assert self.blocksize == 16
             self.chain = XTS(self.cipher, self.cipher2)
         elif mode == MODE_CMAC:
+            assert self.blocksize in (8,16)
             self.chain = CMAC(self.cipher,self.blocksize)
 
     def encrypt(self,plaintext,n=''):

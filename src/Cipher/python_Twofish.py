@@ -1,26 +1,14 @@
-# blocksize = 128 bits
-# key = up to 256 bits
-#   algo supports 16, 24 and 32*8? maakt er een 32 van telkens?
-
-import blockcipher
+from blockcipher import *
 from pytwofish import Twofish
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation pytwofish.py
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key
-        mode = python_Twofish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+        mode = python_Twofish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
             -> needed for CBC, CFB and OFB mode
@@ -43,7 +31,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     """
     return python_Twofish(key,mode,IV,counter)
 
-class python_Twofish(blockcipher.BlockCipher):
+class python_Twofish(BlockCipher):
     def __init__(self,key,mode,IV,counter):
         if mode == MODE_XTS:
             assert type(key) is tuple
@@ -52,7 +40,7 @@ class python_Twofish(blockcipher.BlockCipher):
         else:
             self.cipher = Twofish(key)
         self.blocksize = self.cipher.get_block_size()
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

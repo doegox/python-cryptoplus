@@ -1,24 +1,15 @@
-import blockcipher
+from blockcipher import *
 from pypresent import Present
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-#Present blocksize is 8bytes, XTS requires 16bytes
-#MODE_XTS = 7
-MODE_CMAC = 8
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=32):
+def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=32):
+    new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         key = raw string containing the key, AES-128..256 will be selected according to the key length
             -> when using XTS mode: the key should be a tuple containing the 2 keys needed
-        mode = python_PRESENT.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC
+        mode = python_PRESENT.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
             -> needed for CBC, CFB and OFB mode
@@ -77,11 +68,11 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=32):
         """
     return python_PRESENT(key,mode,IV,counter,rounds)
 
-class python_PRESENT(blockcipher.BlockCipher):
+class python_PRESENT(BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds):
         self.cipher = Present(key,rounds)
         self.blocksize = 8
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest

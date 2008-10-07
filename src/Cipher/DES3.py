@@ -1,24 +1,16 @@
-import blockcipher
+from blockcipher import *
 import Crypto.Cipher.DES3
 
-MODE_ECB = 1
-MODE_CBC = 2
-MODE_CFB = 3
-MODE_OFB = 5
-MODE_CTR = 6
-MODE_CMAC = 8
-#TODO: XTS nog niet mogelijk -> blocksize des = 8, XTS = 16
-
-def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None):
     """Create a new cipher object
 
     DES using pycrypto for algo and pycryptoplus for ciphermode
 
-    new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
+    new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the 2/3 keys
             - DES-EDE2: supply 2 keys as 1 single concatenated 16byte key= key1|key2
             - DES-EDE3: supply 3 keys as 1 single concatenated 24byte key= key1|key2|key3
-        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
+        mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
@@ -62,11 +54,11 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     """
     return DES3(key,mode,IV,counter)
 
-class DES3(blockcipher.BlockCipher):
+class DES3(BlockCipher):
     def __init__(self,key,mode,IV,counter):
         self.cipher = Crypto.Cipher.DES3.new(key)
         self.blocksize = Crypto.Cipher.DES3.block_size
-        blockcipher.BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter)
 
 def _test():
     import doctest
