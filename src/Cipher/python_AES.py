@@ -27,7 +27,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
             -> needed for CBC, CFB and OFB mode
-        counter = counter object (Cipher/util.py:Counter)
+        counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring

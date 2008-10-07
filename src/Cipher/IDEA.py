@@ -19,14 +19,14 @@ MODE_CMAC = 8
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
     """Create a new cipher object
 
-    IDEA using pycrypto for algo en pycryptoplus for ciphermode
+    IDEA using pycrypto for algo and pycryptoplus for ciphermode
 
     new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
         key = raw string containing the keys
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
         IV = IV as a raw string
             -> only needed for CBC mode
-        counter = counter object (Cipher/util.py:Counter)
+        counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
     https://www.cosic.esat.kuleuven.be/nessie/testvectors/

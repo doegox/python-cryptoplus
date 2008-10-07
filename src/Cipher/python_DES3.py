@@ -20,7 +20,7 @@ def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
         IV = IV as a raw string
             -> only needed for CBC mode
-        counter = counter object (Cipher/util.py:Counter)
+        counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
     CBC TDES-EDE3 EXAMPLE: (using test vectors from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf)

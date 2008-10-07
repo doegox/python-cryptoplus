@@ -15,14 +15,14 @@ MODE_CMAC = 8
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,effective_keylen=None):
     """Create a new cipher object
 
-    ARC2 using pycrypto for algo en pycryptoplus for ciphermode
+    ARC2 using pycrypto for algo and pycryptoplus for ciphermode
 
     new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,effective_keylen=None):
         key = raw string containing the keys
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
         IV = IV as a raw string
             -> only needed for CBC mode
-        counter = counter object (Cipher/util.py:Counter)
+        counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
         effective_keylen = how much bits to effectively use from the supplied key
             -> will only be used when the pycrypto version on your system is >2.0.1

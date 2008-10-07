@@ -1,5 +1,3 @@
-# key size = 0 - 2040 bits
-# blocksize = 32, 64 or 128 bits
 import blockcipher
 try:
     import Crypto.Cipher.RC5
@@ -18,14 +16,14 @@ MODE_CMAC = 8
 def new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
     """Create a new cipher object
 
-    RC5 using pycrypto for algo en pycryptoplus for ciphermode
+    RC5 using pycrypto for algo and pycryptoplus for ciphermode
 
     new(key,mode=blockcipher.MODE_ECB,IV=None,counter=None):
         key = raw string containing the keys
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC
         IV = IV as a raw string
             -> only needed for CBC mode
-        counter = counter object (Cipher/util.py:Counter)
+        counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
 
     https://www.cosic.esat.kuleuven.be/nessie/testvectors/
