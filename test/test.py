@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from pkg_resources import require
+require("CryptoPlus>=1.0")
 from CryptoPlus.testvectors import dict_ofb_aes, dict_ctr_aes, dict_cfb_aes, dict_cbc_aes
 from CryptoPlus.testvectors import dict_cmac_aes128,dict_cmac_aes192,dict_cmac_aes256,dict_cmac_tdes2,dict_cmac_tdes3
 from CryptoPlus.testvectors import dict_des,dict_tdes2,dict_tdes3

@@ -2,6 +2,8 @@
 
 import unittest
 import doctest
+from pkg_resources import require
+require("CryptoPlus>=1.0")
 #import CryptoPlus.Cipher.python_AES
 from CryptoPlus.Cipher import python_AES, AES, python_DES, DES, python_DES3, DES3, python_Blowfish, Blowfish, python_Twofish, python_Serpent, python_Rijndael, CAST, ARC2, python_PRESENT
 try:
@@ -18,6 +20,6 @@ for mod in python_AES, AES, python_DES, DES, python_DES3, DES3, python_Blowfish,
 if not import_error:
     suite.addTest(doctest.DocTestSuite(IDEA))
     suite.addTest(doctest.DocTestSuite(RC5))
-runner = unittest.TextTestRunner()
+runner = unittest.TextTestRunner(verbosity=2)
 runner.run(suite)
 
