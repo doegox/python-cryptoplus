@@ -7,7 +7,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     Wrapper for pure python implementation pyblowfish.py
 
         key = raw string containing the key
-        mode = Blowfish.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
+        mode = Blowfish.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)

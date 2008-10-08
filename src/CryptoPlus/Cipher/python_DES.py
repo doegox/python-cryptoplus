@@ -7,7 +7,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     wrapper for pure python implementation pyDes.py
 
         key = raw string containing the key
-        mode = python_DES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
+        mode = python_DES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
             -> needed for CBC, CFB and OFB mode

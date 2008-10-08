@@ -8,6 +8,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     Wrapper for pure python implementation pyserpent.py
 
         key = raw string containing the key
+            -> when using XTS mode: the key should be a tuple containing the 2 keys needed
         mode = python_Serpent.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
         IV = IV as a raw string
