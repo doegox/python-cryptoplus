@@ -281,59 +281,71 @@ class XTS:
         """Perform a XTS encrypt/decrypt operation.
 
         In contrast to the other chaining modes: the whole data block has to encrypted at once."""
-
         output = ''
         assert len(data) > 15, "At least one block of 128 bits needs to be supplied"
         assert len(data) < 128*pow(2,20)
 
+        # initializing T
+        # e_k2_n = E_K2(tweak)
+        e_k2_n = self.codebook2.encrypt(tweak+ '\x00' * (16-len(tweak)))[::-1]
+        self.T = util.string2number(e_k2_n)
+
         i=0
         while i < ((len(data) // 16)-1): #Decrypt all the blocks but one last full block and opt one last partial block
-            output += self.__xts_step(ed,data[i*16:(i+1)*16],i,tweak)
+            if i > 0: # T shouldn't be updated yet on the first block
+                # T = E_K2(n) mul (a pow i)
+                self.__T_update()
+            # C = E_K1(P xor T) xor T
+            output += self.__xts_step(ed,data[i*16:(i+1)*16],self.T)
             i+=1
+        
         # Check if the data supplied is a multiple of 16 bytes -> one last full block and we're done
         if len(data[i*16:]) == 16:
-            output += self.__xts_step(ed,data[i*16:(i+1)*16],i,tweak)
+            # T = E_K2(n) mul (a pow i)
+            self.__T_update()
+            # C = E_K1(P xor T) xor T
+            output += self.__xts_step(ed,data[i*16:(i+1)*16],self.T)
         else:
-            if ed=='e':
-                (x, y) = (i, i+1)
-            else: # Permutation of the last two indexes
-                (x, y) = (i+1, i)
+            T_temp = []
+            # Calculate T values in advance
+            for k in xrange(2):
+                if i > 0: # if input data is between 16 and 32 bytes, then no blocks have been processed yet
+                        self.__T_update()
+                T_temp.append(self.T)
+                i +=1
+            i-=2 # reset i counter to value before calculating T values in advance
+            if ed=='d':
+                # Permutation of the last two indexes
+                T_temp.reverse()
             # Decrypt/Encrypt the last two blocks when data is not a multiple of 16 bytes
             Cm1 = data[i*16:(i+1)*16]
             Cm = data[(i+1)*16:]
-            PP = self.__xts_step(ed,Cm1,x,tweak)
+            #self.T = T_temp[0]
+            PP = self.__xts_step(ed,Cm1,T_temp[0])
             Cp = PP[len(Cm):]
             Pm = PP[:len(Cm)]
             CC = Cm+Cp
-            Pm1 = self.__xts_step(ed,CC,y,tweak)
+            #self.T = T_temp[1]
+            Pm1 = self.__xts_step(ed,CC,T_temp[1])
             output += Pm1 + Pm
         return output
 
-    def __xts_step(self,ed,tocrypt,i,tweak):
-        # based on the pseudo code in the P1619 standard
-        # pseudo: the tweak is kept as the shifted version after every xts-step
-        # here:   the tweak is supplied as the clean value every step => while loop to simulate
-        #         previous steps
-
-        # e_k2_n = E_K2(tweak)
-        e_k2_n = self.codebook2.encrypt(tweak+ '\x00' * (16-len(tweak)))[::-1]
-
-        # T = E_K2(n) mul (a pow i)
-        T = util.string2number(e_k2_n)
-        while i:
-            T = T << 1
-            # if (Cout)
-            if T >> (8*16):
-                #T[0] ^= GF_128_FDBK;
-                T = T ^ 0x100000000000000000000000000000087L
-            i-=1
-        T = util.number2string_N(T, 16)[::-1]
-
+    def __xts_step(self,ed,tocrypt,T):
+        T_string = util.number2string_N(T,16)[::-1]
         # C = E_K1(P xor T) xor T
         if ed == 'd':
-            return util.xorstring(T, self.codebook1.decrypt(util.xorstring(T, tocrypt)))
+            return util.xorstring(T_string, self.codebook1.decrypt(util.xorstring(T_string, tocrypt)))
         else:
-            return util.xorstring(T, self.codebook1.encrypt(util.xorstring(T, tocrypt)))
+            return util.xorstring(T_string, self.codebook1.encrypt(util.xorstring(T_string, tocrypt)))
+
+    def __T_update(self):
+        # Used for calculating T for a certain step using the T value from the previous step
+        self.T = self.T << 1
+        # if (Cout)
+        if self.T >> (8*16):
+            #T[0] ^= GF_128_FDBK;
+            self.T = self.T ^ 0x100000000000000000000000000000087L
+
 
 class CMAC:
     """CMAC chaining mode
