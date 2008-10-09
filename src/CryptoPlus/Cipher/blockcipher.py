@@ -34,7 +34,7 @@ class BlockCipher():
     """
 
     def __init__(self,key,mode,IV,counter,cipher_module,args={}):
-        # Cipher classes inhereting from this one take care of:
+        # Cipher classes inheriting from this one take care of:
         #   self.blocksize
         #   self.cipher
         self.key = key
@@ -85,22 +85,37 @@ class BlockCipher():
     def encrypt(self,plaintext,n=''):
         """Encrypt some plaintext
 
-        encrypt(plaintext,n='')
             plaintext   = a string of binary data
             n           = the 'tweak' value when the chaining mode is XTS
 
-        The encrypt function will encrypt the supplied plaintext. When the supplied plaintext is not a multiple of the blocksize of the cipher,
-        then the remaining plaintext will be cached. The next time the encrypt function is called with some plaintext, the new plaintext will be concatenated
-        to the cache and then cache+plaintext will be encrypted.
+        The encrypt function will encrypt the supplied plaintext.
+        The behavior varies slightly depending on the chaining mode.
 
-        When the chaining mode allows the cipher to act as a stream cipher (CFB, OFB, CTR), the encrypt function will always encrypt all of the
-        supplied plaintext immediately. No cache will be kept.
+        ECB, CBC, CMAC:
+        ---------------
+        When the supplied plaintext is not a multiple of the blocksize
+          of the cipher, then the remaining plaintext will be cached.
+        The next time the encrypt function is called with some plaintext,
+          the new plaintext will be concatenated to the cache and then
+          cache+plaintext will be encrypted.
 
-        For XTS the behavious is somewhat different: it needs the whole block of plaintext to be supplied at once. Every encrypt function called on a XTS cipher
-        will output an encrypted block based on the current supplied plaintext block.
+        CFB, OFB, CTR:
+        --------------
+        When the chaining mode allows the cipher to act as a stream cipher,
+          the encrypt function will always encrypt all of the supplied
+          plaintext immediately. No cache will be kept.
+
+        XTS:
+        ----
+        Because the handling of the last two blocks is linked,
+          it needs the whole block of plaintext to be supplied at once.
+        Every encrypt function called on a XTS cipher will output
+          an encrypted block based on the current supplied plaintext block.
         """
-        #self.ed = 'e' if chain is encrypting, 'd' if decrypting, None if nothing happened with the chain yet
-        #assert self.ed in ('e',None) # makes sure you don't encrypt with a cipher that has started decrypting
+        #self.ed = 'e' if chain is encrypting, 'd' if decrypting,
+        # None if nothing happened with the chain yet
+        #assert self.ed in ('e',None) 
+        # makes sure you don't encrypt with a cipher that has started decrypting
         self.ed = 'e'
         if self.mode == MODE_XTS:
             # data sequence number (or 'tweak') has to be provided when in XTS mode
@@ -111,22 +126,37 @@ class BlockCipher():
     def decrypt(self,ciphertext,n=''):
         """Decrypt some ciphertext
 
-        decrypt(plaintext,n='')
             ciphertext  = a string of binary data
             n           = the 'tweak' value when the chaining mode is XTS
 
-        The decrypt function will decrypt the supplied ciphertext. When the supplied ciphertext is not a multiple of the blocksize of the cipher,
-        then the remaining ciphertext will be cached. The next time the decrypt function is called with some ciphertext, the new ciphertext will be concatenated
-        to the cache and then cache+ciphertext will be decrypted.
+        The decrypt function will decrypt the supplied ciphertext.
+        The behavior varies slightly depending on the chaining mode.
 
-        When the chaining mode allows the cipher to act as a stream cipher (CFB, OFB, CTR), the decrypt function will always decrypt all of the
-        supplied ciphertext immediately. No cache will be kept.
+        ECB, CBC, CMAC:
+        ---------------
+        When the supplied ciphertext is not a multiple of the blocksize
+          of the cipher, then the remaining ciphertext will be cached.
+        The next time the decrypt function is called with some ciphertext,
+          the new ciphertext will be concatenated to the cache and then
+          cache+ciphertext will be decrypted.
 
-        For XTS the behavious is somewhat different: it needs the whole block of ciphertext to be supplied at once. Every decrypt function called on a XTS cipher
-        will output an decrypted block based on the current supplied ciphertext block.
+        CFB, OFB, CTR:
+        --------------
+        When the chaining mode allows the cipher to act as a stream cipher,
+          the decrypt function will always decrypt all of the supplied
+          ciphertext immediately. No cache will be kept.
+
+        XTS:
+        ----
+        Because the handling of the last two blocks is linked,
+          it needs the whole block of ciphertext to be supplied at once.
+        Every decrypt function called on a XTS cipher will output
+          a decrypted block based on the current supplied ciphertext block.
         """
-        #self.ed = 'e' if chain is encrypting, 'd' if decrypting, None if nothing happened with the chain yet
-        #assert self.ed in ('d',None) # makes sure you don't decrypt with a cipher that has started encrypting
+        #self.ed = 'e' if chain is encrypting, 'd' if decrypting,
+        # None if nothing happened with the chain yet
+        #assert self.ed in ('d',None)
+        # makes sure you don't decrypt with a cipher that has started encrypting
         self.ed = 'd'
         if self.mode == MODE_XTS:
             # data sequence number (or 'tweak') has to be provided when in XTS mode
@@ -136,13 +166,12 @@ class BlockCipher():
 
     def final(self,padding='PKCS7'):
         # TODO: after calling final, reset the IV? so the cipher is as good as new?
-        """finalizes the chain by padding
+        """Finalizes the encryption by padding the cache
 
-        final(padding='PKCS7'):
             padding = padding function provided as an argument. Possible padding functions:
                     - 'zerosPadding'
                     - 'bitPadding'
-                    - 'PKCS7'
+                    - 'PKCS7'      (default)
                     - 'ANSI_X923'
                     - 'ISO_10126'
 
