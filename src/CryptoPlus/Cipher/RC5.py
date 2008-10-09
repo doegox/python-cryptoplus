@@ -38,20 +38,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
 
 class RC5(BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds,word_size):
-        if mode == MODE_XTS:
-            #XTS implementation only works with blocksizes of 16 bytes
-            assert type(key) is tuple
-            self.cipher = Crypto.Cipher.RC5.new(key[0],rounds=rounds,word_size=word_size)
-            self.cipher2 = Crypto.Cipher.RC5.new(key[1],rounds=rounds,word_size=word_size)
-            assert self.cipher.block_size == 16
-        elif mode == MODE_CMAC:
-            #CMAC implementation only supports blocksizes of 8 and 16 bytes
-            self.cipher = Crypto.Cipher.RC5.new(key,rounds=rounds,word_size=word_size)
-            assert self.cipher.block_size in (8,16)
-        else:
-            self.cipher = Crypto.Cipher.RC5.new(key,rounds=rounds,word_size=word_size)
-        self.blocksize = self.cipher.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Crypto.Cipher.RC5.new
+        args = {'rounds':rounds,'word_size':word_size}
+        self.blocksize = 8 #TODO: check this
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
 
 def _test():
     import doctest

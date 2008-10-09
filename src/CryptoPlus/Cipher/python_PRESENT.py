@@ -72,9 +72,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
 
 class python_PRESENT(BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds):
-        self.cipher = Present(key,rounds)
+        cipher_module = Present
+        args = {'rounds':rounds}
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
 
 def _test():
     import doctest

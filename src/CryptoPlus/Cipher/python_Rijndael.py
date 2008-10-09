@@ -83,26 +83,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
 
 class python_Rijndael(BlockCipher):
     def __init__(self,key,mode,IV,counter,blocksize):
-        #Limitations on key and block size:
-        # the wrapped rijndael implementation doesn't support all 32bit multiples between 128 and 256bits
-        if mode == MODE_XTS:
-            #XTS implementation only works with blocksizes of 16 bytes
-            assert blocksize == 16
-            assert type(key) is tuple
-            assert len(key[0]) in (16, 24, 32)
-            self.cipher = rijndael(key[0], blocksize)
-            self.cipher2 = rijndael(key[1], blocksize)
-        elif mode == MODE_CMAC:
-            #CMAC implementation only supports blocksizes of 8 and 16 bytes
-            assert blocksize == 16
-            assert len(key) in (16, 24, 32)
-            self.cipher = rijndael(key, blocksize)
-        else:
-            assert len(key) in (16, 24, 32)
-            assert blocksize in (16, 24, 32)
-            self.cipher = rijndael(key, blocksize)
+        cipher_module = rijndael
+        args = {'block_size':blocksize}
         self.blocksize = blocksize
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
 
 def _test():
     import doctest

@@ -131,14 +131,9 @@ class AES(BlockCipher):
     """AES using pycrypto for algo and pycryptoplus for ciphermode
     """
     def __init__(self,key,mode,IV,counter):
-        if mode == MODE_XTS:
-            assert type(key) is tuple
-            self.cipher = Crypto.Cipher.AES.new(key[0])
-            self.cipher2 = Crypto.Cipher.AES.new(key[1])
-        else:
-            self.cipher = Crypto.Cipher.AES.new(key)
-        self.blocksize = Crypto.Cipher.AES.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Crypto.Cipher.AES.new
+        self.blocksize = 16
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest

@@ -39,11 +39,13 @@ class ARC2(BlockCipher):
     def __init__(self,key,mode,IV,counter,effective_keylen):
         # pycrypto versions newer than 2.0.1 will have support for "effective_keylen"
         if parse_version(Crypto.__version__) <= parse_version("2.0.1"):
-            self.cipher = Crypto.Cipher.ARC2.new(key)
+            cipher_module = Crypto.Cipher.ARC2.new
+            args = {}
         else:
-            self.cipher = Crypto.Cipher.ARC2.new(key,effective_keylen=effective_keylen)
-        self.blocksize = Crypto.Cipher.ARC2.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+            cipher_module = Crypto.Cipher.ARC2.new
+            args = {'effective_keylen':effective_keylen}
+        self.blocksize = 8
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
 
 def _test():
     import doctest

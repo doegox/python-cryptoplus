@@ -15,7 +15,7 @@ class BlockCipher():
     """ Base class for all blockciphers
     """
 
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,cipher_module,args={}):
         # Cipher classes inhereting from this one take care of:
         #   self.blocksize
         #   self.cipher
@@ -23,6 +23,8 @@ class BlockCipher():
         self.mode = mode
         self.cache = ''
         self.ed = None
+        if mode <> MODE_XTS:
+            self.cipher = cipher_module(self.key,**args)
         if mode == MODE_ECB:
             self.chain = ECB(self.cipher, self.blocksize)
         elif mode == MODE_CBC:
@@ -39,6 +41,8 @@ class BlockCipher():
             self.chain = CTR(self.cipher,self.blocksize,counter)
         elif mode == MODE_XTS:
             assert self.blocksize == 16
+            self.cipher = cipher_module(self.key[0],**args)
+            self.cipher2 = cipher_module(self.key[1],**args)
             self.chain = XTS(self.cipher, self.cipher2)
         elif mode == MODE_CMAC:
             assert self.blocksize in (8,16)

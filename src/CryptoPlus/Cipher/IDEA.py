@@ -36,9 +36,9 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class IDEA(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        self.cipher = Crypto.Cipher.IDEA.new(key)
-        self.blocksize = Crypto.Cipher.IDEA.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Crypto.Cipher.IDEA.new
+        self.blocksize = 8
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest

@@ -41,9 +41,9 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class CAST(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        self.cipher = Crypto.Cipher.CAST.new(key)
-        self.blocksize = Crypto.Cipher.CAST.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Crypto.Cipher.CAST.new
+        self.blocksize = 8
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest

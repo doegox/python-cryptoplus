@@ -262,14 +262,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_AES(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        if mode == MODE_XTS:
-            assert type(key) is tuple
-            self.cipher = rijndael(key[0], 16)
-            self.cipher2 = rijndael(key[1], 16)
-        else:
-            self.cipher = rijndael(key, 16)
+        cipher_module = rijndael
+        args = {'block_size':16}
         self.blocksize = 16
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
 
 def _test():
     import doctest

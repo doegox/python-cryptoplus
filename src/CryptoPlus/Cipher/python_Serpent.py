@@ -2,7 +2,6 @@ from blockcipher import *
 from pyserpent import Serpent
 
 def new(key,mode=MODE_ECB,IV=None,counter=None):
-    #key length can be any multiple of 4 bytes between 0 and 32 bytes (=256bits)
     """Create a new cipher object
 
     Wrapper for pure python implementation pyserpent.py
@@ -55,14 +54,9 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_Serpent(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        if mode == MODE_XTS:
-            assert type(key) is tuple
-            self.cipher = Serpent(key[0])
-            self.cipher2 = Serpent(key[1])
-        else:
-            self.cipher = Serpent(key)
-        self.blocksize = self.cipher.get_block_size()
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Serpent
+        self.blocksize = 16
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest

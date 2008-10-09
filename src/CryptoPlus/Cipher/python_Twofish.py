@@ -37,14 +37,9 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_Twofish(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        if mode == MODE_XTS:
-            assert type(key) is tuple
-            self.cipher = Twofish(key[1])
-            self.cipher2 = Twofish(key[2])
-        else:
-            self.cipher = Twofish(key)
-        self.blocksize = self.cipher.get_block_size()
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Twofish
+        self.blocksize = 16
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest

@@ -61,9 +61,9 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class Blowfish(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        self.cipher = Crypto.Cipher.Blowfish.new(key)
-        self.blocksize = Crypto.Cipher.Blowfish.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = Crypto.Cipher.Blowfish.new
+        self.blocksize = 8
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest

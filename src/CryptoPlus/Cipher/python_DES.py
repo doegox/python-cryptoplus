@@ -36,9 +36,9 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_DES(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        self.cipher = pyDes.des(key)
-        self.blocksize = self.cipher.block_size
-        BlockCipher.__init__(self,key,mode,IV,counter)
+        cipher_module = pyDes.des
+        self.blocksize = 8
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
 
 def _test():
     import doctest
