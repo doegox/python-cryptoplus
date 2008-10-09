@@ -147,16 +147,16 @@ print "Serpent"
 
 from CryptoPlus.Cipher import python_Serpent
 
-#for d in dict_serpent128,dict_serpent192,dict_serpent256:
-#    for i in range(0,len(d)/3):
-#        msg = d['msg%i'%i].decode('hex')
-#        key = d['key%i'%i].decode('hex')
-#        cip = d['cip%i'%i].decode('hex')
-#        cipher = python_Serpent.new(key,python_Serpent.MODE_ECB)
-#        if cip <> cipher.encrypt(msg):
-#            print 'ERROR! for Serpent in %i'%i
-#        if msg <> cipher.decrypt(cip):
-#            print 'DECRYPTION ERROR! for Serpent in %i'%i
+for d in dict_serpent128,dict_serpent192,dict_serpent256:
+    for i in range(0,len(d)/3):
+        msg = d['msg%i'%i].decode('hex')
+        key = d['key%i'%i].decode('hex')
+        cip = d['cip%i'%i].decode('hex')
+        cipher = python_Serpent.new(key,python_Serpent.MODE_ECB)
+        if cip <> cipher.encrypt(msg):
+            print 'ERROR! for Serpent in %i'%i
+        if msg <> cipher.decrypt(cip):
+            print 'DECRYPTION ERROR! for Serpent in %i'%i
 
 # CMAC-AES128/192/256
 print "CMAC-AES"
