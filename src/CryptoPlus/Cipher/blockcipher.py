@@ -3,6 +3,8 @@ from array import array
 import struct
 from ..Util.padding import Padding
 
+from exceptions import Exception
+
 MODE_ECB = 1
 MODE_CBC = 2
 MODE_CFB = 3
@@ -10,6 +12,22 @@ MODE_OFB = 5
 MODE_CTR = 6
 MODE_XTS = 7
 MODE_CMAC = 8
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class InputError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
 
 class BlockCipher():
     """ Base class for all blockciphers
@@ -28,26 +46,41 @@ class BlockCipher():
         if mode == MODE_ECB:
             self.chain = ECB(self.cipher, self.blocksize)
         elif mode == MODE_CBC:
-            assert IV <> None, "Provide an IV!"
+            if IV == None:
+                raise Exception,"Provide an IV!"
+            if len(IV) <> self.blocksize:
+                raise Exception,"the IV length should be %i bytes"%self.blocksize
             self.chain = CBC(self.cipher, self.blocksize,IV)
         elif mode == MODE_CFB:
-            assert IV <> None, "Provide an IV!"
+            if IV == None:
+                raise Exception,"Provide an IV!"
+            if len(IV) <> self.blocksize:
+                raise Exception,"the IV length should be %i bytes"%self.blocksize
             self.chain = CFB(self.cipher, self.blocksize,IV)
         elif mode == MODE_OFB:
-            assert IV <> None, "Provide an IV!"
+            if IV == None:
+                raise Exception,"Provide an IV!"
+            if len(IV) <> self.blocksize:
+                raise ValueError("the IV length should be %i bytes"%self.blocksize)
             self.chain = OFB(self.cipher, self.blocksize,IV)
         elif mode == MODE_CTR:
-            assert counter != None
+            if (counter == None) or  not callable(counter):
+                raise Exception,"Supply a valid counter object for the CTR mode"
             self.chain = CTR(self.cipher,self.blocksize,counter)
         elif mode == MODE_XTS:
-            assert self.blocksize == 16
-            assert type(key) == tuple
+            if self.blocksize <> 16:
+                raise Exception,'XTS only works with blockcipher that have a 16 bit blocksize'
+            if type(key) <> tuple:
+                raise Exception,'Supply two keys as a tuple when using XTS'
             self.cipher = cipher_module(self.key[0],**args)
             self.cipher2 = cipher_module(self.key[1],**args)
             self.chain = XTS(self.cipher, self.cipher2)
         elif mode == MODE_CMAC:
-            assert self.blocksize in (8,16)
+            if self.blocksize not in (8,16):
+                raise Exception,'CMAC only works with blockcipher that have a 8 or 16 bit blocksize'
             self.chain = CMAC(self.cipher,self.blocksize)
+        else:
+                raise Exception,"Unknown chaining mode!"
 
     def encrypt(self,plaintext,n=''):
         """Encrypt some plaintext

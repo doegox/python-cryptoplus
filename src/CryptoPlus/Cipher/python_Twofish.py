@@ -37,6 +37,8 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_Twofish(BlockCipher):
     def __init__(self,key,mode,IV,counter):
+        if len(key) not in (16,24,32) and type(key) is not tuple:
+                raise ValueError("Key should be 16, 24 or 32 bits")
         cipher_module = Twofish
         self.blocksize = 16
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)

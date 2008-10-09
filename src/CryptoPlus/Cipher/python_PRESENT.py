@@ -72,6 +72,8 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
 
 class python_PRESENT(BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds):
+        if len(key) not in (10,16) and type(key) is not tuple:
+                raise ValueError("Key should be 80 or 128 bits")
         cipher_module = Present
         args = {'rounds':rounds}
         self.blocksize = 8

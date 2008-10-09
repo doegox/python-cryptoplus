@@ -83,6 +83,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
 
 class python_Rijndael(BlockCipher):
     def __init__(self,key,mode,IV,counter,blocksize):
+        if (len(key) not in (16,24,32)) and type(key) is not tuple:
+                raise ValueError("Key should be 128, 256 or 256 bits")
+        if blocksize not in (16,24,32):
+                raise ValueError("Block size should be 128, 256 or 256 bits")
         cipher_module = rijndael
         args = {'block_size':blocksize}
         self.blocksize = blocksize

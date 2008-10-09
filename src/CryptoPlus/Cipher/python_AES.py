@@ -262,6 +262,8 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_AES(BlockCipher):
     def __init__(self,key,mode,IV,counter):
+        if len(key) not in (16,24,32) and type(key) is not tuple:
+                raise ValueError("Key should be 128,192 or 256 bits")
         cipher_module = rijndael
         args = {'block_size':16}
         self.blocksize = 16

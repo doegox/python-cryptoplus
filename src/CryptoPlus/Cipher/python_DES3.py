@@ -59,7 +59,8 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_DES3(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        assert len(key) in (16,24)
+        if len(key) not in (16,24) and type(key) is not tuple:
+                raise ValueError("Key should be 16 or 24 bytes")
         cipher_module = pyDes.triple_des
         self.blocksize = 8
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
