@@ -69,7 +69,7 @@ class BlockCipher():
             self.chain = CTR(self.cipher,self.blocksize,counter)
         elif mode == MODE_XTS:
             if self.blocksize <> 16:
-                raise Exception,'XTS only works with blockcipher that have a 16 bit blocksize'
+                raise Exception,'XTS only works with blockcipher that have a 128-bit blocksize'
             if type(key) <> tuple:
                 raise Exception,'Supply two keys as a tuple when using XTS'
             self.cipher = cipher_module(self.key[0],**args)
@@ -77,7 +77,7 @@ class BlockCipher():
             self.chain = XTS(self.cipher, self.cipher2)
         elif mode == MODE_CMAC:
             if self.blocksize not in (8,16):
-                raise Exception,'CMAC only works with blockcipher that have a 8 or 16 bit blocksize'
+                raise Exception,'CMAC only works with blockcipher that have a 64 or 128-bit blocksize'
             self.chain = CMAC(self.cipher,self.blocksize)
         else:
                 raise Exception,"Unknown chaining mode!"
@@ -359,7 +359,7 @@ class XTS:
             # T = E_K2(n) mul (a pow i)
             self.__T_update()
             i+=1
-        
+
         # Check if the data supplied is a multiple of 16 bytes -> one last full block and we're done
         if len(data[i*16:]) == 16:
             # C = E_K1(P xor T) xor T
@@ -376,12 +376,10 @@ class XTS:
             # Decrypt/Encrypt the last two blocks when data is not a multiple of 16 bytes
             Cm1 = data[i*16:(i+1)*16]
             Cm = data[(i+1)*16:]
-            #self.T = T_temp[0]
             PP = self.__xts_step(ed,Cm1,T_temp[0])
             Cp = PP[len(Cm):]
             Pm = PP[:len(Cm)]
             CC = Cm+Cp
-            #self.T = T_temp[1]
             Pm1 = self.__xts_step(ed,CC,T_temp[1])
             output += Pm1 + Pm
         return output
