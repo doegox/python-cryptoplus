@@ -17,7 +17,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None):
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
         blocksize = blocksize in bytes
-            -> supported blocksizes are 16, 24 and 32 bytes
+            -> supported blocksizes are 16, 24 and 32 bytes, must be 16 if XTS mode.
 
     EXAMPLES:
     **********
