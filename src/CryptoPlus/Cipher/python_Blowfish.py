@@ -61,7 +61,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_Blowfish(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        if not 8 <= len(key) <= 56 and type(key) is not tuple:
+        if not 8 <= len(key) <= 56:
                 raise ValueError("Key should be between 8 and 56 bytes (64 <-> 448 bits)")
         cipher_module = Blowfish
         self.blocksize = 8

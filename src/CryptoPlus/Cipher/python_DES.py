@@ -36,8 +36,8 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
 class python_DES(BlockCipher):
     def __init__(self,key,mode,IV,counter):
-        if len(key) <> 8 and type(key) is not tuple:
-                raise ValueError("Key should be 8 bytes")
+        if len(key) <> 8:
+                raise ValueError("Key should be 64 bits")
         cipher_module = pyDes.des
         self.blocksize = 8
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
