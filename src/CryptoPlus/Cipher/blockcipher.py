@@ -41,6 +41,7 @@ class BlockCipher():
             self.chain = CTR(self.cipher,self.blocksize,counter)
         elif mode == MODE_XTS:
             assert self.blocksize == 16
+            assert type(key) == tuple
             self.cipher = cipher_module(self.key[0],**args)
             self.cipher2 = cipher_module(self.key[1],**args)
             self.chain = XTS(self.cipher, self.cipher2)

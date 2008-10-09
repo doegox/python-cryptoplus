@@ -11,13 +11,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
     RC5 using pycrypto for algo and pycryptoplus for ciphermode
 
         key = raw string containing the keys
+              multiple of 8 bits between 0 <-> 2040 bits
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
         IV = IV as a raw string
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
         rounds = amount of rounds, default = 12
-        word_size = RC5 word size (bits), default = 32
+                 minimum 12 and multiple of 2
+        word_size = RC5 word size (bits), supported = 16 and 32, default = 32
+                    RC5 encrypts blocks of size 2*word_size
 
     EXAMPLES:
     **********
@@ -40,7 +43,7 @@ class RC5(BlockCipher):
     def __init__(self,key,mode,IV,counter,rounds,word_size):
         cipher_module = Crypto.Cipher.RC5.new
         args = {'rounds':rounds,'word_size':word_size}
-        self.blocksize = 8 #TODO: check this
+        self.blocksize = (2*word_size)/8
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
 
 def _test():
