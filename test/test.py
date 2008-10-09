@@ -126,6 +126,8 @@ for i in range(0,len(dict_des)/3):
     cipher = python_DES.new(key,python_DES.MODE_ECB)
     if cip <> cipher.encrypt(msg):
         print 'ERROR! for DES in %i'%i
+    if msg <> cipher.decrypt(cip):
+        print 'DECRYPTION ERROR! for DES in %i'%i
 
 from CryptoPlus.Cipher import python_DES3
 
@@ -137,6 +139,8 @@ for d in dict_tdes2,dict_tdes3:
         cipher = python_DES3.new(key,python_DES3.MODE_ECB)
         if cip <> cipher.encrypt(msg):
             print 'ERROR! for TDES2/3 in %i'%i
+        if msg <> cipher.decrypt(cip):
+            print 'DECRYPTION ERROR! for DES in %i'%i
 
 # Serpent128/192/256
 print "Serpent"
@@ -151,6 +155,8 @@ for d in dict_serpent128,dict_serpent192,dict_serpent256:
         cipher = python_Serpent.new(key,python_Serpent.MODE_ECB)
         if cip <> cipher.encrypt(msg):
             print 'ERROR! for Serpent in %i'%i
+        if msg <> cipher.decrypt(cip):
+            print 'DECRYPTION ERROR! for Serpent in %i'%i
 
 # CMAC-AES128/192/256
 print "CMAC-AES"
@@ -197,3 +203,7 @@ for i in range(0,len(dict_xts_aes)/5):
     if cip <> cipher.encrypt(msg,n):
         print 'ERROR! for XTS on %i'%i
         print 'got %s \n expected %s'%(cipher.encrypt(msg,n).encode('hex'),cip.encode('hex'))
+    decipher = python_AES.new(key,python_AES.MODE_XTS)
+    if msg <> cipher.decrypt(cip,n):
+        print 'ERROR! for XTS (decrypt) on %i'%i
+        print 'got %s \n expected %s'%(decipher.decrypt(cip,n).encode('hex'),msg.encode('hex'))
