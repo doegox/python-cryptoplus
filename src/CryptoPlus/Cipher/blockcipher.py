@@ -354,28 +354,22 @@ class XTS:
 
         i=0
         while i < ((len(data) // 16)-1): #Decrypt all the blocks but one last full block and opt one last partial block
-            if i > 0: # T shouldn't be updated yet on the first block
-                # T = E_K2(n) mul (a pow i)
-                self.__T_update()
             # C = E_K1(P xor T) xor T
             output += self.__xts_step(ed,data[i*16:(i+1)*16],self.T)
+            # T = E_K2(n) mul (a pow i)
+            self.__T_update()
             i+=1
         
         # Check if the data supplied is a multiple of 16 bytes -> one last full block and we're done
         if len(data[i*16:]) == 16:
-            # T = E_K2(n) mul (a pow i)
-            self.__T_update()
             # C = E_K1(P xor T) xor T
             output += self.__xts_step(ed,data[i*16:(i+1)*16],self.T)
+            # T = E_K2(n) mul (a pow i)
+            self.__T_update()
         else:
-            T_temp = []
-            # Calculate T values in advance
-            for k in xrange(2):
-                if i > 0: # if input data is between 16 and 32 bytes, then no blocks have been processed yet
-                        self.__T_update()
-                T_temp.append(self.T)
-                i +=1
-            i-=2 # reset i counter to value before calculating T values in advance
+            T_temp = [self.T]
+            self.__T_update()
+            T_temp.append(self.T)
             if ed=='d':
                 # Permutation of the last two indexes
                 T_temp.reverse()
