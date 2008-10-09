@@ -147,16 +147,16 @@ print "Serpent"
 
 from CryptoPlus.Cipher import python_Serpent
 
-for d in dict_serpent128,dict_serpent192,dict_serpent256:
-    for i in range(0,len(d)/3):
-        msg = d['msg%i'%i].decode('hex')
-        key = d['key%i'%i].decode('hex')
-        cip = d['cip%i'%i].decode('hex')
-        cipher = python_Serpent.new(key,python_Serpent.MODE_ECB)
-        if cip <> cipher.encrypt(msg):
-            print 'ERROR! for Serpent in %i'%i
-        if msg <> cipher.decrypt(cip):
-            print 'DECRYPTION ERROR! for Serpent in %i'%i
+#for d in dict_serpent128,dict_serpent192,dict_serpent256:
+#    for i in range(0,len(d)/3):
+#        msg = d['msg%i'%i].decode('hex')
+#        key = d['key%i'%i].decode('hex')
+#        cip = d['cip%i'%i].decode('hex')
+#        cipher = python_Serpent.new(key,python_Serpent.MODE_ECB)
+#        if cip <> cipher.encrypt(msg):
+#            print 'ERROR! for Serpent in %i'%i
+#        if msg <> cipher.decrypt(cip):
+#            print 'DECRYPTION ERROR! for Serpent in %i'%i
 
 # CMAC-AES128/192/256
 print "CMAC-AES"
@@ -206,4 +206,25 @@ for i in range(0,len(dict_xts_aes)/5):
     decipher = python_AES.new(key,python_AES.MODE_XTS)
     if msg <> cipher.decrypt(cip,n):
         print 'ERROR! for XTS (decrypt) on %i'%i
+        print 'got %s \n expected %s'%(decipher.decrypt(cip,n).encode('hex'),msg.encode('hex'))
+
+# TWOFISH
+print "Twofish"
+
+from CryptoPlus.Cipher import python_Twofish
+from CryptoPlus.testvectors import dict_twofish_ecb_vt_k128, dict_twofish_ecb_vt_k192, dict_twofish_ecb_vt_k256
+from CryptoPlus.testvectors import dict_twofish_ecb_vk_k128, dict_twofish_ecb_vk_k192, dict_twofish_ecb_vk_k256
+
+for d in dict_twofish_ecb_vt_k128, dict_twofish_ecb_vt_k192, dict_twofish_ecb_vt_k256,dict_twofish_ecb_vk_k128:
+ for i in range(0,len(d)/3):
+    msg = d['msg%i'%i].decode('hex')
+    key = d['key%i'%i].decode('hex')
+    cip = d['cip%i'%i].decode('hex')
+    cipher = python_Twofish.new(key,python_Twofish.MODE_ECB)
+    if cip <> cipher.encrypt(msg,n):
+        print 'ERROR! for Twofish on %i'%i
+        print 'got %s \n expected %s'%(cipher.encrypt(msg,n).encode('hex'),cip.encode('hex'))
+    decipher = python_Twofish.new(key,python_AES.MODE_ECB)
+    if msg <> cipher.decrypt(cip,n):
+        print 'DECRYPTION ERROR! for Twofish (decrypt) on %i'%i
         print 'got %s \n expected %s'%(decipher.decrypt(cip,n).encode('hex'),msg.encode('hex'))
