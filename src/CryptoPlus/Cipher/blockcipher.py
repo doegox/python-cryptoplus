@@ -381,8 +381,8 @@ class CMAC:
             Lu2 = Lu << 1
             Lu2 = Lu2 & mask1
 
-        self.Lu =Lu
-        self.Lu2=Lu2
+        self.Lu =util.number2string_N(Lu,self.blocksize)
+        self.Lu2=util.number2string_N(Lu2,self.blocksize)
 
     def update(self,data,ed):
         # not really an update function: everytime the function is called, the hash from the input data is calculated
@@ -396,13 +396,10 @@ class CMAC:
             y = self.codebook.encrypt( util.xorstring(data[(i-1)*blocksize:(i)*blocksize],y) )
 
         if len(data[(i)*blocksize:])==blocksize:
-            Lu_string = util.number2string(self.Lu)
-            X = util.xorstring(util.xorstring(data[(i)*blocksize:],y),Lu_string)
+            X = util.xorstring(util.xorstring(data[(i)*blocksize:],y),self.Lu)
         else:
             tmp = data[(i)*blocksize:] + '\x80' + '\x00'*(blocksize - len(data[(i)*blocksize:])-1)
-            Lu2_string = util.number2string(self.Lu2)
-            #Lu2_string = '\x00'*(blocksize - len(Lu2_string)) + Lu2_string
-            X = util.xorstring(util.xorstring(tmp,y),Lu2_string)
+            X = util.xorstring(util.xorstring(tmp,y),self.Lu2)
 
         T = self.codebook.encrypt(X)
         return T
