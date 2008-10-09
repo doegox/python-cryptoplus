@@ -62,6 +62,7 @@ def generateRoundkeys80(key,rounds):
         Give a 80bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
         for i in range(1,rounds+1): # (K0 ... K32)
+                # rawkey: used in comments to show what happens at bitlevel
                 # rawKey[0:63]
                 roundkeys.append(("%x" % (int(key,16) >>16 )).zfill(64/4))
                 #1. Shift
@@ -73,7 +74,7 @@ def generateRoundkeys80(key,rounds):
                 #3. Salt
                 #rawKey[15:19] ^ i
                 temp = (int(key,16) >> 15)
-                temp = temp ^ i
+                temp = temp ^ (i%32)
                 key = ( int(key,16) & (pow(2,15)-1) ) + (temp << 15)
                 key = ("%x" % key).zfill(80/4)
         return roundkeys
@@ -84,13 +85,14 @@ def generateRoundkeys128(key,rounds):
         Give a 128bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
         for i in range(1,rounds+1): # (K0 ... K32)
+                # rawkey: used in comments to show what happens at bitlevel
                 roundkeys.append(("%x" % (int(key,16) >>64)).zfill(64/4))
                 #1. Shift
                 key = ("%x" % ( ((int(key,16) & (pow(2,67)-1)) << 61) + (int(key,16) >> 67))).zfill(128/4)
                 #2. SBox
                 key = SBox[int(key[0],16)]+SBox[int(key[1],16)]+key[2:]
                 #3. Salt
-                #rawKey[15:19] ^ i
+                #rawKey[62:66] ^ i
                 temp = (int(key,16) >> 62)
                 temp = temp ^ (i%32)
                 key = ( int(key,16) & (pow(2,62)-1) ) + (temp << 62)
