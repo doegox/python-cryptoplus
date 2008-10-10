@@ -4,10 +4,10 @@
 class Present:
 
         def __init__(self,key,rounds=32):
-                """Generating roundkeys
+                """Create a PRESENT cipher object
 
-                When a Present class is initialized, the roundkeys will be generated.
-                You can supply the key as a 128-bit or 80-bit rawstring.
+                key:    the key as a 128-bit or 80-bit rawstring
+                rounds: the number of rounds as an integer, 32 by default
                 """
                 self.rounds = rounds
                 if len(key) * 8 == 80:
@@ -18,10 +18,10 @@ class Present:
                         raise ValueError, "Key must be a 128-bit or 80-bit rawstring"
 
         def encrypt(self,block):
-                """Encrypting 1 block (8 bytes)
+                """Encrypt 1 block (8 bytes)
 
-                Supply the plaintext block as a raw string and the raw
-                ciphertext will be returned.
+                Input:  plaintext block as raw string
+                Output: ciphertext block as raw string
                 """
                 state = string2number(block)
                 for i in xrange (1,self.rounds):
@@ -32,10 +32,10 @@ class Present:
                 return number2string_N(cipher,8)
 
         def decrypt(self,block):
-                """Decrypting 1 block (8 bytes)
+                """Decrypt 1 block (8 bytes)
 
-                Supply the ciphertext block as a raw string and the raw
-                plaintext will be returned.
+                Input:  ciphertext block as raw string
+                Output: plaintext block as raw string
                 """
                 state = string2number(block)
                 for i in xrange (1,self.rounds):
@@ -58,9 +58,12 @@ PBox = [0,16,32,48,1,17,33,49,2,18,34,50,3,19,35,51,
 PBox_inv = [PBox.index(x) for x in xrange(64)]
 
 def generateRoundkeys80(key,rounds):
-        """Generate the roundkeys for a 80 bit key
+        """Generate the roundkeys for a 80-bit key
 
-        Give a 80bit hex string as input and get a list of roundkeys in return"""
+        Input:
+                key:    the key as a 80-bit integer
+                rounds: the number of rounds as an integer
+        Output: list of 64-bit roundkeys as integers"""
         roundkeys = []
         for i in xrange(1,rounds+1): # (K1 ... K32)
                 # rawkey: used in comments to show what happens at bitlevel
@@ -78,9 +81,12 @@ def generateRoundkeys80(key,rounds):
         return roundkeys
 
 def generateRoundkeys128(key,rounds):
-        """Generate the roundkeys for a 128 bit key
+        """Generate the roundkeys for a 128-bit key
 
-        Give a 128bit hex string as input and get a list of roundkeys in return"""
+        Input:
+                key:    the key as a 128-bit integer
+                rounds: the number of rounds as an integer
+        Output: list of 64-bit roundkeys as integers"""
         roundkeys = []
         for i in xrange(1,rounds+1): # (K1 ... K32)
                 # rawkey: used in comments to show what happens at bitlevel
@@ -100,7 +106,8 @@ def addRoundKey(state,roundkey):
 def sBoxLayer(state):
         """SBox function for encryption
 
-        Takes a hex string as input and will output a hex string"""
+        Input:  64-bit integer
+        Output: 64-bit integer"""
 
         output = 0
         for i in xrange(16):
@@ -110,7 +117,8 @@ def sBoxLayer(state):
 def sBoxLayer_dec(state):
         """Inverse SBox function for decryption
 
-        Takes a hex string as input and will output a hex string"""
+        Input:  64-bit integer
+        Output: 64-bit integer"""
         output = 0
         for i in xrange(16):
                 output += Sbox_inv[( state >> (i*4)) & 0xF] << (i*4)
@@ -119,7 +127,8 @@ def sBoxLayer_dec(state):
 def pLayer(state):
         """Permutation layer for encryption
 
-        Takes a 64bit hex string as input and will output a 64bit hex string"""
+        Input:  64-bit integer
+        Output: 64-bit integer"""
         output = 0
         for i in xrange(64):
                 output += ((state >> i) & 0x01) << PBox[i]
@@ -128,20 +137,12 @@ def pLayer(state):
 def pLayer_dec(state):
         """Permutation layer for decryption
 
-        Takes a 64bit hex string as input and will output a 64bit hex string"""
+        Input:  64-bit integer
+        Output: 64-bit integer"""
         output = 0
         for i in xrange(64):
                 output += ((state >> i) & 0x01) << PBox_inv[i]
         return output
-
-def bin(a):
-        """Convert an integer to a bin string (1 char represents 1 bit)"""
-        #http://wiki.python.org/moin/BitManipulation
-        s=''
-        t={'0':'000','1':'001','2':'010','3':'011','4':'100','5':'101','6':'110','7':'111'}
-        for c in oct(a).rstrip('L')[1:]:
-                s+=t[c]
-        return s
 
 def string2number(i):
     """ Convert a string to a number
