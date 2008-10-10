@@ -261,13 +261,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     return python_AES(key,mode,IV,counter)
 
 class python_AES(BlockCipher):
+    key_error_message = ("Key should be 128, 192 or 256 bits")
+
     def __init__(self,key,mode,IV,counter):
-        if len(key) not in (16,24,32) and type(key) is not tuple:
-                raise ValueError("Key should be 128, 192 or 256 bits")
         cipher_module = rijndael
         args = {'block_size':16}
         self.blocksize = 16
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
+
+    def keylen_valid(self,key):
+        return len(key) in (16,24,32)
 
 def _test():
     import doctest

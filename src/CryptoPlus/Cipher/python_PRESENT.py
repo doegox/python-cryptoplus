@@ -71,13 +71,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
     return python_PRESENT(key,mode,IV,counter,rounds)
 
 class python_PRESENT(BlockCipher):
+    key_error_message = "Key should be 80 or 128 bits"
+
     def __init__(self,key,mode,IV,counter,rounds):
-        if len(key) not in (10,16):
-                raise ValueError("Key should be 80 or 128 bits")
         cipher_module = Present
         args = {'rounds':rounds}
         self.blocksize = 8
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
+
+    def keylen_valid(self,key):
+        return len(key) in (10,16)
 
 def _test():
     import doctest

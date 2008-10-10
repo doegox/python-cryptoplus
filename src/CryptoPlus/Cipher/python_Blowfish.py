@@ -60,12 +60,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     return python_Blowfish(key,mode,IV,counter)
 
 class python_Blowfish(BlockCipher):
+    key_error_message = "Key should be between 8 and 56 bytes (64 <-> 448 bits)"
+
     def __init__(self,key,mode,IV,counter):
-        if not 8 <= len(key) <= 56:
-                raise ValueError("Key should be between 8 and 56 bytes (64 <-> 448 bits)")
         cipher_module = Blowfish
         self.blocksize = 8
         BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+
+    def keylen_valid(self,key):
+        return 8 <= len(key) <= 56
 
 def _test():
     import doctest

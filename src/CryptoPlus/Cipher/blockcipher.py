@@ -33,6 +33,8 @@ class BlockCipher():
     """ Base class for all blockciphers
     """
 
+    key_error_message = "Wrong key size" #should be overwritten in child classes
+
     def __init__(self,key,mode,IV,counter,cipher_module,args={}):
         # Cipher classes inheriting from this one take care of:
         #   self.blocksize
@@ -41,6 +43,11 @@ class BlockCipher():
         self.mode = mode
         self.cache = ''
         self.ed = None
+
+        if 'keylen_valid' in dir(self): #wrappers for pycrypto functions don't have this function
+         if not self.keylen_valid(key) and type(key) is not tuple:
+                raise ValueError(self.key_error_message)
+
         if mode <> MODE_XTS:
             self.cipher = cipher_module(self.key,**args)
         if mode == MODE_ECB:
@@ -70,8 +77,11 @@ class BlockCipher():
         elif mode == MODE_XTS:
             if self.blocksize <> 16:
                 raise Exception,'XTS only works with blockcipher that have a 128-bit blocksize'
-            if type(key) <> tuple:
+            if type(key) <> tuple and len(key) <> 2:
                 raise Exception,'Supply two keys as a tuple when using XTS'
+            if 'keylen_valid' in dir(self): #wrappers for pycrypto functions don't have this function
+             if not self.keylen_valid(key[0]) or  not self.keylen_valid(key[1]):
+                raise ValueError(self.key_error_message)
             self.cipher = cipher_module(self.key[0],**args)
             self.cipher2 = cipher_module(self.key[1],**args)
             self.chain = XTS(self.cipher, self.cipher2)
