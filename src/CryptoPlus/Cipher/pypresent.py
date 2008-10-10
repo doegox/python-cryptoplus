@@ -6,17 +6,16 @@ class Present:
         def __init__(self,key,rounds=32):
                 """Generating roundkeys
 
-                When a Present class initialized, the roundkeys will be generated.
-                You can supply the key as a 128bit or 80bit rawstring.
+                When a Present class is initialized, the roundkeys will be generated.
+                You can supply the key as a 128-bit or 80-bit rawstring.
                 """
                 self.rounds = rounds
-                self.key = key.encode('hex')
-                if len(self.key) == 80/4:
-                        self.roundkeys = generateRoundkeys80(self.key,self.rounds)
-                elif len(self.key) == 128/4:
-                        self.roundkeys = generateRoundkeys128(self.key,self.rounds)
+                if len(key) * 8 == 80:
+                        self.roundkeys = generateRoundkeys80(string2number(key),self.rounds)
+                elif len(key) * 8 == 128:
+                        self.roundkeys = generateRoundkeys128(string2number(key),self.rounds)
                 else:
-                        pass
+                        raise ValueError, "Key must be a 128-bit or 80-bit rawstring"
 
         def encrypt(self,block):
                 """Encrypting 1 block (8 bytes)
@@ -51,6 +50,7 @@ class Present:
 
 #        0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f
 SBox = ['c','5','6','b','9','0','a','d','3','e','f','8','4','7','1','2']
+SBox2= [0xc,0x5,0x6,0xb,0x9,0x0,0xa,0xd,0x3,0xe,0xf,0x8,0x4,0x7,0x1,0x2]
 PBox = [0,16,32,48,1,17,33,49,2,18,34,50,3,19,35,51,
         4,20,36,52,5,21,37,53,6,22,38,54,7,23,39,55,
         8,24,40,56,9,25,41,57,10,26,42,58,11,27,43,59,
@@ -61,22 +61,19 @@ def generateRoundkeys80(key,rounds):
 
         Give a 80bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
-        for i in range(1,rounds+1): # (K0 ... K32)
+        for i in range(1,rounds+1): # (K1 ... K32)
                 # rawkey: used in comments to show what happens at bitlevel
-                # rawKey[0:63]
-                roundkeys.append(("%x" % (int(key,16) >>16 )).zfill(64/4))
+                # rawKey[0:64]
+                roundkeys.append(("%x" % (key >>16 )).zfill(64/4))
                 #1. Shift
-                #rawKey[19:(len(rawKey)-1)]+rawKey[0:18]
-                key = ("%x" % ( ((int(key,16) & (pow(2,19)-1)) << 61) + (int(key,16) >> 19))).zfill(80/4)
+                #rawKey[19:len(rawKey)]+rawKey[0:19]
+                key = ((key & (2**19-1)) << 61) + (key >> 19)
                 #2. SBox
-                #rawKey[76:79] = S(rawKey[76:79])
-                key = SBox[int(key[0],16)]+key[1:20]
+                #rawKey[76:80] = S(rawKey[76:80])
+                key = (SBox2[key >> 76] << 76)+(key & (2**76-1))
                 #3. Salt
-                #rawKey[15:19] ^ i
-                temp = (int(key,16) >> 15)
-                temp = temp ^ (i%32)
-                key = ( int(key,16) & (pow(2,15)-1) ) + (temp << 15)
-                key = ("%x" % key).zfill(80/4)
+                #rawKey[15:20] ^ i
+                key ^= (i & (2**5-1)) << 15
         return roundkeys
 
 def generateRoundkeys128(key,rounds):
@@ -84,19 +81,16 @@ def generateRoundkeys128(key,rounds):
 
         Give a 128bit hex string as input and get a list of roundkeys in return"""
         roundkeys = []
-        for i in range(1,rounds+1): # (K0 ... K32)
+        for i in range(1,rounds+1): # (K1 ... K32)
                 # rawkey: used in comments to show what happens at bitlevel
-                roundkeys.append(("%x" % (int(key,16) >>64)).zfill(64/4))
+                roundkeys.append(("%x" % (key >>64)).zfill(64/4))
                 #1. Shift
-                key = ("%x" % ( ((int(key,16) & (pow(2,67)-1)) << 61) + (int(key,16) >> 67))).zfill(128/4)
+                key = ((key & (2**67-1)) << 61) + (key >> 67)
                 #2. SBox
-                key = SBox[int(key[0],16)]+SBox[int(key[1],16)]+key[2:]
+                key = (SBox2[key >> 124] << 124)+(SBox2[(key >> 120) & 0xF] << 120)+(key & (2**120-1))
                 #3. Salt
-                #rawKey[62:66] ^ i
-                temp = (int(key,16) >> 62)
-                temp = temp ^ (i%32)
-                key = ( int(key,16) & (pow(2,62)-1) ) + (temp << 62)
-                key = ("%x" % key).zfill(128/4)
+                #rawKey[62:67] ^ i
+                key ^= (i & (2**5-1)) << 62
         return roundkeys
 
 def addRoundKey(state,roundkey):
@@ -148,3 +142,11 @@ def bin(a):
         for c in oct(a).rstrip('L')[1:]:
                 s+=t[c]
         return s
+
+def string2number(i):
+    """ Convert a string to a number
+
+    Input: string (big-endian)
+    Output: long or integer
+    """
+    return int(i.encode('hex'),16)
