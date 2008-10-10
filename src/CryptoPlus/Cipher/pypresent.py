@@ -24,11 +24,11 @@ class Present:
                 Output: ciphertext block as raw string
                 """
                 state = string2number(block)
-                for i in xrange (1,self.rounds):
-                        state = addRoundKey(state,self.roundkeys[i-1])
+                for i in xrange (self.rounds-1):
+                        state = addRoundKey(state,self.roundkeys[i])
                         state = sBoxLayer(state)
                         state = pLayer(state)
-                cipher = addRoundKey(state,self.roundkeys[self.rounds-1])
+                cipher = addRoundKey(state,self.roundkeys[-1])
                 return number2string_N(cipher,8)
 
         def decrypt(self,block):
@@ -38,8 +38,8 @@ class Present:
                 Output: plaintext block as raw string
                 """
                 state = string2number(block)
-                for i in xrange (1,self.rounds):
-                        state = addRoundKey(state,self.roundkeys[self.rounds-i])
+                for i in xrange (self.rounds-1):
+                        state = addRoundKey(state,self.roundkeys[-i-1])
                         state = pLayer_dec(state)
                         state = sBoxLayer_dec(state)
                 decipher = addRoundKey(state,self.roundkeys[0])
