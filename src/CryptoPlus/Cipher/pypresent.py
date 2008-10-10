@@ -50,6 +50,8 @@ class Present:
 
 #        0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f
 Sbox= [0xc,0x5,0x6,0xb,0x9,0x0,0xa,0xd,0x3,0xe,0xf,0x8,0x4,0x7,0x1,0x2]
+Sbox_inv = []
+Sbox_inv.extend(Sbox.index(x) for x in range(16))
 PBox = [0,16,32,48,1,17,33,49,2,18,34,50,3,19,35,51,
         4,20,36,52,5,21,37,53,6,22,38,54,7,23,39,55,
         8,24,40,56,9,25,41,57,10,26,42,58,11,27,43,59,
@@ -113,7 +115,7 @@ def sBoxLayer_dec(state):
         Takes a hex string as input and will output a hex string"""
         output = 0
         for i in range(0,16):
-                output += Sbox.index(( state >> (i*4)) & 0xF) << (i*4)
+                output += Sbox_inv[(( state >> (i*4)) & 0xF)] << (i*4)
         return output
 
 def pLayer(state):
