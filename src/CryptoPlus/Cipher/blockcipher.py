@@ -77,7 +77,7 @@ class BlockCipher():
         elif mode == MODE_XTS:
             if self.blocksize <> 16:
                 raise Exception,'XTS only works with blockcipher that have a 128-bit blocksize'
-            if type(key) <> tuple and len(key) <> 2:
+            if not(type(key) == tuple and len(key) == 2):
                 raise Exception,'Supply two keys as a tuple when using XTS'
             if 'keylen_valid' in dir(self): #wrappers for pycrypto functions don't have this function
              if not self.keylen_valid(key[0]) or  not self.keylen_valid(key[1]):
