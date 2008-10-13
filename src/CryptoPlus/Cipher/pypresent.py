@@ -77,7 +77,7 @@ def generateRoundkeys80(key,rounds):
                 key = (Sbox[key >> 76] << 76)+(key & (2**76-1))
                 #3. Salt
                 #rawKey[15:20] ^ i
-                key ^= (i & (2**5-1)) << 15
+                key ^= i << 15
         return roundkeys
 
 def generateRoundkeys128(key,rounds):
@@ -97,7 +97,7 @@ def generateRoundkeys128(key,rounds):
                 key = (Sbox[key >> 124] << 124)+(Sbox[(key >> 120) & 0xF] << 120)+(key & (2**120-1))
                 #3. Salt
                 #rawKey[62:67] ^ i
-                key ^= (i & (2**5-1)) << 62
+                key ^= i << 62
         return roundkeys
 
 def addRoundKey(state,roundkey):
