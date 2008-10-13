@@ -416,7 +416,7 @@ class CMAC:
 
     Supports every cipher with a blocksize available in de Rb_dictionary.
     Calling update(), immediately calculates the hash. No finalizing needed.
-    The hashlenght is equal to block size of the used block cipher
+    The hashlength is equal to block size of the used block cipher
     """
     # TODO: move to hash module?
     # TODO: change update behaviour to .update() and .digest() as for all hash modules?
