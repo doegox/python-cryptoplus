@@ -25,12 +25,33 @@
 
 USAGE EXAMPLE:
 ---------------
+Importing:
+-----------
 >>> from pypresent import Present
+
+Encrypting with a 80-bit key:
+------------------------------
 >>> key = "00000000000000000000".decode('hex')
 >>> plain = "0000000000000000".decode('hex')
->>> cipher = Present.new(key)
->>> cipher.encrypt(plain).encode('hex')
+>>> cipher = Present(key)
+>>> encrypted = cipher.encrypt(plain)
+>>> encrypted.encode('hex')
 '5579c1387b228445'
+>>> decrypted = cipher.decrypt(encrypted)
+>>> decrypted.encode('hex')
+'0000000000000000'
+
+Encrypting with a 128-bit key:
+-------------------------------
+>>> key = "0123456789abcdef0123456789abcdef".decode('hex')
+>>> plain = "0123456789abcdef".decode('hex')
+>>> cipher = Present(key)
+>>> encrypted = cipher.encrypt(plain)
+>>> encrypted.encode('hex')
+'0e9d28685e671dd6'
+>>> decrypted = cipher.decrypt(encrypted)
+>>> decrypted.encode('hex')
+'0123456789abcdef'
 
 fully based on standard specifications: http://www.crypto.ruhr-uni-bochum.de/imperia/md/content/texte/publications/conferences/present_ches2007.pdf
 test vectors: http://www.crypto.ruhr-uni-bochum.de/imperia/md/content/texte/publications/conferences/slides/present_testvectors.zip
@@ -195,3 +216,10 @@ def number2string_N(i, N):
     """
     s = '%0*x' % (N*2, i)
     return s.decode('hex')
+
+def _test():
+    import doctest
+    doctest.testmod()
+
+if __name__ == "__main__":
+    _test()
