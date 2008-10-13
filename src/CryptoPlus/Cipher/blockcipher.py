@@ -123,8 +123,8 @@ class BlockCipher():
         The encrypt function will encrypt the supplied plaintext.
         The behavior varies slightly depending on the chaining mode.
 
-        ECB, CBC, CMAC:
-        ---------------
+        ECB, CBC:
+        ---------
         When the supplied plaintext is not a multiple of the blocksize
           of the cipher, then the remaining plaintext will be cached.
         The next time the encrypt function is called with some plaintext,
@@ -143,6 +143,12 @@ class BlockCipher():
           it needs the whole block of plaintext to be supplied at once.
         Every encrypt function called on a XTS cipher will output
           an encrypted block based on the current supplied plaintext block.
+
+        CMAC:
+        -----
+        Everytime the function is called, the hash from the input data is calculated.
+        No finalizing needed.
+        The hashlength is equal to block size of the used block cipher.
         """
         #self.ed = 'e' if chain is encrypting, 'd' if decrypting,
         # None if nothing happened with the chain yet
@@ -164,8 +170,8 @@ class BlockCipher():
         The decrypt function will decrypt the supplied ciphertext.
         The behavior varies slightly depending on the chaining mode.
 
-        ECB, CBC, CMAC:
-        ---------------
+        ECB, CBC:
+        ---------
         When the supplied ciphertext is not a multiple of the blocksize
           of the cipher, then the remaining ciphertext will be cached.
         The next time the decrypt function is called with some ciphertext,
@@ -184,6 +190,10 @@ class BlockCipher():
           it needs the whole block of ciphertext to be supplied at once.
         Every decrypt function called on a XTS cipher will output
           a decrypted block based on the current supplied ciphertext block.
+
+        CMAC:
+        -----
+        Mode not supported for decryption as this does not make sense.
         """
         #self.ed = 'e' if chain is encrypting, 'd' if decrypting,
         # None if nothing happened with the chain yet
@@ -227,22 +237,33 @@ class BlockCipher():
             pass
 
 class ECB:
+    """ECB chaining mode
+    """
     def __init__(self, codebook, blocksize):
         self.cache = ''
         self.codebook = codebook
         self.blocksize = blocksize
 
-    def update(self, plaintext,ed):
-        """update the chain
+    def update(self, data, ed):
+        """Processes the given ciphertext/plaintext
 
-        ed = 'e' or 'd' = encrypt or decrypt => encrypt() or decrypt() from BlockCipher will pass the right one
-        codebook = encrypt/decrypt will pass "self.cipher.encrypt()" or "decrypt()"
+        Inputs:
+            data: raw string of any length
+            ed:   'e' for encryption, 'd' for decryption
+        Output:
+            processed raw string block(s), if any
+
+        When the supplied data is not a multiple of the blocksize
+          of the cipher, then the remaining input data will be cached.
+        The next time the update function is called with some data,
+          the new data will be concatenated to the cache and then
+          cache+data will be processed and full blocks will be outputted.
         """
         output_blocks = []
-        self.cache += plaintext
+        self.cache += data
         if len(self.cache) < self.blocksize:
             return ''
-        for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
+        for i in xrange(0, len(self.cache)-self.blocksize+1, self.blocksize):
             #the only difference between encryption/decryption in the chain is the cipher block
             if ed == 'e':
                 output_blocks.append(self.codebook.encrypt( self.cache[i:i + self.blocksize] ))
@@ -252,47 +273,74 @@ class ECB:
         return ''.join(output_blocks)
 
 class CBC:
+    """CBC chaining mode
+    """
     def __init__(self, codebook, blocksize, IV):
         self.IV = IV
         self.cache = ''
         self.codebook = codebook
         self.blocksize = blocksize
 
-    def update(self, input,ed):
-        """update the chain
+    def update(self, data, ed):
+        """Processes the given ciphertext/plaintext
+
+        Inputs:
+            data: raw string of any length
+            ed:   'e' for encryption, 'd' for decryption
+        Output:
+            processed raw string block(s), if any
+
+        When the supplied data is not a multiple of the blocksize
+          of the cipher, then the remaining input data will be cached.
+        The next time the update function is called with some data,
+          the new data will be concatenated to the cache and then
+          cache+data will be processed and full blocks will be outputted.
         """
         if ed == 'e':
-            encrypted_blocks = []
-            self.cache += input
+            encrypted_blocks = ''
+            self.cache += data
             if len(self.cache) < self.blocksize:
                 return ''
-            for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
+            for i in xrange(0, len(self.cache)-self.blocksize+1, self.blocksize):
                 self.IV = self.codebook.encrypt(util.xorstring(self.cache[i:i+self.blocksize],self.IV))
-                encrypted_blocks.append(self.IV)
+                encrypted_blocks += self.IV
             self.cache = self.cache[i+self.blocksize:]
-            return ''.join(encrypted_blocks)
+            return encrypted_blocks
         else:
-            decrypted_blocks = []
-            self.cache += input
+            decrypted_blocks = ''
+            self.cache += data
             if len(self.cache) < self.blocksize:
                 return ''
-            for i in range(0, len(self.cache)-self.blocksize+1, self.blocksize):
+            for i in xrange(0, len(self.cache)-self.blocksize+1, self.blocksize):
                 plaintext = util.xorstring(self.IV,self.codebook.decrypt(self.cache[i:i + self.blocksize]))
                 self.IV = self.cache[i:i + self.blocksize]
-                decrypted_blocks.append(plaintext)
+                decrypted_blocks+=plaintext
             self.cache = self.cache[i+self.blocksize:]
-            return ''.join(decrypted_blocks)
+            return decrypted_blocks
 
 class CFB:
     """CFB Chaining Mode
 
-    Can be accessed as a stream cipher. Input to the chain must be a multiple of bytes."""
+    Can be accessed as a stream cipher.
+    """
+
     def __init__(self, codebook, blocksize, IV):
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
         self.keystream =array('B', '')
-    def update(self, data,ed):
+    def update(self, data, ed):
+        """Processes the given ciphertext/plaintext
+
+        Inputs:
+            data: raw string of any multiple of bytes
+            ed:   'e' for encryption, 'd' for decryption
+        Output:
+            processed raw string
+
+        The encrypt/decrypt functions will always process all of the supplied
+          input data immediately. No cache will be kept.
+        """
         n = len(data)
         blocksize = self.blocksize
         output = array('B', data)
@@ -317,13 +365,25 @@ class CFB:
 class OFB:
     """OFB Chaining Mode
 
-    Can be accessed as a stream cipher. Input to the chain must be a multiple of bytes."""
+    Can be accessed as a stream cipher.
+    """
     def __init__(self, codebook, blocksize, IV):
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
         self.keystream =array('B', '')
-    def update(self, data,ed):
+    def update(self, data, ed):
+        """Processes the given ciphertext/plaintext
+
+        Inputs:
+            data: raw string of any multiple of bytes
+            ed:   'e' for encryption, 'd' for decryption
+        Output:
+            processed raw string
+
+        The encrypt/decrypt functions will always process all of the supplied
+          input data immediately. No cache will be kept.
+        """
         #no difference between encryption and decryption mode
         n = len(data)
         blocksize = self.blocksize
@@ -337,9 +397,9 @@ class OFB:
         return output.tostring()
 
 class CTR:
-    """CTR Mode
+    """CTR Chaining Mode
 
-    Implemented so it can be accessed as a stream cipher.
+    Can be accessed as a stream cipher.
     """
     # initial counter value can be choosen, decryption always starts from beginning
     #   -> you can start from anywhere yourself: just feed the cipher encoded blocks and feed a counter with the corresponding value
@@ -349,7 +409,18 @@ class CTR:
         self.blocksize = blocksize
         self.keystream =array('B', '') #holds the output of the current encrypted counter value
 
-    def update(self, data,ed):
+    def update(self, data, ed):
+        """Processes the given ciphertext/plaintext
+
+        Inputs:
+            data: raw string of any multiple of bytes
+            ed:   'e' for encryption, 'd' for decryption
+        Output:
+            processed raw string
+
+        The encrypt/decrypt functions will always process all of the supplied
+          input data immediately. No cache will be kept.
+        """
         # no need for the encryption/decryption distinction: both are the same
         n = len(data)
         blocksize = self.blocksize
@@ -363,6 +434,8 @@ class CTR:
         return output.tostring()
 
 class XTS:
+    """XTS Chaining Mode
+    """
     # TODO: allow other blocksizes besides 16bytes?
     def __init__(self,codebook1, codebook2):
         self.cache = ''
@@ -374,7 +447,11 @@ class XTS:
         # tweak = data sequence number
         """Perform a XTS encrypt/decrypt operation.
 
-        In contrast to the other chaining modes: the whole data block has to encrypted at once."""
+        Because the handling of the last two blocks is linked,
+          it needs the whole block of ciphertext to be supplied at once.
+        Every decrypt function called on a XTS cipher will output
+          a decrypted block based on the current supplied ciphertext block.
+        """
         output = ''
         assert len(data) > 15, "At least one block of 128 bits needs to be supplied"
         assert len(data) < 128*pow(2,20)
@@ -436,13 +513,15 @@ class XTS:
 class CMAC:
     """CMAC chaining mode
 
-    Supports every cipher with a blocksize available in de Rb_dictionary.
-    Calling update(), immediately calculates the hash. No finalizing needed.
-    The hashlength is equal to block size of the used block cipher
+    Supports every cipher with a blocksize available
+      in the list CMAC.supported_blocksizes.
+    The hashlength is equal to block size of the used block cipher.
     """
     # TODO: move to hash module?
     # TODO: change update behaviour to .update() and .digest() as for all hash modules?
     #       -> other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
+    __Rb_dictionary = {64:0x000000000000001b,128:0x00000000000000000000000000000087}
+    supported_blocksizes = __Rb_dictionary.keys()
     def __init__(self,codebook,blocksize):
         # Purpose of init: calculate Lu & Lu2
         #blocksize (in bytes): to select the Rb constant in the dictionary
@@ -459,8 +538,7 @@ class CMAC:
         #             nonzero terms. If this polynomial is expressed as ub+cb-1ub-1+...+c2u2+c1u+c0, where the
         #             coefficients cb-1, cb-2, ..., c2, c1, c0 are either 0 or 1, then Rb is the bit string cb-1cb-2...c2c1c0.
 
-        Rb_dictionary = {64:0x000000000000001b,128:0x00000000000000000000000000000087}
-        self.Rb = Rb_dictionary[blocksize*8]
+        self.Rb = self.__Rb_dictionary[blocksize*8]
 
         mask1 = int(('\xff'*blocksize).encode('hex'),16)
         mask2 = int(('\x80' + '\x00'*(blocksize-1) ).encode('hex'),16)
@@ -482,8 +560,19 @@ class CMAC:
         self.Lu =util.number2string_N(Lu,self.blocksize)
         self.Lu2=util.number2string_N(Lu2,self.blocksize)
 
-    def update(self,data,ed):
-        # not really an update function: everytime the function is called, the hash from the input data is calculated
+    def update(self, data, ed):
+        """Processes the given ciphertext/plaintext
+
+        Inputs:
+            data: raw string of any length
+            ed:   'e' for encryption, 'd' for decryption
+        Output:
+            hashed data as raw string
+
+        This is not really an update function:
+        Everytime the function is called, the hash from the input data is calculated.
+        No finalizing needed.
+        """
         assert ed == 'e'
         blocksize = self.blocksize
 
