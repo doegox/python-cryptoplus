@@ -1,3 +1,7 @@
+# Python PRESENT implementation
+# Version: 1.0
+# Date: 13/10/2008
+#
 # =============================================================================
 # Copyright (c) 2008 Christophe Oosterlynck (christophe.oosterlynck@gmail.com)
 #                    Philippe Teuwen (philippe.teuwen@nxp.com)
