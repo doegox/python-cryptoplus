@@ -40,13 +40,13 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         >>> plain = "0000000000000000".decode('hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=64)
         >>> cipher.encrypt(plain).encode('hex')
-        '67d38fb0f5a371fd'
+        '59a27d01607ebf05'
         
         >>> key = "00000000000000000000".decode('hex')
         >>> plain = "0000000000000000".decode('hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=64)
         >>> cipher.encrypt(plain).encode('hex')
-        '7c66f3144be984e9'
+        '13991dd588bc1288'
         
         Test Vectors for maximum rounds supported by PRESENT reference C code:
         -----------------------------------------------------------------------
@@ -55,7 +55,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=65534)
         >>> ciphertext = cipher.encrypt(plain)
         >>> ciphertext.encode('hex')
-        'ae205718c7a71906'
+        'a140dc5d7175ca20'
         >>> cipher.decrypt(ciphertext).encode('hex')
         '0123456789abcdef'
         
@@ -64,7 +64,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=65534)
         >>> ciphertext = cipher.encrypt(plain)
         >>> ciphertext.encode('hex')
-        'c913bc146bc89c4e'
+        '21007772e5d4ef14'
         >>> cipher.decrypt(ciphertext).encode('hex')
         '0123456789abcdef'
         """
