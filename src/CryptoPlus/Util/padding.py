@@ -110,16 +110,14 @@ def PKCS7(padData, direction, length=None):
 
 
 def __PKCS7 (toPad, length):
-    pattern = length - len(toPad)%length
-    code = "%02x" % pattern
-    patternstring = ('\\x' + code).decode('string_escape')
     amount = length - len(toPad)%length
-    pad = patternstring*amount
+    pattern = chr(amount)
+    pad = pattern*amount
     return toPad + pad
 
 def __PKCS7_unpad (padded):
     pattern = padded[-1]
-    length = int(pattern.encode('hex'),16)
+    length = ord(pattern)
     #check if the bytes to be removed are all the same pattern
     if padded.endswith(pattern*length):
         return padded[:-length]
@@ -156,12 +154,12 @@ def ANSI_X923 (padData, direction, length=None):
 
 def __ANSI_X923 (toPad, length):
     bytesToPad = length - len(toPad)%length
-    trail = "%02x" % bytesToPad
-    pattern = '\x00'*(bytesToPad -1) + ('\\x' + trail).decode('string_escape')
+    trail = chr(bytesToPad)
+    pattern = '\x00'*(bytesToPad -1) + trail
     return toPad + pattern
 
 def __ANSI_X923_unpad (padded):
-    length = int(padded[-1].encode('hex'),16)
+    length =ord(padded[-1])
     #check if the bytes to be removed are all zero
     if padded.count('\x00',-length,-1) == length - 1:
         return padded[:-length]
@@ -197,12 +195,11 @@ def ISO_10126 (padData, direction, length=None):
 
 def __ISO_10126 (toPad, length):
     bytesToPad = length - len(toPad)%length
-    pattern1 = ''.join(("\\x%02x" % random.randint(0,255)).decode('string_escape') for x in range(0,bytesToPad-1))
-    pattern2 = ("\\x%02x" % bytesToPad).decode('string_escape')
-    return toPad + pattern1 + pattern2
+    randomPattern = ''.join(chr(random.randint(0,255)) for x in range(0,bytesToPad-1))
+    return toPad + randomPattern + chr(bytesToPad)
 
 def __ISO_10126_unpad (padded):
-   return padded[0:len(padded)-int(padded[-1].encode('hex'),16)]
+   return padded[0:len(padded)-ord(padded[-1])]
 
 def _test():
     import doctest
