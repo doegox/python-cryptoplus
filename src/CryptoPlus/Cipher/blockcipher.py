@@ -22,7 +22,7 @@
 # =============================================================================
 from ..Util import util
 from array import array
-from ..Util.padding import Padding
+from ..Util import padding
 
 MODE_ECB = 1
 MODE_CBC = 2
@@ -187,16 +187,12 @@ class BlockCipher():
         else:
             return self.chain.update(ciphertext,'d')
 
-    def final(self,padding='PKCS7'):
+    def final(self,padfct=padding.PKCS7):
         # TODO: after calling final, reset the IV? so the cipher is as good as new?
         """Finalizes the encryption by padding the cache
 
-            padding = padding function provided as an argument. Possible padding functions:
-                    - 'zerosPadding'
-                    - 'bitPadding'
-                    - 'PKCS7'      (default)
-                    - 'ANSI_X923'
-                    - 'ISO_10126'
+            padding = padding function
+                      import from CryptoPlus.Util.padding
 
         While a cipher object is in encryption mode, the final function will pad the remaining cache and encrypt it.
         If the cipher has been used for decryption, the final function won't do antyhing. You have to manually unpad if necessary or
@@ -207,12 +203,11 @@ class BlockCipher():
         assert self.mode not in (MODE_XTS, MODE_CMAC) # finalizing (=padding) doesn't make sense when in XTS or CMAC mode
         if self.ed == 'e':
             # when the chain is in encryption mode, finalizing will pad the cache and encrypt this last block
-            padder = Padding(self.blocksize)
             if self.mode in (MODE_OFB,MODE_CFB,MODE_CTR):
                 dummy = '0'*(self.blocksize - self.chain.keystream.buffer_info()[1]) # a dummy string that will be used to get a valid padding
             else: #ECB, CBC
                 dummy = self.chain.cache
-            return self.chain.update(padder.pad(dummy,padding)[len(dummy):],'e') # pad the cache and then only supply the padding to the update function
+            return self.chain.update(padfct(dummy,padding.PAD,self.blocksize)[len(dummy):],'e') # pad the cache and then only supply the padding to the update function
         else:
             # final function doesn't make sense when decrypting => padding should be removed manually
             pass
