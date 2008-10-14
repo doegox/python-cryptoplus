@@ -4,7 +4,6 @@ padding info here: http://en.wikipedia.org/wiki/Padding_(cryptography)
 """
     
 import random
-from util import roundUp
 
 PAD = 0
 UNPAD = 1
@@ -15,6 +14,7 @@ def bitPadding (padData, direction, length=None):
             padData = raw string to pad/unpad
             direction = PAD or UNPAD
             length = amount of bytes the padded string should be a multiple of
+                     (length variable is not used when unpadding)
             
             returns: (un)padded raw string
             
@@ -46,11 +46,14 @@ def __bitPadding_unpad (padded):
         return padded
 
 def zerosPadding (padData, direction, length=None):
-        """Pad a string using bitPadding
+        """Pad a string using zerosPadding
 
             padData = raw string to pad/unpad
             direction = PAD or UNPAD
+                        beware: padding and unpadding a string ending in 0's
+                                will remove those 0's too
             length = amount of bytes the padded string should be a multiple of
+                     (length variable is not used when unpadding)
             
             returns: (un)padded raw string
             
@@ -58,9 +61,9 @@ def zerosPadding (padData, direction, length=None):
             =========
             >>> import padding
 
-            >>> padding.PKCS7('12345678',padding.PAD,16)
-            '12345678\\x08\\x08\\x08\\x08\\x08\\x08\\x08\\x08'
-            >>> padding.PKCS7(_,padding.UNPAD)
+            >>> padding.zerosPadding('12345678',padding.PAD,16)
+            '12345678\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'
+            >>> padding.zerosPadding(_,padding.UNPAD)
             '12345678'"""
         if direction == PAD:
             if length == None:
@@ -72,8 +75,8 @@ def zerosPadding (padData, direction, length=None):
             raise ValueError,"Supply a valid direction"
 
 def __zerosPadding (toPad, length):
-    totalLength = roundUp(len(toPad),length)
-    return toPad.ljust(totalLength,'\x00')
+    padLength = (length - len(toPad))%length
+    return toPad + '\x00'*padLength
 
 def __zerosPadding_unpad (padded ):
     return padded.rstrip('\x00')
@@ -84,6 +87,7 @@ def PKCS7(padData, direction, length=None):
             padData = raw string to pad/unpad
             direction = PAD or UNPAD
             length = amount of bytes the padded string should be a multiple of
+                     (length variable is not used when unpadding)
             
             returns: (un)padded raw string
             
@@ -129,6 +133,7 @@ def ANSI_X923 (padData, direction, length=None):
             padData = raw string to pad/unpad
             direction = PAD or UNPAD
             length = amount of bytes the padded string should be a multiple of
+                     (length variable is not used when unpadding)
             
             returns: (un)padded raw string
             
@@ -170,6 +175,7 @@ def ISO_10126 (padData, direction, length=None):
             padData = raw string to pad/unpad
             direction = PAD or UNPAD
             length = amount of bytes the padded string should be a multiple of
+                     (length variable is not used when unpadding)
             
             returns: (un)padded raw string
             
