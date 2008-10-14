@@ -204,12 +204,12 @@ class BlockCipher():
         For OFB,CFB, CTR: an encrypted padding will be returned, making the
                           total outputed bytes since construction of the cipher
                           a multiple of the blocksize of that cipher.
-        
+
         If the cipher has been used for decryption, the final function won't do
-        antyhing. You have to manually unpad if necessary.
+          anything. You have to manually unpad if necessary.
 
         After finalization, the chain can still be used but the IV, counter etc
-        aren't reset but just continu as they were after the last step (finalization step).
+          aren't reset but just continue as they were after the last step (finalization step).
         """
         assert self.mode not in (MODE_XTS, MODE_CMAC) # finalizing (=padding) doesn't make sense when in XTS or CMAC mode
         if self.ed == 'e':
