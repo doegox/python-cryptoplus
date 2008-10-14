@@ -328,7 +328,7 @@ class CFB:
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
-        self.keystream =array('B', '')
+        self.keystream = []
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
 
@@ -341,26 +341,24 @@ class CFB:
         The encrypt/decrypt functions will always process all of the supplied
           input data immediately. No cache will be kept.
         """
-        n = len(data)
-        blocksize = self.blocksize
-        output = array('B', data)
+        output = list(data)
 
-        for i in xrange(n):
+        for i in xrange(len(data)):
             if ed =='e':
-                if self.keystream.buffer_info()[1] == 0:
+                if len(self.keystream) == 0:
                     block = self.codebook.encrypt(self.IV)
-                    self.keystream = array('B', block)
+                    self.keystream = list(block)
                     self.IV = ''
-                output[i] ^= self.keystream.pop(0)
-                self.IV += chr(output[i]) # the IV for the next block in the chain is being built byte per byte as the ciphertext flows in
+                output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
+                self.IV += output[i] # the IV for the next block in the chain is being built byte per byte as the ciphertext flows in
             else:
-                if self.keystream.buffer_info()[1] == 0:
+                if len(self.keystream) == 0:
                     block = self.codebook.encrypt(self.IV)
-                    self.keystream = array('B', block)
+                    self.keystream = list(block)
                     self.IV = ''
-                self.IV += chr(output[i])
-                output[i] ^= self.keystream.pop(0)
-        return output.tostring()
+                self.IV += output[i]
+                output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
+        return ''.join(output)
 
 class OFB:
     """OFB Chaining Mode
