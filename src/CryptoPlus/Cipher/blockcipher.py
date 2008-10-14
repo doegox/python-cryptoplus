@@ -432,6 +432,8 @@ class CTR:
 
 class XTS:
     """XTS Chaining Mode
+    
+    Usable with blockcihpers with a 16 byte blocksize
     """
     # TODO: allow other blocksizes besides 16bytes?
     def __init__(self,codebook1, codebook2):
@@ -513,6 +515,8 @@ class CMAC:
     Supports every cipher with a blocksize available
       in the list CMAC.supported_blocksizes.
     The hashlength is equal to block size of the used block cipher.
+    
+    Usable with blockcihpers with a 8 or 16 byte blocksize
     """
     # TODO: move to hash module?
     # TODO: change update behaviour to .update() and .digest() as for all hash modules?
