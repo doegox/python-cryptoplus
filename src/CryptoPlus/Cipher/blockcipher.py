@@ -369,7 +369,7 @@ class OFB:
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
-        self.keystream =array('B', '')
+        self.keystream = []
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
 
@@ -385,14 +385,14 @@ class OFB:
         #no difference between encryption and decryption mode
         n = len(data)
         blocksize = self.blocksize
-        output = array('B', data)
+        output = list(data)
 
         for i in xrange(n):
-            if self.keystream.buffer_info()[1] == 0: #encrypt a new counter block when the current keystream is fully used
+            if len(self.keystream) == 0: #encrypt a new counter block when the current keystream is fully used
                 self.IV = self.codebook.encrypt(self.IV)
-                self.keystream = array('B', self.IV)
-            output[i] ^= self.keystream.pop(0) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
-        return output.tostring()
+                self.keystream = list(self.IV)
+            output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0))) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
+        return ''.join(output)
 
 class CTR:
     """CTR Chaining Mode
@@ -405,7 +405,7 @@ class CTR:
         self.codebook = codebook
         self.counter = counter
         self.blocksize = blocksize
-        self.keystream =array('B', '') #holds the output of the current encrypted counter value
+        self.keystream = [] #holds the output of the current encrypted counter value
 
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
@@ -423,13 +423,13 @@ class CTR:
         n = len(data)
         blocksize = self.blocksize
 
-        output = array('B', data)
+        output = list(data)
         for i in xrange(n):
-            if self.keystream.buffer_info()[1] == 0: #encrypt a new counter block when the current keystream is fully used
+            if len(self.keystream) == 0: #encrypt a new counter block when the current keystream is fully used
                 block = self.codebook.encrypt(self.counter())
-                self.keystream = array('B', block)
-            output[i] ^= self.keystream.pop(0) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
-        return output.tostring()
+                self.keystream = list(block)
+            output[i] = chr(ord(output[i])^ord(self.keystream.pop(0))) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
+        return ''.join(output)
 
 class XTS:
     """XTS Chaining Mode
