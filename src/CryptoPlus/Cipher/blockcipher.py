@@ -24,8 +24,6 @@ from ..Util import util
 from array import array
 from ..Util.padding import Padding
 
-from exceptions import Exception
-
 MODE_ECB = 1
 MODE_CBC = 2
 MODE_CFB = 3
@@ -33,22 +31,6 @@ MODE_OFB = 5
 MODE_CTR = 6
 MODE_XTS = 7
 MODE_CMAC = 8
-
-class Error(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-class InputError(Error):
-    """Exception raised for errors in the input.
-
-    Attributes:
-        expression -- input expression in which the error occurred
-        message -- explanation of the error
-    """
-
-    def __init__(self, expression, message):
-        self.expression = expression
-        self.message = message
 
 class BlockCipher():
     """ Base class for all blockciphers
