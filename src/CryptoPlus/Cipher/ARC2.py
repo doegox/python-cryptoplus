@@ -3,7 +3,7 @@ import Crypto.Cipher.ARC2
 import Crypto
 from pkg_resources import parse_version
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,effective_keylen=None,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,effective_keylen=None,segment_size=None):
     """Create a new cipher object
 
     ARC2 using pycrypto for algo and pycryptoplus for ciphermode

@@ -1,7 +1,7 @@
 from blockcipher import *
 import Crypto.Cipher.AES
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     """Create a new cipher object
 
         key = raw string containing the key, AES-128..256 will be selected according to the key length

@@ -5,7 +5,7 @@ except ImportError:
     print "Crypto.Cipher.RC5 isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for RC5."
     raise
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32,segment_size=None):
     """Create a new cipher object
 
     RC5 using pycrypto for algo and pycryptoplus for ciphermode

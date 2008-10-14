@@ -1,7 +1,7 @@
 from blockcipher import *
 from pytwofish import Twofish
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation pytwofish.py

@@ -5,7 +5,7 @@ except ImportError:
     print "Crypto.Cipher.IDEA isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for IDEA."
     raise
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     """Create a new cipher object
 
     IDEA using pycrypto for algo and pycryptoplus for ciphermode

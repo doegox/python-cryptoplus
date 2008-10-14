@@ -1,7 +1,7 @@
 from blockcipher import *
 from pypresent import Present
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32,segment_size=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py

@@ -1,7 +1,7 @@
 from blockcipher import *
 import pyDes
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     """Create a DES-EDE3 or DES-EDE2 cipher object
 
     wrapper for pure python 3DES implementation pyDes.py
