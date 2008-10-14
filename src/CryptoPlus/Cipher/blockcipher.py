@@ -193,14 +193,20 @@ class BlockCipher():
         # TODO: after calling final, reset the IV? so the cipher is as good as new?
         """Finalizes the encryption by padding the cache
 
-            padding = padding function
-                      import from CryptoPlus.Util.padding
+            padfct = padding function
+                     import from CryptoPlus.Util.padding
 
-        While a cipher object is in encryption mode, the final function will pad the remaining cache and encrypt it.
-        If the cipher has been used for decryption, the final function won't do antyhing. You have to manually unpad if necessary or
-        construct a Padder yourself en use its unpad function.
+        For ECB, CBC: the remaining bytes in the cache will be padded and
+                      encrypted.
+        For OFB,CFB, CTR: an encrypted padding will be returned, making the
+                          total outputed bytes since construction of the cipher
+                          a multiple of the blocksize of that cipher.
+        
+        If the cipher has been used for decryption, the final function won't do
+        antyhing. You have to manually unpad if necessary.
 
-        After finalization, the chain can still be used but the IV, counter etc aren't reset but just continu as they were after the last step (finalization step).
+        After finalization, the chain can still be used but the IV, counter etc
+        aren't reset but just continu as they were after the last step (finalization step).
         """
         assert self.mode not in (MODE_XTS, MODE_CMAC) # finalizing (=padding) doesn't make sense when in XTS or CMAC mode
         if self.ed == 'e':
