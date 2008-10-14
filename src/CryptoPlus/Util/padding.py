@@ -18,6 +18,9 @@ def bitPadding (padData, direction, length=None):
             
             returns: (un)padded raw string
             
+            A new block full of padding will be added when padding data that is
+            already a multiple of the length.
+            
             Example:
             =========
             >>> import padding
@@ -57,6 +60,9 @@ def zerosPadding (padData, direction, length=None):
             
             returns: (un)padded raw string
             
+            No padding will be added when padding data that is already a
+            multiple of the given length.
+            
             Example:
             =========
             >>> import padding
@@ -90,6 +96,9 @@ def PKCS7(padData, direction, length=None):
                      (length variable is not used when unpadding)
             
             returns: (un)padded raw string
+            
+            A new block full of padding will be added when padding data that is
+            already a multiple of the given length.
             
             Example:
             =========
@@ -135,10 +144,13 @@ def ANSI_X923 (padData, direction, length=None):
             
             returns: (un)padded raw string
             
+            A new block full of padding will be added when padding data that is
+            already a multiple of the given length.
+            
             Example:
             =========
             >>> import padding
-
+            
             >>> padding.ANSI_X923('12345678',padding.PAD,16)
             '12345678\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x08'
             >>> padding.ANSI_X923(_,padding.UNPAD)
@@ -176,6 +188,9 @@ def ISO_10126 (padData, direction, length=None):
                      (length variable is not used when unpadding)
             
             returns: (un)padded raw string
+            
+            A new block full of padding will be added when padding data that is
+            already a multiple of the given length.
             
             Example:
             =========
