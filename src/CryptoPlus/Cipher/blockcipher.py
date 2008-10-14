@@ -22,7 +22,6 @@
 # =============================================================================
 from ..Util import util
 from array import array
-import struct
 from ..Util.padding import Padding
 
 from exceptions import Exception
