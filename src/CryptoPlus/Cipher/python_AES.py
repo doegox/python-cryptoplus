@@ -1,7 +1,7 @@
 from blockcipher import *
 from rijndael import rijndael
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
@@ -79,6 +79,21 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> (decipher.decrypt(ciphertext[22:])).encode('hex')
     'ae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52ef'
 
+    CFB EXAMPLE: (CFB8-AES192)
+    ------------
+    NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
+    
+    >>> key = '2b7e151628aed2a6abf7158809cf4f3c'.decode('hex')
+    >>> IV = '000102030405060708090a0b0c0d0e0f'.decode('hex')
+    >>> plain = '6bc1bee22e409f96e93d7e117393172a'.decode('hex')
+    >>> cipher = python_AES.new(key,python_AES.MODE_CFB,IV=IV,segment_size=8)
+    >>> ciphertext = cipher.encrypt(plain)
+    >>> ciphertext.encode('hex')
+    '3b79424c9c0dd436bace9e0ed4586a4f'
+    >>> decipher = python_AES.new(key,python_AES.MODE_CFB,IV)
+    >>> decipher.decrypt(ciphertext).encode('hex')
+    '6bc1bee22e409f96e93d7e117393172a'
+
     CFB EXAMPLE: (CFB128-AES192)
     ------------
     NIST Special Publication 800-38A http://cryptome.org/bcm/sp800-38a.htm#F
@@ -86,7 +101,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> key = '8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'.decode('hex')
     >>> IV = '000102030405060708090a0b0c0d0e0f'.decode('hex')
     >>> plain = '6bc1bee22e409f96e93d7e117393172a'.decode('hex')
-    >>> cipher = python_AES.new(key,python_AES.MODE_CFB,IV)
+    >>> cipher = python_AES.new(key,python_AES.MODE_CFB,IV=IV,segment_size=128)
     >>> output1 = cipher.encrypt(plain)
     >>> output1.encode('hex')
     'cdc80d6fddf18cab34c25909c99a4174'
@@ -94,7 +109,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> output2 = cipher.encrypt(plain)
     >>> output2.encode('hex')
     '67ce7f7f81173621961a2b70171d3d7a'
-    >>> decipher = python_AES.new(key,python_AES.MODE_CFB,IV)
+    >>> decipher = python_AES.new(key,python_AES.MODE_CFB,IV=IV,segment_size=128)
     >>> decipher.decrypt(output1+output2).encode('hex')
     '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'
 
@@ -103,7 +118,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> key = '8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'.decode('hex')
     >>> IV = '000102030405060708090a0b0c0d0e0f'.decode('hex')
     >>> plain = '6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51'.decode('hex')
-    >>> cipher = python_AES.new(key,python_AES.MODE_CFB,IV)
+    >>> cipher = python_AES.new(key,python_AES.MODE_CFB,IV=IV,segment_size=128)
     >>> output = ''
     >>> for i in plain: output += cipher.encrypt(i)
     >>> output.encode('hex')
@@ -258,16 +273,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> cipher.encrypt(plaintext).encode('hex')[:16]
     'dfa66747de9ae630'
     """
-    return python_AES(key,mode,IV,counter)
+    return python_AES(key,mode,IV,counter,segment_size)
 
 class python_AES(BlockCipher):
     key_error_message = ("Key should be 128, 192 or 256 bits")
 
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         cipher_module = rijndael
         args = {'block_size':16}
         self.blocksize = 16
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size,args)
 
     def keylen_valid(self,key):
         return len(key) in (16,24,32)

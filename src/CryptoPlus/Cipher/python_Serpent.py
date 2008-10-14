@@ -1,7 +1,7 @@
 from blockcipher import *
 from pyserpent import Serpent
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     Wrapper for pure python implementation pyserpent.py
@@ -50,15 +50,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> ( decipher.decrypt(ciphertext)).encode('hex').upper()
     '33B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D14919365'
     """
-    return python_Serpent(key,mode,IV,counter)
+    return python_Serpent(key,mode,IV,counter,segment_size)
 
 class python_Serpent(BlockCipher):
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         if len(key) not in (16,24,32) and type(key) is not tuple:
                 raise ValueError("Key should be 128, 192 or 256 bits")
         cipher_module = Serpent
         self.blocksize = 16
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
 def _test():
     import doctest

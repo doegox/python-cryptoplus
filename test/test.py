@@ -105,10 +105,11 @@ for i in range(1,len(dict_ofb_aes)/4+1):
 for i in range(1,len(dict_cfb_aes)/4+1):
     msg = dict_cfb_aes['msg%i'%i].decode('hex')
     iv = dict_cfb_aes['iv%i'%i].decode('hex')
+    s = dict_cfb_aes['s%i'%i]
     key = dict_cfb_aes['key%i'%i].decode('hex')
     cip = dict_cfb_aes['cip%i'%i].decode('hex')
-    cipher = python_AES.new(key,python_AES.MODE_CFB,IV=iv)
-    decipher = python_AES.new(key,python_AES.MODE_CFB,IV=iv)
+    cipher = python_AES.new(key,python_AES.MODE_CFB,IV=iv,segment_size=s)
+    decipher = python_AES.new(key,python_AES.MODE_CFB,IV=iv,segment_size=s)
     if cip <> cipher.encrypt(msg):
         print 'ERROR! for CFB-AES in %i'%i
     if msg <> decipher.decrypt(cip):

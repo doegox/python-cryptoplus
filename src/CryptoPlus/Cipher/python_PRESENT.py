@@ -1,7 +1,7 @@
 from blockcipher import *
 from pypresent import Present
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
+def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32,segment_size=8):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
@@ -68,16 +68,16 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32):
         >>> cipher.decrypt(ciphertext).encode('hex')
         '0123456789abcdef'
         """
-    return python_PRESENT(key,mode,IV,counter,rounds)
+    return python_PRESENT(key,mode,IV,counter,rounds,segment_size)
 
 class python_PRESENT(BlockCipher):
     key_error_message = "Key should be 80 or 128 bits"
 
-    def __init__(self,key,mode,IV,counter,rounds):
+    def __init__(self,key,mode,IV,counter,rounds,segment_size):
         cipher_module = Present
         args = {'rounds':rounds}
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,args)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size,args)
 
     def keylen_valid(self,key):
         return len(key) in (10,16)

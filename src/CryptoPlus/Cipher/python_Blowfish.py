@@ -1,7 +1,7 @@
 from blockcipher import *
 from pyblowfish import Blowfish
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     Wrapper for pure python implementation pyblowfish.py
@@ -48,7 +48,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> (ciphertext).encode('hex').upper()
     '6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
 
-    >>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CFB,iv)
+    >>> cipher = python_Blowfish.new(key,python_Blowfish.MODE_CFB,iv,segment_size=64)
     >>> ciphertext = cipher.encrypt(plaintext)
     >>> (ciphertext).encode('hex').upper()
     'E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3'
@@ -57,15 +57,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> ciphertext = cipher.encrypt(plaintext)
     >>> (ciphertext).encode('hex').upper()
     'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'"""
-    return python_Blowfish(key,mode,IV,counter)
+    return python_Blowfish(key,mode,IV,counter,segment_size)
 
 class python_Blowfish(BlockCipher):
     key_error_message = "Key should be between 8 and 56 bytes (64 <-> 448 bits)"
 
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         cipher_module = Blowfish
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
     def keylen_valid(self,key):
         return 8 <= len(key) <= 56

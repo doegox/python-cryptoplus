@@ -1,7 +1,7 @@
 from blockcipher import *
 import Crypto.Cipher.Blowfish
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     Blowfish using pycrypto for algo and pycryptoplus for ciphermode
@@ -47,7 +47,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> (ciphertext).encode('hex').upper()
     '6B77B4D63006DEE605B156E27403979358DEB9E7154616D9'
 
-    >>> cipher = Blowfish.new(key,Blowfish.MODE_CFB,iv)
+    >>> cipher = Blowfish.new(key,Blowfish.MODE_CFB,iv,segment_size=64)
     >>> ciphertext = cipher.encrypt(plaintext)
     >>> (ciphertext).encode('hex').upper()
     'E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3'
@@ -57,13 +57,13 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> (ciphertext).encode('hex').upper()
     'E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA'
     """
-    return Blowfish(key,mode,IV,counter)
+    return Blowfish(key,mode,IV,counter,segment_size)
 
 class Blowfish(BlockCipher):
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         cipher_module = Crypto.Cipher.Blowfish.new
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
 def _test():
     import doctest

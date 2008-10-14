@@ -5,7 +5,7 @@ except ImportError:
     print "Crypto.Cipher.IDEA isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for IDEA."
     raise
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     IDEA using pycrypto for algo and pycryptoplus for ciphermode
@@ -32,13 +32,13 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> cipher.encrypt(plaintext).encode('hex').upper()
     'EA024714AD5C4D84'
     """
-    return IDEA(key,mode,IV,counter)
+    return IDEA(key,mode,IV,counter,segment_size)
 
 class IDEA(BlockCipher):
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         cipher_module = Crypto.Cipher.IDEA.new
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
 def _test():
     import doctest

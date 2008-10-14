@@ -1,7 +1,7 @@
 from blockcipher import *
 import pyDes
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     wrapper for pure python implementation pyDes.py
@@ -32,15 +32,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> (plaintext).encode('hex')
     '01a1d6d039776742'
     """
-    return python_DES(key,mode,IV,counter)
+    return python_DES(key,mode,IV,counter,segment_size)
 
 class python_DES(BlockCipher):
     key_error_message = ("Key should be 64 bits")
 
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         cipher_module = pyDes.des
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
     def keylen_valid(self,key):
         return len(key) == 8

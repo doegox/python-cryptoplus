@@ -38,7 +38,7 @@ class BlockCipher():
 
     key_error_message = "Wrong key size" #should be overwritten in child classes
 
-    def __init__(self,key,mode,IV,counter,cipher_module,args={}):
+    def __init__(self,key,mode,IV,counter,cipher_module,segment_size,args={}):
         # Cipher classes inheriting from this one take care of:
         #   self.blocksize
         #   self.cipher
@@ -67,7 +67,10 @@ class BlockCipher():
         elif mode == MODE_CFB:
             if len(self.IV) <> self.blocksize:
                 raise Exception,"the IV length should be %i bytes"%self.blocksize
-            self.chain = CFB(self.cipher, self.blocksize,self.IV)
+            if segment_size > self.blocksize*8 or segment_size%8 <> 0:
+                # current CFB implementation doesn't support bit level acces => segment_size should be multiple of bytes
+                raise ValueError,"segment size should be a multiple of 8 bits between 1 and %i"%(self.blocksize*8)
+            self.chain = CFB(self.cipher, self.blocksize,self.IV,segment_size)
         elif mode == MODE_OFB:
             if len(self.IV) <> self.blocksize:
                 raise ValueError("the IV length should be %i bytes"%self.blocksize)
@@ -294,16 +297,19 @@ class CBC:
             return decrypted_blocks
 
 class CFB:
+    # TODO: bit access instead of only byte level access
     """CFB Chaining Mode
 
     Can be accessed as a stream cipher.
     """
 
-    def __init__(self, codebook, blocksize, IV):
+    def __init__(self, codebook, blocksize, IV,segment_size):
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
+        self.segment_size = segment_size/8
         self.keystream = []
+        
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
 
@@ -322,15 +328,15 @@ class CFB:
             if ed =='e':
                 if len(self.keystream) == 0:
                     block = self.codebook.encrypt(self.IV)
-                    self.keystream = list(block)
-                    self.IV = ''
+                    self.keystream = list(block)[:self.segment_size] # keystream consists of the s MSB's
+                    self.IV = self.IV[self.segment_size:] # keeping (b-s) LSB's
                 output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
                 self.IV += output[i] # the IV for the next block in the chain is being built byte per byte as the ciphertext flows in
             else:
                 if len(self.keystream) == 0:
                     block = self.codebook.encrypt(self.IV)
-                    self.keystream = list(block)
-                    self.IV = ''
+                    self.keystream = list(block)[:self.segment_size]
+                    self.IV = self.IV[self.segment_size:]
                 self.IV += output[i]
                 output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
         return ''.join(output)

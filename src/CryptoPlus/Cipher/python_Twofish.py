@@ -1,7 +1,7 @@
 from blockcipher import *
 from pytwofish import Twofish
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     Wrapper for pure python implementation pytwofish.py
@@ -33,15 +33,15 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex').upper()
     '6363977DE839486297E661C6C9D668EB'
     """
-    return python_Twofish(key,mode,IV,counter)
+    return python_Twofish(key,mode,IV,counter,segment_size)
 
 class python_Twofish(BlockCipher):
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         if len(key) not in (16,24,32) and type(key) is not tuple:
                 raise ValueError("Key should be 128, 192 or 256 bits")
         cipher_module = Twofish
         self.blocksize = 16
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
 def _test():
     import doctest

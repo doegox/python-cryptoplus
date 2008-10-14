@@ -1,7 +1,7 @@
 from blockcipher import *
 import Crypto.Cipher.DES
 
-def new(key,mode=MODE_ECB,IV=None,counter=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=8):
     """Create a new cipher object
 
     DES using pycrypto for algo and pycryptoplus for ciphermode
@@ -31,13 +31,13 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
     '01a1d6d039776742'
 
     """
-    return DES(key,mode,IV,counter)
+    return DES(key,mode,IV,counter,segment_size)
 
 class DES(BlockCipher):
-    def __init__(self,key,mode,IV,counter):
+    def __init__(self,key,mode,IV,counter,segment_size):
         cipher_module = Crypto.Cipher.DES.new
         self.blocksize = 8
-        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module)
+        BlockCipher.__init__(self,key,mode,IV,counter,cipher_module,segment_size)
 
 def _test():
     import doctest
