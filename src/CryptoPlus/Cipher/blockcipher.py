@@ -212,10 +212,11 @@ class BlockCipher():
         if self.ed == 'e':
             # when the chain is in encryption mode, finalizing will pad the cache and encrypt this last block
             if self.mode in (MODE_OFB,MODE_CFB,MODE_CTR):
-                dummy = '0'*(self.blocksize - self.chain.keystream.buffer_info()[1]) # a dummy string that will be used to get a valid padding
+                dummy = '0'*(self.chain.totalbytes%self.blocksize) # a dummy string that will be used to get a valid padding
             else: #ECB, CBC
                 dummy = self.chain.cache
-            return self.chain.update(padfct(dummy,padding.PAD,self.blocksize)[len(dummy):],'e') # pad the cache and then only supply the padding to the update function
+            pad = padfct(dummy,padding.PAD,self.blocksize)[len(dummy):] # construct the padding necessary
+            return self.chain.update(pad,'e') # supply the padding to the update function => chain cache will be "cache+padding"
         else:
             # final function doesn't make sense when decrypting => padding should be removed manually
             pass
@@ -315,6 +316,7 @@ class CFB:
         self.blocksize = blocksize
         self.segment_size = segment_size/8
         self.keystream = []
+        self.totalbytes = 0
         
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
@@ -345,6 +347,7 @@ class CFB:
                     self.IV = self.IV[self.segment_size:]
                 self.IV += output[i]
                 output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
+        self.totalbytes += len(output)
         return ''.join(output)
 
 class OFB:
@@ -357,6 +360,8 @@ class OFB:
         self.IV = IV
         self.blocksize = blocksize
         self.keystream = []
+        self.totalbytes = 0
+        
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
 
@@ -379,6 +384,8 @@ class OFB:
                 self.IV = self.codebook.encrypt(self.IV)
                 self.keystream = list(self.IV)
             output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0))) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
+        
+        self.totalbytes += len(output)
         return ''.join(output)
 
 class CTR:
@@ -393,6 +400,7 @@ class CTR:
         self.counter = counter
         self.blocksize = blocksize
         self.keystream = [] #holds the output of the current encrypted counter value
+        self.totalbytes = 0
 
     def update(self, data, ed):
         """Processes the given ciphertext/plaintext
@@ -416,6 +424,7 @@ class CTR:
                 block = self.codebook.encrypt(self.counter())
                 self.keystream = list(block)
             output[i] = chr(ord(output[i])^ord(self.keystream.pop(0))) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
+        self.totalbytes += len(output)
         return ''.join(output)
 
 class XTS:
