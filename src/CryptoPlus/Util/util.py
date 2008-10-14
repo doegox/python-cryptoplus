@@ -1,17 +1,3 @@
-from __future__ import division #http://www.python.org/dev/peps/pep-0238/
-import math
-
-def roundUp (n, p):
-    """Round an integer up to the nearest multiple
-
-    A given integer n will be round up to the nearest multiple of p
-
-    Example:
-    >>> roundUp(13,8)
-        16
-    """
-    return int(math.ceil(n/p)*p)
-
 def number2string(i):
     """Convert a number to a string
 
