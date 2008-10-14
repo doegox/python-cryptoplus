@@ -13,7 +13,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32):
         key = raw string containing the keys
               multiple of 8 bits between 0 <-> 2040 bits
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
-        IV = IV as a raw string
+        IV = IV as a raw string, default is "all zero" IV
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode

@@ -10,7 +10,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
             - DES-EDE2: supply 2 keys as 1 single concatenated 16byte key= key1|key2
             - DES-EDE3: supply 3 keys as 1 single concatenated 24byte key= key1|key2|key3
         mode = python_AES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
-        IV = IV as a raw string
+        IV = IV as a raw string, default is "all zero" IV
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode

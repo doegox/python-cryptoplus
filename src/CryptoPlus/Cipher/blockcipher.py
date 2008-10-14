@@ -51,28 +51,27 @@ class BlockCipher():
          if not self.keylen_valid(key) and type(key) is not tuple:
                 raise ValueError(self.key_error_message)
 
+        if IV == None:
+            self.IV = '\x00'*16
+        else:
+            self.IV = IV
+
         if mode <> MODE_XTS:
             self.cipher = cipher_module(self.key,**args)
         if mode == MODE_ECB:
             self.chain = ECB(self.cipher, self.blocksize)
         elif mode == MODE_CBC:
-            if IV == None:
-                raise Exception,"Provide an IV!"
-            if len(IV) <> self.blocksize:
+            if len(self.IV) <> self.blocksize:
                 raise Exception,"the IV length should be %i bytes"%self.blocksize
-            self.chain = CBC(self.cipher, self.blocksize,IV)
+            self.chain = CBC(self.cipher, self.blocksize,self.IV)
         elif mode == MODE_CFB:
-            if IV == None:
-                raise Exception,"Provide an IV!"
-            if len(IV) <> self.blocksize:
+            if len(self.IV) <> self.blocksize:
                 raise Exception,"the IV length should be %i bytes"%self.blocksize
-            self.chain = CFB(self.cipher, self.blocksize,IV)
+            self.chain = CFB(self.cipher, self.blocksize,self.IV)
         elif mode == MODE_OFB:
-            if IV == None:
-                raise Exception,"Provide an IV!"
-            if len(IV) <> self.blocksize:
+            if len(self.IV) <> self.blocksize:
                 raise ValueError("the IV length should be %i bytes"%self.blocksize)
-            self.chain = OFB(self.cipher, self.blocksize,IV)
+            self.chain = OFB(self.cipher, self.blocksize,self.IV)
         elif mode == MODE_CTR:
             if (counter == None) or  not callable(counter):
                 raise Exception,"Supply a valid counter object for the CTR mode"

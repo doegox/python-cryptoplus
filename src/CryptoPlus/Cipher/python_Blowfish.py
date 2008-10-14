@@ -8,7 +8,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
 
         key = raw string containing the key
         mode = Blowfish.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
-        IV = IV as a raw string
+        IV = IV as a raw string, default is "all zero" IV
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode

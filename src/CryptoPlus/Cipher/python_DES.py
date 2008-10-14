@@ -9,7 +9,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key
         mode = python_DES.MODE_ECB/CBC/CFB/OFB/CTR/CMAC, default is ECB
             -> for every mode, except ECB and CTR, it is important to construct a seperate cipher for encryption and decryption
-        IV = IV as a raw string
+        IV = IV as a raw string, default is "all zero" IV
             -> needed for CBC, CFB and OFB mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode

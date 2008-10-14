@@ -7,7 +7,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None):
         key = raw string containing the key, AES-128..256 will be selected according to the key length
             -> when using XTS mode: the key should be a tuple of the 2 keys needed
         mode = AES.MODE_ECB/CBC/CFB/OFB/CTR/XTS/CMAC, default is ECB
-        IV = IV as a raw string
+        IV = IV as a raw string, default is "all zero" IV
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
