@@ -1,349 +1,2 @@
-#!/usr/bin/env python
-# -*- coding: iso-8859-1
-
-# Note that PyPy contains also a built-in module 'sha' which will hide
-# this one if compiled in.
-
-"""A sample implementation of SHA-1 in pure Python.
-
-   Framework adapted from Dinu Gherman's MD5 implementation by
-   J. Hallén and L. Creighton. SHA-1 implementation based directly on
-   the text of the NIST standard FIPS PUB 180-1.
-"""
-
-
-__date__    = '2004-11-17'
-__version__ = 0.91 # Modernised by J. Hallén and L. Creighton for Pypy
-
-
-import struct, copy
-
-
-# ======================================================================
-# Bit-Manipulation helpers
-#
-#   _long2bytes() was contributed by Barry Warsaw
-#   and is reused here with tiny modifications.
-# ======================================================================
-
-def _long2bytesBigEndian(n, blocksize=0):
-    """Convert a long integer to a byte string.
-
-    If optional blocksize is given and greater than zero, pad the front
-    of the byte string with binary zeros so that the length is a multiple
-    of blocksize.
-    """
-
-    # After much testing, this algorithm was deemed to be the fastest.
-    s = ''
-    pack = struct.pack
-    while n > 0:
-        s = pack('>I', n & 0xffffffffL) + s
-        n = n >> 32
-
-    # Strip off leading zeros.
-    for i in range(len(s)):
-        if s[i] <> '\000':
-            break
-    else:
-        # Only happens when n == 0.
-        s = '\000'
-        i = 0
-
-    s = s[i:]
-
-    # Add back some pad bytes. This could be done more efficiently
-    # w.r.t. the de-padding being done above, but sigh...
-    if blocksize > 0 and len(s) % blocksize:
-        s = (blocksize - len(s) % blocksize) * '\000' + s
-
-    return s
-
-
-def _bytelist2longBigEndian(list):
-    "Transform a list of characters into a list of longs."
-
-    imax = len(list)/4
-    hl = [0L] * imax
-
-    j = 0
-    i = 0
-    while i < imax:
-        b0 = long(ord(list[j])) << 24
-        b1 = long(ord(list[j+1])) << 16
-        b2 = long(ord(list[j+2])) << 8
-        b3 = long(ord(list[j+3]))
-        hl[i] = b0 | b1 | b2 | b3
-        i = i+1
-        j = j+4
-
-    return hl
-
-
-def _rotateLeft(x, n):
-    "Rotate x (32 bit) left n bits circularly."
-
-    return (x << n) | (x >> (32-n))
-
-
-# ======================================================================
-# The SHA transformation functions
-#
-# ======================================================================
-
-def f0_19(B, C, D):
-    return (B & C) | ((~ B) & D)
-
-def f20_39(B, C, D):
-    return B ^ C ^ D
-
-def f40_59(B, C, D):
-    return (B & C) | (B & D) | (C & D)
-
-def f60_79(B, C, D):
-    return B ^ C ^ D
-
-
-f = [f0_19, f20_39, f40_59, f60_79]
-
-# Constants to be used
-K = [
-    0x5A827999L, # ( 0 <= t <= 19)
-    0x6ED9EBA1L, # (20 <= t <= 39)
-    0x8F1BBCDCL, # (40 <= t <= 59)
-    0xCA62C1D6L  # (60 <= t <= 79)
-    ]
-
-class sha:
-    "An implementation of the MD5 hash function in pure Python."
-
-    def __init__(self):
-        "Initialisation."
-        
-        # Initial message length in bits(!).
-        self.length = 0L
-        self.count = [0, 0]
-
-        # Initial empty message as a sequence of bytes (8 bit characters).
-        self.input = []
-
-        # Call a separate init function, that can be used repeatedly
-        # to start from scratch on the same object.
-        self.init()
-
-
-    def init(self):
-        "Initialize the message-digest and set all fields to zero."
-
-        self.length = 0L
-        self.input = []
-
-        # Initial 160 bit message digest (5 times 32 bit).
-        self.H0 = 0x67452301L
-        self.H1 = 0xEFCDAB89L
-        self.H2 = 0x98BADCFEL
-        self.H3 = 0x10325476L
-        self.H4 = 0xC3D2E1F0L
-
-    def _transform(self, W):
-
-        for t in range(16, 80):
-            W.append(_rotateLeft(
-                W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1) & 0xffffffffL)
-
-        A = self.H0
-        B = self.H1
-        C = self.H2
-        D = self.H3
-        E = self.H4
-
-        """
-        This loop was unrolled to gain about 10% in speed
-        for t in range(0, 80):
-            TEMP = _rotateLeft(A, 5) + f[t/20] + E + W[t] + K[t/20]
-            E = D
-            D = C
-            C = _rotateLeft(B, 30) & 0xffffffffL
-            B = A
-            A = TEMP & 0xffffffffL
-        """
-
-        for t in range(0, 20):
-            TEMP = _rotateLeft(A, 5) + ((B & C) | ((~ B) & D)) + E + W[t] + K[0]
-            E = D
-            D = C
-            C = _rotateLeft(B, 30) & 0xffffffffL
-            B = A
-            A = TEMP & 0xffffffffL
-
-        for t in range(20, 40):
-            TEMP = _rotateLeft(A, 5) + (B ^ C ^ D) + E + W[t] + K[1]
-            E = D
-            D = C
-            C = _rotateLeft(B, 30) & 0xffffffffL
-            B = A
-            A = TEMP & 0xffffffffL
-
-        for t in range(40, 60):
-            TEMP = _rotateLeft(A, 5) + ((B & C) | (B & D) | (C & D)) + E + W[t] + K[2]
-            E = D
-            D = C
-            C = _rotateLeft(B, 30) & 0xffffffffL
-            B = A
-            A = TEMP & 0xffffffffL
-
-        for t in range(60, 80):
-            TEMP = _rotateLeft(A, 5) + (B ^ C ^ D)  + E + W[t] + K[3]
-            E = D
-            D = C
-            C = _rotateLeft(B, 30) & 0xffffffffL
-            B = A
-            A = TEMP & 0xffffffffL
-
-
-        self.H0 = (self.H0 + A) & 0xffffffffL
-        self.H1 = (self.H1 + B) & 0xffffffffL
-        self.H2 = (self.H2 + C) & 0xffffffffL
-        self.H3 = (self.H3 + D) & 0xffffffffL
-        self.H4 = (self.H4 + E) & 0xffffffffL
-    
-
-    # Down from here all methods follow the Python Standard Library
-    # API of the sha module.
-
-    def update(self, inBuf):
-        """Add to the current message.
-
-        Update the md5 object with the string arg. Repeated calls
-        are equivalent to a single call with the concatenation of all
-        the arguments, i.e. m.update(a); m.update(b) is equivalent
-        to m.update(a+b).
-
-        The hash is immediately calculated for all full blocks. The final
-        calculation is made in digest(). It will calculate 1-2 blocks,
-        depending on how much padding we have to add. This allows us to
-        keep an intermediate value for the hash, so that we only need to
-        make minimal recalculation if we call update() to add more data
-        to the hashed string.
-        """
-
-        leninBuf = long(len(inBuf))
-
-        # Compute number of bytes mod 64.
-        index = (self.count[1] >> 3) & 0x3FL
-
-        # Update number of bits.
-        self.count[1] = self.count[1] + (leninBuf << 3)
-        if self.count[1] < (leninBuf << 3):
-            self.count[0] = self.count[0] + 1
-        self.count[0] = self.count[0] + (leninBuf >> 29)
-
-        partLen = 64 - index
-
-        if leninBuf >= partLen:
-            self.input[index:] = list(inBuf[:partLen])
-            self._transform(_bytelist2longBigEndian(self.input))
-            i = partLen
-            while i + 63 < leninBuf:
-                self._transform(_bytelist2longBigEndian(list(inBuf[i:i+64])))
-                i = i + 64
-            else:
-                self.input = list(inBuf[i:leninBuf])
-        else:
-            i = 0
-            self.input = self.input + list(inBuf)
-
-
-    def digest(self):
-        """Terminate the message-digest computation and return digest.
-
-        Return the digest of the strings passed to the update()
-        method so far. This is a 16-byte string which may contain
-        non-ASCII characters, including null bytes.
-        """
-
-        H0 = self.H0
-        H1 = self.H1
-        H2 = self.H2
-        H3 = self.H3
-        H4 = self.H4
-        input = [] + self.input
-        count = [] + self.count
-
-        index = (self.count[1] >> 3) & 0x3fL
-
-        if index < 56:
-            padLen = 56 - index
-        else:
-            padLen = 120 - index
-
-        padding = ['\200'] + ['\000'] * 63
-        self.update(padding[:padLen])
-
-        # Append length (before padding).
-        bits = _bytelist2longBigEndian(self.input[:56]) + count
-
-        self._transform(bits)
-
-        # Store state in digest.
-        digest = _long2bytesBigEndian(self.H0, 4) + \
-                 _long2bytesBigEndian(self.H1, 4) + \
-                 _long2bytesBigEndian(self.H2, 4) + \
-                 _long2bytesBigEndian(self.H3, 4) + \
-                 _long2bytesBigEndian(self.H4, 4)
-
-        self.H0 = H0 
-        self.H1 = H1 
-        self.H2 = H2
-        self.H3 = H3
-        self.H4 = H4
-        self.input = input 
-        self.count = count 
-
-        return digest
-
-
-    def hexdigest(self):
-        """Terminate and return digest in HEX form.
-
-        Like digest() except the digest is returned as a string of
-        length 32, containing only hexadecimal digits. This may be
-        used to exchange the value safely in email or other non-
-        binary environments.
-        """
-        return ''.join(['%02x' % ord(c) for c in self.digest()])
-
-    def copy(self):
-        """Return a clone object.
-
-        Return a copy ('clone') of the md5 object. This can be used
-        to efficiently compute the digests of strings that share
-        a common initial substring.
-        """
-
-        return copy.deepcopy(self)
-
-
-# ======================================================================
-# Mimic Python top-level functions from standard library API
-# for consistency with the md5 module of the standard library.
-# ======================================================================
-
-# These are mandatory variables in the module. They have constant values
-# in the SHA standard.
-
-digest_size = digestsize = 20
-blocksize = 1
-
-def new(arg=None):
-    """Return a new sha crypto object.
-
-    If arg is present, the method call update(arg) is made.
-    """
-
-    crypto = sha()
-    if arg:
-        crypto.update(arg)
-
-    return crypto
-
+#!/usr/bin/python__author__ = 'Thomas Dixon'__license__ = 'MIT'import copy, struct, sysdef new(m=None):    return sha256(m)class sha256(object):    _k = (0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,          0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,          0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,          0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,          0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,          0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,          0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,          0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,          0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,          0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,          0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,          0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,          0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,          0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,          0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,          0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2)    _h = (0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,          0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19)    _output_size = 8    
+    blocksize = 1    block_size = 64    digest_size = 32        def __init__(self, m=None):                self._buffer = ''        self._counter = 0                if m is not None:            if type(m) is not str:                raise TypeError, '%s() argument 1 must be string, not %s' % (self.__class__.__name__, type(m).__name__)            self.update(m)            def _rotr(self, x, y):        return ((x >> y) | (x << (32-y))) & 0xFFFFFFFF                        def _sha256_process(self, c):        w = [0]*64        w[0:15] = struct.unpack('!16L', c)                for i in range(16, 64):            s0 = self._rotr(w[i-15], 7) ^ self._rotr(w[i-15], 18) ^ (w[i-15] >> 3)            s1 = self._rotr(w[i-2], 17) ^ self._rotr(w[i-2], 19) ^ (w[i-2] >> 10)            w[i] = (w[i-16] + s0 + w[i-7] + s1) & 0xFFFFFFFF                a,b,c,d,e,f,g,h = self._h                for i in range(64):            s0 = self._rotr(a, 2) ^ self._rotr(a, 13) ^ self._rotr(a, 22)            maj = (a & b) ^ (a & c) ^ (b & c)            t2 = s0 + maj            s1 = self._rotr(e, 6) ^ self._rotr(e, 11) ^ self._rotr(e, 25)            ch = (e & f) ^ ((~e) & g)            t1 = h + s1 + ch + self._k[i] + w[i]                        h = g            g = f            f = e            e = (d + t1) & 0xFFFFFFFF            d = c            c = b            b = a            a = (t1 + t2) & 0xFFFFFFFF                    self._h = [(x+y) & 0xFFFFFFFF for x,y in zip(self._h, [a,b,c,d,e,f,g,h])]            def update(self, m):        if not m:            return        if type(m) is not str:            raise TypeError, '%s() argument 1 must be string, not %s' % (sys._getframe().f_code.co_name, type(m).__name__)                self._buffer += m        self._counter += len(m)                while len(self._buffer) >= 64:            self._sha256_process(self._buffer[:64])            self._buffer = self._buffer[64:]                def digest(self):        mdi = self._counter & 0x3F        length = struct.pack('!Q', self._counter<<3)                if mdi < 56:            padlen = 55-mdi        else:            padlen = 119-mdi                r = self.copy()        r.update('\x80'+('\x00'*padlen)+length)        return ''.join([struct.pack('!L', i) for i in r._h[:self._output_size]])            def hexdigest(self):        return self.digest().encode('hex')            def copy(self):        return copy.deepcopy(self)
