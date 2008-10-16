@@ -3,7 +3,7 @@ import Crypto.Cipher.ARC2
 import Crypto
 from pkg_resources import parse_version
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,effective_keylen=None,segment_size=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,effective_keylen=None):
     """Create a new cipher object
 
     ARC2 using pycrypto for algo and pycryptoplus for ciphermode
@@ -14,6 +14,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,effective_keylen=None,segment_siz
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
+        segment_size = amount of bits to use from the keystream in each chain part
+            -> supported values: multiple of 8 between 8 and the blocksize
+               of the cipher (only per byte access possible), default is 8
+            -> only needed for CFB mode
         effective_keylen = how much bits to effectively use from the supplied key
             -> will only be used when the pycrypto version on your system is >2.0.1
 

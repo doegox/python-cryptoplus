@@ -1,7 +1,7 @@
 from blockcipher import *
 from pypresent import Present
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32,segment_size=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,rounds=32):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
@@ -16,6 +16,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=32,segment_size=None):
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
                 rounds = amount of rounds
+        segment_size = amount of bits to use from the keystream in each chain part
+            -> supported values: multiple of 8 between 8 and the blocksize
+               of the cipher (only per byte access possible), default is 8
+            -> only needed for CFB mode
         rounds = amount of rounds, default = 32
 
     Notes:
