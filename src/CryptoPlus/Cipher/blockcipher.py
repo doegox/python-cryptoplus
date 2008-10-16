@@ -204,12 +204,12 @@ class BlockCipher():
         For OFB,CFB, CTR: an encrypted padding will be returned, making the
                           total outputed bytes since construction of the cipher
                           a multiple of the blocksize of that cipher.
-        
+
         If the cipher has been used for decryption, the final function won't do
-        antyhing. You have to manually unpad if necessary.
+          anything. You have to manually unpad if necessary.
 
         After finalization, the chain can still be used but the IV, counter etc
-        aren't reset but just continu as they were after the last step (finalization step).
+          aren't reset but just continue as they were after the last step (finalization step).
         """
         assert self.mode not in (MODE_XTS, MODE_CMAC) # finalizing (=padding) doesn't make sense when in XTS or CMAC mode
         if self.ed == 'e':
@@ -433,7 +433,7 @@ class CTR:
 class XTS:
     """XTS Chaining Mode
     
-    Usable with blockcihpers with a 16 byte blocksize
+    Usable with blockciphers with a 16-byte blocksize
     """
     # TODO: allow other blocksizes besides 16bytes?
     def __init__(self,codebook1, codebook2):
@@ -516,7 +516,7 @@ class CMAC:
       in the list CMAC.supported_blocksizes.
     The hashlength is equal to block size of the used block cipher.
     
-    Usable with blockcihpers with a 8 or 16 byte blocksize
+    Usable with blockciphers with a 8 or 16-byte blocksize
     """
     # TODO: move to hash module?
     # TODO: change update behaviour to .update() and .digest() as for all hash modules?

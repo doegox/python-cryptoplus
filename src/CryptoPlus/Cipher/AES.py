@@ -11,6 +11,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
+        segment_size = amount of bits to use from the keystream in each chain part
+            -> supported values: multiple of 8 between 8 and the blocksize
+               of the cipher (only per byte access possible), default is 8
+            -> only needed for CFB mode
 
     EXAMPLES:
     **********

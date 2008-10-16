@@ -1,7 +1,7 @@
 from blockcipher import *
 from rijndael import rijndael
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None,segment_size=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,blocksize=None):
     """Create a new cipher object
 
     Wrapper for pure python implementation rijndael.py
@@ -16,6 +16,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,blocksize=None,segment_size=None)
             -> only needed for CTR mode
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
+        segment_size = amount of bits to use from the keystream in each chain part
+            -> supported values: multiple of 8 between 8 and the blocksize
+               of the cipher (only per byte access possible), default is 8
+            -> only needed for CFB mode
         blocksize = blocksize in bytes
             -> supported blocksizes are 16, 24 and 32 bytes, must be 16 if XTS mode.
 

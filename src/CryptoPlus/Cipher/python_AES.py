@@ -16,6 +16,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
             -> only needed for CTR mode
             -> use a seperate counter object for the cipher and decipher: the counter is updated directly, not a copy
                 see CTR example further on in the docstring
+        segment_size = amount of bits to use from the keystream in each chain part
+            -> supported values: multiple of 8 between 8 and the blocksize
+               of the cipher (only per byte access possible), default is 8
+            -> only needed for CFB mode
 
     Notes:
         - Always construct a seperate cipher object for encryption and decryption. Once a cipher object has been used for encryption,
