@@ -5,7 +5,7 @@ except ImportError:
     print "Crypto.Cipher.RC5 isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for RC5."
     raise
 
-def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32,segment_size=None):
+def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,rounds=12,word_size=32):
     """Create a new cipher object
 
     RC5 using pycrypto for algo and pycryptoplus for ciphermode
@@ -17,6 +17,10 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,rounds=12,word_size=32,segment_si
             -> only needed for CBC mode
         counter = counter object (CryptoPlus.Util.util.Counter)
             -> only needed for CTR mode
+        segment_size = amount of bits to use from the keystream in each chain part
+            -> supported values: multiple of 8 between 8 and the blocksize
+               of the cipher (only per byte access possible), default is 8
+            -> only needed for CFB mode
         rounds = amount of rounds, default = 12
                  minimum 12 and multiple of 2
         word_size = RC5 word size (bits), supported = 16 and 32, default = 32
