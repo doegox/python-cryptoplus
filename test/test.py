@@ -7,6 +7,18 @@ from CryptoPlus.testvectors import dict_cmac_aes128,dict_cmac_aes192,dict_cmac_a
 from CryptoPlus.testvectors import dict_des,dict_tdes2,dict_tdes3
 from CryptoPlus.testvectors import dict_serpent128,dict_serpent192,dict_serpent256
 from CryptoPlus.testvectors import dict_xts_aes
+from CryptoPlus.testvectors import sha512_all_zero_messages
+
+# SHA-512
+print "SHA-512"
+
+from CryptoPlus.Hash import python_SHA512
+
+for i in range(0,len(sha512_all_zero_messages)):
+    hash = sha512_all_zero_messages[i]
+    hasher = python_SHA512.new(i*"\x00")
+    if hash <> hasher.hexdigest().upper():
+        print 'ERROR! SHA-512 in %i'%i
 
 # PRESENT
 print "PRESENT"
