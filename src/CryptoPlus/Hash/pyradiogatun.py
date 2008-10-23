@@ -107,7 +107,7 @@ def Mill(a,wl):
         return A
 
 class RadioGatunType:
-    "An implementation of the MD5 hash function in pure Python."
+    "An implementation of the RadioGatun hash function in pure Python."
 
     def __init__(self,wl):
         """Initialisation.
@@ -125,7 +125,7 @@ class RadioGatunType:
         
         # Initial message length in bits(!).
         self.length = 0L
-        self.count = [0, 0]
+        self.count = 0
 
         # Initial empty message as a sequence of bytes (8 bit characters).
         self.input = ""
@@ -137,12 +137,14 @@ class RadioGatunType:
 
     def init(self):
         """Initialize the message-digest and set all fields to zero.
+
+        Can be used to reinitialize the hash object
         """
 
         self.S = stateInit()
 
         self.length = 0L
-        self.count = [0, 0]
+        self.count = 0
         self.input = ""
 
     def _transform(self, inp):
@@ -179,10 +181,10 @@ class RadioGatunType:
         leninBuf = long(len(inBuf))
 
         # Compute number of bytes mod 64.
-        index = (self.count[0] >> 3) % self.blocklength
+        index = (self.count >> 3) % self.blocklength
 
         # Update number of bits.
-        self.count[0] = self.count[0] + (leninBuf << 3)
+        self.count = self.count + (leninBuf << 3)
 
         partLen = self.blocklength - index
 
@@ -220,14 +222,14 @@ class RadioGatunType:
 
         S = self.S
         inp = "" + self.input
-        count = [] + self.count
+        count = self.count
 
-        index = (self.count[0] >> 3) % self.blocklength
+        index = (self.count >> 3) % self.blocklength
 
         if index < self.blocklength:
                 padLen = self.blocklength - index
         else:
-            padLen = 2*self.blocklength - index
+                padLen = 2*self.blocklength - index
 
         #provide padding chars encoded as little endian
         padding = ['\001'] + ['\000'] * (padLen - 1)
