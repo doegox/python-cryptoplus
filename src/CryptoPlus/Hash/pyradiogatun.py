@@ -98,7 +98,7 @@ def Mill(a,wl):
         # Pi: Intra-word and inter-word dispersion
         for i in xrange(millSize):
                 #TODO: don't hardcode wordlength in ror64
-                a[i] = _rotateRight(A[(7*i)%millSize],i*(i+1)/2,wl*8)
+                a[i] = rotateRight(A[(7*i)%millSize],i*(i+1)/2,wl*8)
         # Theta: Diffusion
         for i in xrange(millSize):
                 A[i] = a[i] ^ a[(i+1)%millSize] ^ a[(i+4)%millSize]
