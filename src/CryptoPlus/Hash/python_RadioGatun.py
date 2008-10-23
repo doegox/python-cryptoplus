@@ -2,12 +2,12 @@ from pyradiogatun import RadioGatunType
 
 __all__ = ['new']
 
-def new(wl=64,arg=None):
-    """Return a new RadioGatun hash object
+def new(wl=64,data=None):
+    """Create a new pure python RadioGatun hash object
 
-    wl  = wordlength (in bits) of the RadioGatun hash method
+    wl   = wordlength (in bits) of the RadioGatun hash method
               between 1 and 64 (default = 64)
-    arg =  if present, the method call update(arg) is made
+    data =  if present, the method call update(arg) is made
 
     EXAMPLES: (testvectors from: http://radiogatun.noekeon.org/)
     ==========
@@ -39,8 +39,8 @@ def new(wl=64,arg=None):
     """
 
     crypto = RadioGatunType(wl)
-    if arg:
-        crypto.update(arg)
+    if data:
+        crypto.update(data)
 
     return crypto
 
