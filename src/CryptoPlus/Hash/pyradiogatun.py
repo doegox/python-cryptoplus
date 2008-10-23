@@ -278,14 +278,9 @@ class RadioGatunType:
         to efficiently compute the digests of strings that share
         a common initial substring.
         """
-        if 0: # set this to 1 to make the flow space crash
-            return copy.deepcopy(self)
-        clone = self.__class__()
-        clone.length = self.length
-        clone.count  = [] + self.count[:]
-        clone.input  = "" + self.input
-        clone.S = self.S
-        return clone
+
+        import copy
+        return copy.deepcopy(self)
 
 # ======================================================================
 # TOP LEVEL INTERFACE
