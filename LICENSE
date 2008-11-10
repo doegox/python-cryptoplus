@@ -1,9 +1,15 @@
 Used implementations of others are distributed under their respective license
  available in the source:
-    pyblowfish.py, pyDes.py, pyserpent.py, pytwofish.py, rijndael.py
-    
-    pyblowfish.py is being redistributed under the Artistic License
-    
+    Ciphers:
+     pyblowfish.py, pyDes.py, pyserpent.py, pytwofish.py, rijndael.py
+
+     - pyblowfish.py is being redistributed under the Artistic License
+
+    Hash functions:
+     pypbkdf2.py, pywhirlpool.py
+     using pypy license: pysha.py, pysha224.py, pysha256.py, pysha384.py,
+     pysha512.py, pymd5.py
+
 All the rest is licensed under the MIT License:
 
 # =============================================================================
