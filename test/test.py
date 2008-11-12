@@ -30,14 +30,14 @@ from CryptoPlus.Hash import python_RadioGatun
 for i in range(0,len(radiogatun32)/2):
     msg = radiogatun32["msg%i"%i]
     hash = radiogatun32["hash%i"%i]
-    hasher = python_RadioGatun.new(32,msg)
+    hasher = python_RadioGatun.new(msg,wl=32)
     if hash <> hasher.hexdigest().upper():
         print 'ERROR! RadioGatun[32] in %i'%i
 
 for i in range(0,len(radiogatun64)/2):
     msg = radiogatun64["msg%i"%i]
     hash = radiogatun64["hash%i"%i]
-    hasher = python_RadioGatun.new(64,msg)
+    hasher = python_RadioGatun.new(msg,wl=64)
     if hash <> hasher.hexdigest().upper():
         print 'ERROR! RadioGatun[64] in %i'%i
 

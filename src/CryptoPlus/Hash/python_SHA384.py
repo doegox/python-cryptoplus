@@ -2,7 +2,7 @@ from pysha384 import sha384
 
 __all__ = ['new','digest_size']
 
-def new(data=""):
+def new(data=None):
         """Create a new pure python SHA-384 hash object
         
         data =  initial input (raw string) to the hashing object

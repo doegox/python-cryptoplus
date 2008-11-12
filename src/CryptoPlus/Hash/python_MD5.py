@@ -2,7 +2,7 @@ import pymd5
 
 __all__ = ['new','digest_size']
 
-def new(data=""):
+def new(data=None):
         """Create a new pure python MD5 hash object
         
         data =  initial input (raw string) to the hashing object

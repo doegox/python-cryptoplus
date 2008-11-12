@@ -1,6 +1,6 @@
 from Crypto.Hash import RIPEMD
 
-def new(data=""):
+def new(data=None):
         """Create a new RIPEMD-160 hash object
         
         data =  initial input (raw string) to the hashing object

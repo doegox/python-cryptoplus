@@ -2,7 +2,7 @@ from pyradiogatun import RadioGatunType
 
 __all__ = ['new']
 
-def new(wl=64,data=None):
+def new(data=None,wl=64):
     """Create a new pure python RadioGatun hash object
 
     wl   = wordlength (in bits) of the RadioGatun hash method
@@ -27,12 +27,12 @@ def new(wl=64,data=None):
     
     radiogatun[32]
     ---------------
-    >>> hasher = python_RadioGatun.new(32)
+    >>> hasher = python_RadioGatun.new(wl=32)
     >>> hasher.update('1234567890123456')
     >>> hasher.hexdigest()
     '59612324f3f42d3096e69125d2733b86143ae668ae9ed561ad785e0eac8dba25'
 
-    >>> hasher = python_RadioGatun.new(32)
+    >>> hasher = python_RadioGatun.new(wl=32)
     >>> hasher.update('Santa Barbara, California')
     >>> hasher.hexdigest()
     '041666388ef9655d48996a66dada1193d6646012a7b25a24fb10e6075cf0fc54'
