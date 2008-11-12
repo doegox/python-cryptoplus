@@ -28,9 +28,9 @@ Api and code interface is based on the MD5 implementation of pypy
  http://codespeak.net/pypy/dist/pypy/doc/home.html
 """
 
-millSize = 19
 beltWidth = 3
 beltLength = 13
+millSize = 2*beltWidth + beltLength
 numberOfBlankIterations = 16
 
 def stateInit():
@@ -38,31 +38,22 @@ def stateInit():
         """
         return {"A":[0]*millSize,"B":[[0]*beltWidth for x in range(beltLength)]}
 
-def XORstate(state1,state2):
-        """XOR the vectors of the status of a RadioGatun object
-        """
-        out = stateInit()
-        for i in xrange(millSize):
-                out["A"][i] = state1["A"][i] ^ state2["A"][i]
-        for i in xrange(beltLength):
-                for j in xrange(beltWidth):
-                        out["B"][i][j] = state1["B"][i][j] ^ state2["B"][i][j]
-        return out
-
-def F_i(inp,wl):
+def XOR_F_i(state,inp,wl):
         """Input mapping
+        
+        mapping input blocks to a state variable + XOR step of the alternating-
+        input construction
         
         input = 1 blocklength string
         wl    = wordlength of the RadioGatun hash object
         """
-        mapped = stateInit()
         for i in xrange(beltWidth):
                 # reverse endianness of byte ordering and convert the input
                 #  block to integer
                 p_i = string2number(inp[i*wl:(i+1)*wl][::-1])
-                mapped["B"][0][i] = p_i
-                mapped["A"][i+16] = p_i
-        return mapped
+                state["B"][0][i] ^= p_i
+                state["A"][i+16] ^= p_i
+        return state
 
 def R(state,wl):
         """Round function R
@@ -72,16 +63,15 @@ def R(state,wl):
         """
         out = stateInit()
         # Belt function: simple rotation
-        for i in xrange(beltLength):
-                out["B"][i] = state["B"][(i - 1)%beltLength]
+        out["B"] = state["B"][-1:]+state["B"][:-1]
         # Mill to belt feedforward
-        for i in xrange(12):
+        for i in xrange(beltLength - 1):
                 out["B"][i+1][i%beltWidth] ^= state["A"][i+1]
         # Run the mill
         out["A"] = Mill(state["A"],wl)
         # Belt to mill feedforward
         for i in xrange(beltWidth):
-                out["A"][i+13] ^= state["B"][12][i]
+                out["A"][i+beltLength] ^= state["B"][beltLength-1][i]
         return out
 
 def Mill(a,wl):
@@ -93,11 +83,11 @@ def Mill(a,wl):
         A = [0]*millSize
         # Gamma: Non-linearity
         for i in xrange(millSize):
-                #A[i] = a[i] ^ ~((~a[(i+1)%millSize]) & (a[(i+2)%millSize]) )
-                A[i] = a[i] ^ ((a[(i+1)%millSize]) | (~(a[(i+2)%millSize])&((2**(wl*8))-1)) )
+                A[i] = a[i] ^ ~((~a[(i+1)%millSize]) & (a[(i+2)%millSize]) )
+                # Alternative:
+                #  A[i] = a[i] ^ ((a[(i+1)%millSize]) | (~(a[(i+2)%millSize])&((2**(wl*8))-1)) )
         # Pi: Intra-word and inter-word dispersion
         for i in xrange(millSize):
-                #TODO: don't hardcode wordlength in ror64
                 a[i] = rotateRight(A[(7*i)%millSize],i*(i+1)/2,wl*8)
         # Theta: Diffusion
         for i in xrange(millSize):
@@ -113,18 +103,18 @@ class RadioGatunType:
         """Initialisation.
         
         wl = wordlength (in bits) of the RadioGatun hash method
-              between 1 and 64 (default = 64)
+              between 8 and 64 (default = 64)
         """
 
-        if not ( 1 <= wl <= 64) or not (wl%8 == 0 ):
-                raise ValueError,"Wordlength should be a multiple of 8 between 1 and 64"
+        if not ( 8 <= wl <= 64) or not (wl%8 == 0 ):
+                raise ValueError,"Wordlength should be a multiple of 8 between 8 and 64"
 
         # word & block length in bytes
         self.wordlength = wl/8
         self.blocklength = self.wordlength*3
         
         # Initial message length in bits(!).
-        self.length = 0L
+        self.length = 0
         self.count = 0
 
         # Initial empty message as a sequence of bytes (8 bit characters).
@@ -143,7 +133,7 @@ class RadioGatunType:
 
         self.S = stateInit()
 
-        self.length = 0L
+        self.length = 0
         self.count = 0
         self.input = ""
 
@@ -156,7 +146,7 @@ class RadioGatunType:
         Mangling and output mapping can only follow when all input data has
         been received.
         """
-        T = XORstate(self.S,F_i(inp,self.wordlength))
+        T = XOR_F_i(self.S,inp,self.wordlength)
         self.S = R(T,self.wordlength)
 
 
@@ -226,12 +216,8 @@ class RadioGatunType:
 
         index = (self.count >> 3) % self.blocklength
 
-        if index < self.blocklength:
-                padLen = self.blocklength - index
-        else:
-                padLen = 2*self.blocklength - index
+        padLen = self.blocklength - index
 
-        #provide padding chars encoded as little endian
         padding = ['\001'] + ['\000'] * (padLen - 1)
         self.update(''.join(padding))
 
@@ -288,7 +274,7 @@ class RadioGatunType:
 # TOP LEVEL INTERFACE
 # ======================================================================
 
-def new(wl=64,arg=None):
+def new(arg=None,wl=64,):
     """Return a new RadioGatun hash object
 
     wl  = wordlength (in bits) of the RadioGatun hash method
@@ -308,20 +294,34 @@ def new(wl=64,arg=None):
 
     >>> hasher = pyradiogatun.new()
     >>> hasher.update('Santa Barbara, California')
-    >>> hasher.hexdigest()
-    '0d08daf2354fa95aaa5b6a50f514384ecdd35940252e0631002e600e13cd285f'
+    >>> hasher.hexdigest(480)
+    '0d08daf2354fa95aaa5b6a50f514384ecdd35940252e0631002e600e13cd285f74adb0c0a666adeb1f2d20b1f2489e3d973dae4efc1f2cc5aaa13f2b'
     
     radiogatun[32]
     ---------------
-    >>> hasher = pyradiogatun.new(32)
+    >>> hasher = pyradiogatun.new(wl=32)
     >>> hasher.update('1234567890123456')
     >>> hasher.hexdigest()
     '59612324f3f42d3096e69125d2733b86143ae668ae9ed561ad785e0eac8dba25'
 
-    >>> hasher = pyradiogatun.new(32)
+    >>> hasher = pyradiogatun.new(wl=32)
+    >>> hasher.update('Santa Barbara, California')
+    >>> hasher.hexdigest(512)
+    '041666388ef9655d48996a66dada1193d6646012a7b25a24fb10e6075cf0fc54a162949f4022531dbb6f66b64c3579df49f0f3af5951df9d68af310f2703b06d'
+
+    radiogatun[16]
+    ---------------
+    >>> hasher = pyradiogatun.new(wl=16)
     >>> hasher.update('Santa Barbara, California')
     >>> hasher.hexdigest()
-    '041666388ef9655d48996a66dada1193d6646012a7b25a24fb10e6075cf0fc54'
+    'ab2203a8c3de943309b685513a29060339c001acce5900dcd6427a02c1fb8011'
+
+    radiogatun[8]
+    --------------
+    >>> hasher = pyradiogatun.new(wl=8)
+    >>> hasher.update('Santa Barbara, California')
+    >>> hasher.hexdigest()
+    'e08f5cdbbfd8f5f3c479464a60ac186963e741d28f654e2c961d2f9bebc7de31'
     """
 
     crypto = RadioGatunType(wl)
