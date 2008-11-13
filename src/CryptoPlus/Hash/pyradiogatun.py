@@ -52,7 +52,7 @@ def XOR_F_i(state,inp,wl):
                 #  block to integer
                 p_i = string2number(inp[i*wl:(i+1)*wl][::-1])
                 state["B"][0][i] ^= p_i
-                state["A"][i+16] ^= p_i
+                state["A"][i+millSize-beltWidth] ^= p_i
         return state
 
 def R(state,wl):
@@ -71,7 +71,7 @@ def R(state,wl):
         out["A"] = Mill(state["A"],wl)
         # Belt to mill feedforward
         for i in xrange(beltWidth):
-                out["A"][i+beltLength] ^= state["B"][beltLength-1][i]
+                out["A"][i+beltLength] ^= state["B"][-1][i]
         return out
 
 def Mill(a,wl):
@@ -111,7 +111,7 @@ class RadioGatunType:
 
         # word & block length in bytes
         self.wordlength = wl/8
-        self.blocklength = self.wordlength*3
+        self.blocklength = self.wordlength*beltWidth
         
         # Initial message length in bits(!).
         self.length = 0
