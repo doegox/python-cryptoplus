@@ -1,6 +1,7 @@
 # =============================================================================
-# Copyright (c) 2008 Christophe Oosterlynck (christophe.oosterlynck_AT_gmail.com)
-#                    Philippe Teuwen (philippe.teuwen_AT_nxp.com)
+# Copyright (c) 2008
+#     Christophe Oosterlynck (christophe.oosterlynck_AT_gmail.com)
+#     Philippe Teuwen (philippe.teuwen_AT_nxp.com)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,78 +29,76 @@ Api and code interface is based on the MD5 implementation of pypy
  http://codespeak.net/pypy/dist/pypy/doc/home.html
 """
 
-beltWidth = 3
-beltLength = 13
-millSize = 2*beltWidth + beltLength
-numberOfBlankIterations = 16
+BELT_WIDTH = 3
+BELT_LENGTH = 13
+MILL_SIZE = 2*BELT_WIDTH + BELT_LENGTH
+NUMBER_OF_BLANK_ITERATIONS = 16
 
-def stateInit():
-        """construct an empty state variable
-        """
-        return {"A":[0]*millSize,"B":[[0]*beltWidth for x in range(beltLength)]}
+def state_init():
+    """construct an empty state variable
+    """
+    return {"A":[0]*MILL_SIZE, "B":[[0]*BELT_WIDTH for x in range(BELT_LENGTH)]}
 
-def XOR_F_i(state,inp,wl):
-        """Input mapping
-        
-        mapping input blocks to a state variable + XOR step of the alternating-
-        input construction
-        
-        input = 1 blocklength string
-        wl    = wordlength of the RadioGatun hash object
-        """
-        for i in xrange(beltWidth):
-                # reverse endianness of byte ordering and convert the input
-                #  block to integer
-                p_i = string2number(inp[i*wl:(i+1)*wl][::-1])
-                state["B"][0][i] ^= p_i
-                state["A"][i+millSize-beltWidth] ^= p_i
-        return state
+def XOR_F_i(state, inp, wl):
+    """Input mapping
 
-def R(state,wl):
-        """Round function R
+    mapping input blocks to a state variable + XOR step of the alternating-
+    input construction
 
-        state = the RadioGatun status
-        wl    = wordlength of the RadioGatun hash object
-        """
-        out = stateInit()
-        # Belt function: simple rotation
-        out["B"] = state["B"][-1:]+state["B"][:-1]
-        # Mill to belt feedforward
-        for i in xrange(beltLength - 1):
-                out["B"][i+1][i%beltWidth] ^= state["A"][i+1]
-        # Run the mill
-        out["A"] = Mill(state["A"],wl)
-        # Belt to mill feedforward
-        for i in xrange(beltWidth):
-                out["A"][i+beltLength] ^= state["B"][-1][i]
-        return out
+    input = 1 blocklength string
+    wl    = wordlength of the RadioGatun hash object
+    """
+    for i in xrange(BELT_WIDTH):
+        # reverse endianness of byte ordering and convert the input
+        #  block to integer
+        p_i = string2number(inp[i*wl:(i+1)*wl][::-1])
+        state["B"][0][i] ^= p_i
+        state["A"][i+MILL_SIZE-BELT_WIDTH] ^= p_i
+    return state
 
-def Mill(a,wl):
-        """The Mill function
+def R(state, wl):
+    """Round function R
 
-        a  = Mill variable of the RadioGatun status
-        wl = wordlength of the RadioGatun hash object
-        """
-        A = [0]*millSize
-        # Gamma: Non-linearity
-        for i in xrange(millSize):
-                A[i] = a[i] ^ ~((~a[(i+1)%millSize]) & (a[(i+2)%millSize]) )
-                # Alternative:
-                #  A[i] = a[i] ^ ((a[(i+1)%millSize]) | (~(a[(i+2)%millSize])&((2**(wl*8))-1)) )
-        # Pi: Intra-word and inter-word dispersion
-        for i in xrange(millSize):
-                a[i] = rotateRight(A[(7*i)%millSize],i*(i+1)/2,wl*8)
-        # Theta: Diffusion
-        for i in xrange(millSize):
-                A[i] = a[i] ^ a[(i+1)%millSize] ^ a[(i+4)%millSize]
-        # Iota: Asymmetry
-        A[0] = A[0] ^ 1
-        return A
+    state = the RadioGatun status
+    wl    = wordlength of the RadioGatun hash object
+    """
+    out = state_init()
+    # Belt function: simple rotation
+    out["B"] = state["B"][-1:]+state["B"][:-1]
+    # Mill to belt feedforward
+    for i in xrange(BELT_LENGTH - 1):
+        out["B"][i+1][i%BELT_WIDTH] ^= state["A"][i+1]
+    # Run the mill
+    out["A"] = Mill(state["A"], wl)
+    # Belt to mill feedforward
+    for i in xrange(BELT_WIDTH):
+        out["A"][i+BELT_LENGTH] ^= state["B"][-1][i]
+    return out
+
+def Mill(a, wl):
+    """The Mill function
+
+    a  = Mill variable of the RadioGatun status
+    wl = wordlength of the RadioGatun hash object
+    """
+    A = [0]*MILL_SIZE
+    # Gamma: Non-linearity
+    for i in xrange(MILL_SIZE):
+        A[i] = a[i] ^ ~((~a[(i+1)%MILL_SIZE]) & (a[(i+2)%MILL_SIZE]) )
+    # Pi: Intra-word and inter-word dispersion
+    for i in xrange(MILL_SIZE):
+        a[i] = rotateRight(A[(7*i)%MILL_SIZE], i*(i+1)/2, wl*8)
+    # Theta: Diffusion
+    for i in xrange(MILL_SIZE):
+        A[i] = a[i] ^ a[(i+1)%MILL_SIZE] ^ a[(i+4)%MILL_SIZE]
+    # Iota: Asymmetry
+    A[0] = A[0] ^ 1
+    return A
 
 class RadioGatunType:
     "An implementation of the RadioGatun hash function in pure Python."
 
-    def __init__(self,wl):
+    def __init__(self, wl):
         """Initialisation.
         
         wl = wordlength (in bits) of the RadioGatun hash method
@@ -107,11 +106,12 @@ class RadioGatunType:
         """
 
         if not ( 8 <= wl <= 64) or not (wl%8 == 0 ):
-                raise ValueError,"Wordlength should be a multiple of 8 between 8 and 64"
+            raise ValueError, "Wordlength should be a multiple of 8" +\
+                              " between 8 and 64"
 
         # word & block length in bytes
         self.wordlength = wl/8
-        self.blocklength = self.wordlength*beltWidth
+        self.blocklength = self.wordlength*BELT_WIDTH
         
         # Initial message length in bits(!).
         self.length = 0
@@ -131,7 +131,7 @@ class RadioGatunType:
         Can be used to reinitialize the hash object
         """
 
-        self.S = stateInit()
+        self.S = state_init()
 
         self.length = 0
         self.count = 0
@@ -146,8 +146,8 @@ class RadioGatunType:
         Mangling and output mapping can only follow when all input data has
         been received.
         """
-        T = XOR_F_i(self.S,inp,self.wordlength)
-        self.S = R(T,self.wordlength)
+        T = XOR_F_i(self.S, inp, self.wordlength)
+        self.S = R(T, self.wordlength)
 
 
     # Down from here all methods follow the Python Standard Library
@@ -178,7 +178,8 @@ class RadioGatunType:
 
         partLen = self.blocklength - index
 
-        # if length of input is at least the amount of bytes needed to fill a block
+        # if length of input is at least
+        # the amount of bytes needed to fill a block
         if leninBuf >= partLen:
             self.input = self.input[:index] + inBuf[:partLen]
             self._transform(self.input)
@@ -222,16 +223,18 @@ class RadioGatunType:
         self.update(''.join(padding))
 
         # Mangling = blank rounds
-        for i in xrange(numberOfBlankIterations):
-                self.S = R(self.S,self.wordlength)
+        for i in xrange(NUMBER_OF_BLANK_ITERATIONS):
+            self.S = R(self.S, self.wordlength)
 
         # Extraction
         # Store state in digest.
         digest = ""
         for i in xrange((length)/self.wordlength/2):
-                self.S = R(self.S,self.wordlength)
-                # F_o        
-                digest += number2string_N((self.S["A"][1]),self.wordlength)[::-1] + number2string_N((self.S["A"][2]),self.wordlength)[::-1]
+            self.S = R(self.S, self.wordlength)
+            # F_o
+            digest += \
+                number2string_N((self.S["A"][1]), self.wordlength)[::-1] +\
+                number2string_N((self.S["A"][2]), self.wordlength)[::-1]
  
         self.S = S
         self.input = inp
@@ -240,7 +243,7 @@ class RadioGatunType:
         return digest[:length/8]
 
 
-    def hexdigest(self,length=256):
+    def hexdigest(self, length=256):
         """Terminate and return digest in HEX form.
 
         length = output length of the digest in bits 
@@ -274,7 +277,7 @@ class RadioGatunType:
 # TOP LEVEL INTERFACE
 # ======================================================================
 
-def new(arg=None,wl=64,):
+def new(arg=None, wl=64):
     """Return a new RadioGatun hash object
 
     wl  = wordlength (in bits) of the RadioGatun hash method
@@ -351,7 +354,7 @@ def string2number(i):
     Input: string (big-endian)
     Output: long or integer
     """
-    return int(i.encode('hex'),16)
+    return int(i.encode('hex'), 16)
 
 def number2string_N(i, N):
     """Convert a number to a string of fixed size
