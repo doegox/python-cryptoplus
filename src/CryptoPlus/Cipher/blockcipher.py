@@ -96,7 +96,7 @@ class BlockCipher():
         elif mode == MODE_CMAC:
             if self.blocksize not in (8,16):
                 raise Exception,'CMAC only works with blockcipher that have a 64 or 128-bit blocksize'
-            self.chain = CMAC(self.cipher,self.blocksize)
+            self.chain = CMAC(self.cipher,self.blocksize,self.IV)
         else:
                 raise Exception,"Unknown chaining mode!"
 
@@ -523,13 +523,14 @@ class CMAC:
     #       -> other hash functions in pycrypto: calling update, concatenates current input with previous input and hashes everything
     __Rb_dictionary = {64:0x000000000000001b,128:0x00000000000000000000000000000087}
     supported_blocksizes = __Rb_dictionary.keys()
-    def __init__(self,codebook,blocksize):
+    def __init__(self,codebook,blocksize,IV):
         # Purpose of init: calculate Lu & Lu2
         #blocksize (in bytes): to select the Rb constant in the dictionary
         #Rb as a dictionary: adding support for other blocksizes is easy
         self.cache=''
         self.blocksize = blocksize
         self.codebook = codebook
+        self.IV = IV
 
         #Rb_dictionary: holds values for Rb for different blocksizes
         # values for 64 and 128 bits found here: http://www.nuee.nagoya-u.ac.jp/labs/tiwata/omac/omac.html
@@ -578,16 +579,15 @@ class CMAC:
         blocksize = self.blocksize
 
         m = (len(data)+blocksize-1)/blocksize #m = amount of datablocks
-        y = '\x00'*blocksize
         i=0
         for i in range(1,m):
-            y = self.codebook.encrypt( util.xorstring(data[(i-1)*blocksize:(i)*blocksize],y) )
+            self.IV = self.codebook.encrypt( util.xorstring(data[(i-1)*blocksize:(i)*blocksize],self.IV) )
 
         if len(data[(i)*blocksize:])==blocksize:
-            X = util.xorstring(util.xorstring(data[(i)*blocksize:],y),self.Lu)
+            X = util.xorstring(util.xorstring(data[(i)*blocksize:],self.IV),self.Lu)
         else:
             tmp = data[(i)*blocksize:] + '\x80' + '\x00'*(blocksize - len(data[(i)*blocksize:])-1)
-            X = util.xorstring(util.xorstring(tmp,y),self.Lu2)
+            X = util.xorstring(util.xorstring(tmp,self.IV),self.Lu2)
 
         T = self.codebook.encrypt(X)
         return T
