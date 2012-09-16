@@ -55,9 +55,6 @@ class BlockCipher():
             self.IV = '\x00'*self.blocksize
         else:
             self.IV = IV
-        
-        if segment_size == None:
-            segment_size = 8
 
         if mode <> MODE_XTS:
             self.cipher = cipher_module(self.key,**args)
@@ -70,6 +67,8 @@ class BlockCipher():
         elif mode == MODE_CFB:
             if len(self.IV) <> self.blocksize:
                 raise Exception,"the IV length should be %i bytes"%self.blocksize
+            if segment_size == None:
+                raise ValueError,"segment size must be defined explicitely for CFB mode"
             if segment_size > self.blocksize*8 or segment_size%8 <> 0:
                 # current CFB implementation doesn't support bit level acces => segment_size should be multiple of bytes
                 raise ValueError,"segment size should be a multiple of 8 bits between 8 and %i"%(self.blocksize*8)
