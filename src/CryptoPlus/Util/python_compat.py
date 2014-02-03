@@ -3,7 +3,7 @@ import Crypto
 
 if parse_version(Crypto.__version__) > parse_version("2.0.1"):
         del Crypto
-       try:
+        try:
                from Crypto.Util.python_compat import *
         except:
                from Crypto.Util.py21compat import *
