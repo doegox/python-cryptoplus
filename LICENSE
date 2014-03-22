@@ -1,16 +1,4 @@
-Used implementations of others are distributed under their respective license
- available in the source:
-    Ciphers:
-     pyblowfish.py, pyDes.py, pyserpent.py, pytwofish.py, rijndael.py
-
-     - pyblowfish.py is being redistributed under the Artistic License
-
-    Hash functions:
-     pypbkdf2.py, pywhirlpool.py
-     using pypy license: pysha.py, pysha224.py, pysha256.py, pysha384.py,
-     pysha512.py, pymd5.py
-
-All the rest is licensed under the MIT License:
+CryptoPlus original code is distributed under the MIT License:
 
 # =============================================================================
 # Copyright (c) 2008 Christophe Oosterlynck (christophe.oosterlynck_AT_gmail.com)
@@ -34,4 +22,16 @@ All the rest is licensed under the MIT License:
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # =============================================================================
+
+Third party implementations are distributed under their respective license
+as specified in their source file(s):
+
+    Ciphers:
+     pyblowfish.py, pyDes.py, pyserpent.py, pytwofish.py, rijndael.py
+     - pyblowfish.py is being redistributed under the Artistic License
+
+    Hash functions:
+     pypbkdf2.py, pywhirlpool.py
+     using pypy license: pysha.py, pysha224.py, pysha256.py, pysha384.py,
+     pysha512.py, pymd5.py
 
