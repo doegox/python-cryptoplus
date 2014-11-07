@@ -49,5 +49,5 @@ def _test():
     doctest.testmod()
 
 if __name__ == "__main__":
-    print "DOCTEST running... no messages = all good"
+    print("DOCTEST running... no messages = all good")
     _test()

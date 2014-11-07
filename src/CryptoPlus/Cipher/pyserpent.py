@@ -36,23 +36,24 @@ submission to NIST.
 # --------------------------------------------------------------
 # My own additions
 # --------------------------------------------------------------
+import binascii
 class Serpent:
     #class to
     def __init__(self,key):
-        key = key.encode('hex')
+        key = binascii.hexlify(key)
         bitsInKey = keyLengthInBitsOf(key)
         rawKey = convertToBitstring(reverse(key.lower()), bitsInKey)
         self.userKey = makeLongKey(rawKey)
 
     def encrypt(self,block):
-        plainText = convertToBitstring(reverse(block.encode("hex").lower()), 128)
+        plainText = convertToBitstring(reverse(binascii.hexlify(block).lower()), 128)
         cipherText = encrypt(plainText, self.userKey)
-        return reverse(bitstring2hexstring(cipherText)).decode('hex')
+        return binascii.unhexlify(reverse(bitstring2hexstring(cipherText)))
 
     def decrypt(self,block):
-        cipherText = convertToBitstring(reverse(block.encode("hex").lower()), 128)
+        cipherText = convertToBitstring(reverse(binascii.hexlify(block).lower()), 128)
         plainText = decrypt(cipherText, self.userKey)
-        return reverse(bitstring2hexstring(plainText)).decode('hex')
+        return binascii.unhexlify(reverse(bitstring2hexstring(plainText)))
 
     def get_block_size(self):
         return 16
@@ -151,7 +152,7 @@ def LT(input):
     128-bit string 'input' and return a 128-bit string as the result."""
 
     if len(input) != 128:
-        raise ValueError, "input to LT is not 128 bit long"
+        raise ValueError("input to LT is not 128 bit long")
 
     result = ""
     for i in range(len(LTTable)):
@@ -167,7 +168,7 @@ def LTInverse(output):
     string (the input) as the result."""
 
     if len(output) != 128:
-        raise ValueError, "input to inverse LT is not 128 bit long"
+        raise ValueError("input to inverse LT is not 128 bit long")
 
     result = ""
     for i in range(len(LTTableInverse)):
@@ -247,8 +248,8 @@ def applyPermutation(permutationTable, input):
     128-bit bitstring as the result."""
 
     if len(input) != len(permutationTable):
-        raise ValueError, "input size (%d) doesn't match perm table size (%d)"\
-              % (len(input), len(permutationTable))
+        raise ValueError("input size (%d) doesn't match perm table size (%d)"\
+              % (len(input), len(permutationTable)))
 
     result = ""
     for i in range(len(permutationTable)):
@@ -275,7 +276,7 @@ def R(i, BHati, KHat):
     elif i == r-1:
         BHatiPlus1 = xor(SHati, KHat[r])
     else:
-        raise ValueError, "round %d is out of 0..%d range" % (i, r-1)
+        raise ValueError("round %d is out of 0..%d range" % (i, r-1))
     #O.show("BHatiPlus1", BHatiPlus1, "(i=%2d) BHatiPlus1" % i)
 
     return BHatiPlus1
@@ -294,7 +295,7 @@ def RInverse(i, BHatiPlus1, KHat):
     elif i == r-1:
         SHati = xor(BHatiPlus1, KHat[r])
     else:
-        raise ValueError, "round %d is out of 0..%d range" % (i, r-1)
+        raise ValueError("round %d is out of 0..%d range" % (i, r-1))
     #O.show("SHati", SHati, "(i=%2d) SHati" % i)
 
     xored = SHatInverse(i, SHati)
@@ -518,7 +519,7 @@ def makeLongKey(k):
 
     l = len(k)
     if l % 32 != 0 or l < 64 or l > 256:
-        raise ValueError, "Invalid key length (%d bits)" % l
+        raise ValueError("Invalid key length (%d bits)" % l)
 
     if l == 256:
         return k
@@ -545,16 +546,16 @@ def bitstring(n, minlen=1):
     this is not so for Python's normal integer type: on a 32-bit machine,
     values of n >= 2^31 need to be expressed as python long integers or
     they will "look" negative and won't work. E.g. 0x80000000 needs to be
-    passed in as 0x80000000L, or it will be taken as -2147483648 instead of
-    +2147483648L.
+    passed in as 0x80000000, or it will be taken as -2147483648 instead of
+    +2147483648.
 
     EXAMPLE: bitstring(10, 8) -> "01010000"
     """
 
     if minlen < 1:
-        raise ValueError, "a bitstring must have at least 1 char"
+        raise ValueError("a bitstring must have at least 1 char")
     if n < 0:
-        raise ValueError, "bitstring representation undefined for neg numbers"
+        raise ValueError("bitstring representation undefined for neg numbers")
 
     result = ""
     while n > 0:
@@ -576,8 +577,8 @@ def binaryXor(n1, n2):
     """
 
     if len(n1) != len(n2):
-        raise ValueError, "can't xor bitstrings of different " + \
-              "lengths (%d and %d)" % (len(n1), len(n2))
+        raise ValueError("can't xor bitstrings of different " + \
+              "lengths (%d and %d)" % (len(n1), len(n2)))
     # We assume that they are genuine bitstrings instead of just random
     # character strings.
 
@@ -598,7 +599,7 @@ def xor(*args):
     """
 
     if args == []:
-        raise ValueError, "at least one argument needed"
+        raise ValueError("at least one argument needed")
 
     result = args[0]
     for arg in args[1:]:
@@ -716,7 +717,7 @@ def quadSplit(b128):
     bitstrings, least significant bitstring first."""
 
     if len(b128) != 128:
-        raise ValueError, "must be 128 bits long, not " + len(b128)
+        raise ValueError("must be 128 bits long, not " + len(b128))
 
     result = []
     for i in range(4):
@@ -729,7 +730,7 @@ def quadJoin(l4x32):
     bitstring obtained by concatenating the internal ones."""
 
     if len(l4x32) != 4:
-        raise ValueError, "need a list of 4 bitstrings, not " + len(l4x32)
+        raise ValueError("need a list of 4 bitstrings, not " + len(l4x32))
 
     return l4x32[0] + l4x32[1] + l4x32[2] + l4x32[3]
 
@@ -781,7 +782,7 @@ class Observer:
             label = tag
         if "ALL" in self.tags.keys() or tag in self.tags.keys():
             if type == "tu":
-                output = `variable`
+                output = repr(variable)
             elif type == "tb":
                 output = bitstring2hexstring(variable)
             elif type == "tlb":
@@ -790,14 +791,13 @@ class Observer:
                     output = output + " %s" % bitstring2hexstring(item)
                 output = "[" + output[1:] + "]"
             else:
-                raise ValueError, "unknown type: %s. Valid ones are %s" % (
-                    type, self.typesOfVariable.keys())
+                raise ValueError("unknown type: %s. Valid ones are %s" % (
+                    type, self.typesOfVariable.keys()))
 
-            print label,
             if output:
-                print "=", output
+                print(label, "=", output)
             else:
-                print
+                print(label)
 
 
 # We make one global observer object that is always available
@@ -805,7 +805,7 @@ O = Observer(["plainText", "userKey", "cipherText"])
 
 # --------------------------------------------------------------
 # Constants
-phi = 0x9e3779b9L
+phi = 0x9e3779b9
 r = 32
 # --------------------------------------------------------------
 # Data tables
@@ -1241,9 +1241,9 @@ help = """
 
 
 def helpExit(message = None):
-    print help
+    print(help)
     if message:
-        print "ERROR:", message
+        print("ERROR:", message)
     sys.exit()
 
 def convertToBitstring(input, numBits):
@@ -1258,7 +1258,7 @@ def convertToBitstring(input, numBits):
     if re.match("^[0-9a-f]+$", input):
         bitstring = hexstring2bitstring(input)
     else:
-        raise ValueError, "%s is not a valid hexstring" % input
+        raise ValueError("%s is not a valid hexstring" % input)
 
     # assert: bitstring now contains the bitstring version of the input
 
@@ -1267,7 +1267,7 @@ def convertToBitstring(input, numBits):
         if re.match("^0+$", bitstring[numBits:]):
             bitstring = bitstring[:numBits]
         else:
-            raise ValueError, "input too large to fit in %d bits" % numBits
+            raise ValueError("input too large to fit in %d bits" % numBits)
     else:
         bitstring = bitstring + "0" * (numBits-len(bitstring))
 

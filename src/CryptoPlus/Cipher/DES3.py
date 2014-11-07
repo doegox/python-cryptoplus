@@ -1,4 +1,5 @@
-from blockcipher import *
+from __future__ import absolute_import
+from .blockcipher import *
 import Crypto.Cipher.DES3
 
 def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):

@@ -54,12 +54,12 @@ def bitPadding (padData, direction, length=None):
             'test'"""
         if direction == PAD:
             if length == None:
-                raise ValueError,"Supply a valid length"
+                raise ValueError("Supply a valid length")
             return __bitPadding(padData, length)
         elif direction == UNPAD:
             return __bitPadding_unpad(padData)
         else:
-            raise ValueError,"Supply a valid direction"
+            raise ValueError("Supply a valid direction")
 
 def __bitPadding (toPad,length):
     padded = toPad + '\x80' + '\x00'*(length - len(toPad)%length -1)
@@ -96,12 +96,12 @@ def zerosPadding (padData, direction, length=None):
             '12345678'"""
         if direction == PAD:
             if length == None:
-                raise ValueError,"Supply a valid length"
+                raise ValueError("Supply a valid length")
             return __zerosPadding(padData, length)
         elif direction == UNPAD:
             return __zerosPadding_unpad(padData)
         else:
-            raise ValueError,"Supply a valid direction"
+            raise ValueError("Supply a valid direction")
 
 def __zerosPadding (toPad, length):
     padLength = (length - len(toPad))%length
@@ -133,12 +133,12 @@ def PKCS7(padData, direction, length=None):
             '12345678'"""
         if direction == PAD:
             if length == None:
-                raise ValueError,"Supply a valid length"
+                raise ValueError("Supply a valid length")
             return __PKCS7(padData, length)
         elif direction == UNPAD:
             return __PKCS7_unpad(padData)
         else:
-            raise ValueError,"Supply a valid direction"
+            raise ValueError("Supply a valid direction")
 
 
 def __PKCS7 (toPad, length):
@@ -154,8 +154,8 @@ def __PKCS7_unpad (padded):
     if padded.endswith(pattern*length):
         return padded[:-length]
     else:
+        print('error: padding pattern not recognized')
         return padded
-        print 'error: padding pattern not recognized'
 
 def ANSI_X923 (padData, direction, length=None):
         """Pad a string using ANSI_X923
@@ -180,12 +180,12 @@ def ANSI_X923 (padData, direction, length=None):
             '12345678'"""
         if direction == PAD:
             if length == None:
-                raise ValueError,"Supply a valid length"
+                raise ValueError("Supply a valid length")
             return __ANSI_X923(padData, length)
         elif direction == UNPAD:
             return __ANSI_X923_unpad(padData)
         else:
-            raise ValueError,"Supply a valid direction"
+            raise ValueError("Supply a valid direction")
 
 def __ANSI_X923 (toPad, length):
     bytesToPad = length - len(toPad)%length
@@ -199,7 +199,7 @@ def __ANSI_X923_unpad (padded):
     if padded.count('\x00',-length,-1) == length - 1:
         return padded[:-length]
     else:
-        print 'error: padding pattern not recognized %s' % padded.count('\x00',-length,-1)
+        print('error: padding pattern not recognized %s' % padded.count('\x00',-length,-1))
         return padded
 
 def ISO_10126 (padData, direction, length=None):
@@ -224,12 +224,12 @@ def ISO_10126 (padData, direction, length=None):
             '12345678'"""
         if direction == PAD:
             if length == None:
-                raise ValueError,"Supply a valid length"
+                raise ValueError("Supply a valid length")
             return __ISO_10126(padData, length)
         elif direction == UNPAD:
             return __ISO_10126_unpad(padData)
         else:
-            raise ValueError,"Supply a valid direction"
+            raise ValueError("Supply a valid direction")
 
 def __ISO_10126 (toPad, length):
     bytesToPad = length - len(toPad)%length

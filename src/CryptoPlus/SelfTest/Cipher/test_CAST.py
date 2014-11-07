@@ -33,16 +33,16 @@ __revision__ = "$Id$"
 # This is a list of (plaintext, ciphertext, key) tuples.
 test_data = [
     # Test vectors from RFC 2144, B.1
-    ('0123456789abcdef', '238b4fe5847e44b2',
-        '0123456712345678234567893456789a',
+    (b'0123456789abcdef', b'238b4fe5847e44b2',
+        b'0123456712345678234567893456789a',
         '128-bit key'),
 
-    ('0123456789abcdef', 'eb6a711a2c02271b',
-        '01234567123456782345',
+    (b'0123456789abcdef', b'eb6a711a2c02271b',
+        b'01234567123456782345',
         '80-bit key'),
 
-    ('0123456789abcdef', '7ac816d16e9b302e',
-        '0123456712',
+    (b'0123456789abcdef', b'7ac816d16e9b302e',
+        b'0123456712',
         '40-bit key'),
 ]
 

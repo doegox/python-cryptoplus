@@ -1,8 +1,9 @@
-from blockcipher import *
+from __future__ import absolute_import
+from .blockcipher import *
 try:
     import Crypto.Cipher.RC5
 except ImportError:
-    print "Crypto.Cipher.RC5 isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for RC5."
+    print("Crypto.Cipher.RC5 isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for RC5.")
     raise
 
 def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,rounds=12,word_size=32):

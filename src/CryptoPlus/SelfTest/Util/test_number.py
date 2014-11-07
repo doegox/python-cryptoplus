@@ -75,19 +75,19 @@ class MiscTests(unittest.TestCase):
         for b in range(3, 1+129, 3):    # 3, 6, ... , 129
             self.assertEqual(0, number.ceil_shift(0, b))
 
-            n = 1L
-            while n <= 2L**(b+2):
-                (q, r) = divmod(n-1, 2L**b)
+            n = 1
+            while n <= 2**(b+2):
+                (q, r) = divmod(n-1, 2**b)
                 expected = q + int(not not r)
                 self.assertEqual((n-1, b, expected),
                                  (n-1, b, number.ceil_shift(n-1, b)))
 
-                (q, r) = divmod(n, 2L**b)
+                (q, r) = divmod(n, 2**b)
                 expected = q + int(not not r)
                 self.assertEqual((n, b, expected),
                                  (n, b, number.ceil_shift(n, b)))
 
-                (q, r) = divmod(n+1, 2L**b)
+                (q, r) = divmod(n+1, 2**b)
                 expected = q + int(not not r)
                 self.assertEqual((n+1, b, expected),
                                  (n+1, b, number.ceil_shift(n+1, b)))
@@ -186,9 +186,9 @@ class MiscTests(unittest.TestCase):
             n += 1
 
         for e in range(16, 1+64, 2):
-            self.assertRaises(ValueError, number.exact_log2, 2L**e-1)
-            self.assertEqual(e, number.exact_log2(2L**e))
-            self.assertRaises(ValueError, number.exact_log2, 2L**e+1)
+            self.assertRaises(ValueError, number.exact_log2, 2**e-1)
+            self.assertEqual(e, number.exact_log2(2**e))
+            self.assertRaises(ValueError, number.exact_log2, 2**e+1)
 
     def test_exact_div(self):
         """Util.number.exact_div"""

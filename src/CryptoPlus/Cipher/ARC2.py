@@ -1,4 +1,5 @@
-from blockcipher import *
+from __future__ import absolute_import
+from .blockcipher import *
 import Crypto.Cipher.ARC2
 import Crypto
 from pkg_resources import parse_version

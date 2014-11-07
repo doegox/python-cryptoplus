@@ -48,7 +48,7 @@ def XOR_F_i(state, inp, wl):
     input = 1 blocklength string
     wl    = wordlength of the RadioGatun hash object
     """
-    for i in xrange(BELT_WIDTH):
+    for i in range(BELT_WIDTH):
         # reverse endianness of byte ordering and convert the input
         #  block to integer
         p_i = string2number(inp[i*wl:(i+1)*wl][::-1])
@@ -66,12 +66,12 @@ def R(state, wl):
     # Belt function: simple rotation
     out["B"] = state["B"][-1:]+state["B"][:-1]
     # Mill to belt feedforward
-    for i in xrange(BELT_LENGTH - 1):
+    for i in range(BELT_LENGTH - 1):
         out["B"][i+1][i%BELT_WIDTH] ^= state["A"][i+1]
     # Run the mill
     out["A"] = Mill(state["A"], wl)
     # Belt to mill feedforward
-    for i in xrange(BELT_WIDTH):
+    for i in range(BELT_WIDTH):
         out["A"][i+BELT_LENGTH] ^= state["B"][-1][i]
     return out
 
@@ -83,13 +83,13 @@ def Mill(a, wl):
     """
     A = [0]*MILL_SIZE
     # Gamma: Non-linearity
-    for i in xrange(MILL_SIZE):
+    for i in range(MILL_SIZE):
         A[i] = a[i] ^ ~((~a[(i+1)%MILL_SIZE]) & (a[(i+2)%MILL_SIZE]) )
     # Pi: Intra-word and inter-word dispersion
-    for i in xrange(MILL_SIZE):
+    for i in range(MILL_SIZE):
         a[i] = rotateRight(A[(7*i)%MILL_SIZE], i*(i+1)/2, wl*8)
     # Theta: Diffusion
-    for i in xrange(MILL_SIZE):
+    for i in range(MILL_SIZE):
         A[i] = a[i] ^ a[(i+1)%MILL_SIZE] ^ a[(i+4)%MILL_SIZE]
     # Iota: Asymmetry
     A[0] = A[0] ^ 1
@@ -106,8 +106,8 @@ class RadioGatunType:
         """
 
         if not ( 8 <= wl <= 64) or not (wl%8 == 0 ):
-            raise ValueError, "Wordlength should be a multiple of 8" +\
-                              " between 8 and 64"
+            raise ValueError("Wordlength should be a multiple of 8" +\
+                              " between 8 and 64")
 
         # word & block length in bytes
         self.wordlength = wl/8
@@ -220,16 +220,16 @@ class RadioGatunType:
         padLen = self.blocklength - index
 
         padding = ['\001'] + ['\000'] * (padLen - 1)
-        self.update(''.join(padding))
+        self.update(b''.join(padding))
 
         # Mangling = blank rounds
-        for i in xrange(NUMBER_OF_BLANK_ITERATIONS):
+        for i in range(NUMBER_OF_BLANK_ITERATIONS):
             self.S = R(self.S, self.wordlength)
 
         # Extraction
         # Store state in digest.
         digest = ""
-        for i in xrange((length)/self.wordlength/2):
+        for i in range((length)/self.wordlength/2):
             self.S = R(self.S, self.wordlength)
             # F_o
             digest += \
@@ -375,5 +375,5 @@ def _test():
     doctest.testmod()
 
 if __name__ == "__main__":
-    print "DOCTEST running... no messages = all good"
+    print("DOCTEST running... no messages = all good")
     _test()

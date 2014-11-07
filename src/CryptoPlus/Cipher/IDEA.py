@@ -1,8 +1,9 @@
-from blockcipher import *
+from __future__ import absolute_import
+from .blockcipher import *
 try:
     import Crypto.Cipher.IDEA
 except ImportError:
-    print "Crypto.Cipher.IDEA isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for IDEA."
+    print("Crypto.Cipher.IDEA isn't available. You're probably using the Debian pycrypto version. Install the original pycrypto for IDEA.")
     raise
 
 def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
@@ -30,10 +31,11 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     https://www.cosic.esat.kuleuven.be/nessie/testvectors/
     -----------------------------------------
     >>> from CryptoPlus.Cipher import IDEA
-    >>> key = "2BD6459F82C5B300952C49104881FF48".decode('hex')
-    >>> plaintext = "F129A6601EF62A47".decode('hex')
+    >>> import binascii
+    >>> key = binascii.unhexlify("2BD6459F82C5B300952C49104881FF48")
+    >>> plaintext = binascii.unhexlify("F129A6601EF62A47")
     >>> cipher = IDEA.new(key,IDEA.MODE_ECB,)
-    >>> cipher.encrypt(plaintext).encode('hex').upper()
+    >>> binascii.hexlify(cipher.encrypt(plaintext)).upper()
     'EA024714AD5C4D84'
     """
     return IDEA(key,mode,IV,counter,segment_size)
