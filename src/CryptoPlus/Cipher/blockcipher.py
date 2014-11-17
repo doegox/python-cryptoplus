@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 # =============================================================================
 from ..Util import util
-from array import array
 from ..Util import padding
 
 MODE_ECB = 1
