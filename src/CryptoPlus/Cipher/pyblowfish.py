@@ -60,9 +60,7 @@ class Blowfish:
             Performs actual encryption/decryption of data
             depending on the direction. The data is broken
             up into 8 byte chunks for the ciphering
-            process. If the data does not align on 8 byte
-            chunks, then null padding is added. This is
-            removed upon decryption.
+            process. Data must be aligned on 8 byte chunks.
 
         def cipher(self, xl, xr, direction):
             Encrypts a 64-bit block of data where xl is
@@ -439,12 +437,8 @@ class Blowfish:
         return int(f)
 
     def crypt(self, data, direction):
-        # Pad the data if need be so it has 8 byte chunks
-        align = len(data) % 8
-        if align != 0:
-            padding = '\x00' * (8 - align)
-            data += padding
-
+        # Data must be padded
+        assert len(data) % 8 == 0
         result = b''
         for i in range(0, len(data), 8):
             # Use big endianess since that's what everyone else uses
@@ -457,10 +451,6 @@ class Blowfish:
                 (xr >> 24) & 0xFF, (xr >> 16) & 0xFF, (xr >> 8) & 0xFF, xr & 0xFF
             )
             result += b''.join(map(chr, chunk))
-
-        # Strip the padding if we decrypted
-        if direction == self.DECRYPT:
-            result = result.rstrip('\x00')
         return result
 
     def encrypt(self, data):
