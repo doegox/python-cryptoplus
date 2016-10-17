@@ -35,7 +35,7 @@ def _long2bytesBigEndian(n, blocksize=0):
     """
 
     # After much testing, this algorithm was deemed to be the fastest.
-    s = ''
+    s = b''
     pack = struct.pack
     while n > 0:
         s = pack('>I', n & 0xffffffff) + s
@@ -43,11 +43,11 @@ def _long2bytesBigEndian(n, blocksize=0):
 
     # Strip off leading zeros.
     for i in range(len(s)):
-        if s[i] != '\000':
+        if s[i] != b'\000':
             break
     else:
         # Only happens when n == 0.
-        s = '\000'
+        s = b'\000'
         i = 0
 
     s = s[i:]
@@ -55,24 +55,24 @@ def _long2bytesBigEndian(n, blocksize=0):
     # Add back some pad bytes. This could be done more efficiently
     # w.r.t. the de-padding being done above, but sigh...
     if blocksize > 0 and len(s) % blocksize:
-        s = (blocksize - len(s) % blocksize) * '\000' + s
+        s = (blocksize - len(s) % blocksize) * b'\000' + s
 
     return s
-
 
 def _bytelist2longBigEndian(list):
     "Transform a list of characters into a list of longs."
 
-    imax = len(list)/4
+    imax = len(list)//4
     hl = [0] * imax
 
     j = 0
     i = 0
+    listbytes = bytearray(b''.join(list))
     while i < imax:
-        b0 = long(ord(list[j])) << 24
-        b1 = long(ord(list[j+1])) << 16
-        b2 = long(ord(list[j+2])) << 8
-        b3 = long(ord(list[j+3]))
+        b0 = int(listbytes[j]) << 24
+        b1 = int(listbytes[j+1]) << 16
+        b2 = int(listbytes[j+2]) << 8
+        b3 = int(listbytes[j+3])
         hl[i] = b0 | b1 | b2 | b3
         i = i+1
         j = j+4
@@ -208,6 +208,9 @@ class sha:
         self.H4 = (self.H4 + E) & 0xffffffff
     
 
+    def _each_byte(self, buf):
+        return [buf[i:i+1] for i in range(len(buf))]
+
     # Down from here all methods follow the Python Standard Library
     # API of the sha module.
 
@@ -227,7 +230,7 @@ class sha:
         to the hashed string.
         """
 
-        leninBuf = long(len(inBuf))
+        leninBuf = int(len(inBuf))
 
         # Compute number of bytes mod 64.
         index = (self.count[1] >> 3) & 0x3F
@@ -241,17 +244,17 @@ class sha:
         partLen = 64 - index
 
         if leninBuf >= partLen:
-            self.input[index:] = list(inBuf[:partLen])
+            self.input[index:] = self._each_byte(inBuf[:partLen])
             self._transform(_bytelist2longBigEndian(self.input))
             i = partLen
             while i + 63 < leninBuf:
-                self._transform(_bytelist2longBigEndian(list(inBuf[i:i+64])))
+                self._transform(_bytelist2longBigEndian(self._each_byte(inBuf[i:i+64])))
                 i = i + 64
             else:
-                self.input = list(inBuf[i:leninBuf])
+                self.input = self._each_byte(inBuf[i:leninBuf])
         else:
             i = 0
-            self.input = self.input + list(inBuf)
+            self.input = self.input + self._each_byte(inBuf)
 
 
     def digest(self):
@@ -277,7 +280,7 @@ class sha:
         else:
             padLen = 120 - index
 
-        padding = ['\200'] + ['\000'] * 63
+        padding = b'\200' + b'\000' * 63
         self.update(padding[:padLen])
 
         # Append length (before padding).
@@ -311,7 +314,7 @@ class sha:
         used to exchange the value safely in email or other non-
         binary environments.
         """
-        return ''.join(['%02x' % ord(c) for c in self.digest()])
+        return ''.join(['%02x' % c for c in bytearray(self.digest())])
 
     def copy(self):
         """Return a clone object.

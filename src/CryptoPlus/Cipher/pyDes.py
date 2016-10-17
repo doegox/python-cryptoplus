@@ -259,9 +259,9 @@ class des:
         l = len(data) * 8
         result = [0] * l
         pos = 0
-        for c in data:
+        for c in bytearray(data):
             i = 7
-            ch = ord(c)
+            ch = c
             while i >= 0:
                 if ch & (1 << i) != 0:
                     result[pos] = 1
@@ -274,21 +274,21 @@ class des:
 
     def __BitList_to_String(self, data):
         """Turn the list of bits -> data, into a string"""
-        result = ''
+        result = bytearray()
         pos = 0
         c = 0
         while pos < len(data):
             c += data[pos] << (7 - (pos % 8))
             if (pos % 8) == 7:
-                result += chr(c)
+                result.append(c)
                 c = 0
             pos += 1
 
-        return result
+        return bytes(result)
 
     def __permutate(self, table, block):
         """Permutate this block with the specified table"""
-        return map(lambda x: block[x], table)
+        return [block[x] for x in table]
 
     # Transform the secret key, so that it is ready for data processing
     # Create the 16 subkeys, K[1] - K[16]
@@ -341,7 +341,7 @@ class des:
             self.R = self.__permutate(des.__expansion_table, self.R)
 
             # Exclusive or R[i - 1] with K[i], create B[1] to B[8] whilst here
-            self.R = map(lambda x, y: x ^ y, self.R, self.Kn[iteration])
+            self.R = list(map(lambda x, y: x ^ y, self.R, self.Kn[iteration]))
             B = [self.R[:6], self.R[6:12], self.R[12:18], self.R[18:24], self.R[24:30], self.R[30:36], self.R[36:42], self.R[42:]]
             # Optimization: Replaced below commented code with above
             #j = 0
@@ -377,7 +377,7 @@ class des:
             self.R = self.__permutate(des.__p, Bn)
 
             # Xor with L[i - 1]
-            self.R = map(lambda x, y: x ^ y, self.R, self.L)
+            self.R = list(map(lambda x, y: x ^ y, self.R, self.L))
             # Optimization: This now replaces the below commented code
             #j = 0
             #while j < len(self.R):

@@ -1,5 +1,5 @@
-from blockcipher import *
-from pyserpent import Serpent
+from .blockcipher import *
+from .pyserpent import Serpent
 
 def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     """Create a new cipher object
@@ -21,34 +21,35 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     **********
     IMPORTING:
     -----------
+    >>> import codecs
     >>> from CryptoPlus.Cipher import python_Serpent
 
     EXAMPLE:
     ---------
     NESSIE Test Vectors: http://www.cs.technion.ac.il/~biham/Reports/Serpent/Serpent-128-128.verified.test-vectors
 
-    >>> cipher = python_Serpent.new(('000102030405060708090A0B0C0D0E0F').decode('hex'))
-    >>> (cipher.encrypt(('33B3DC87EDDD9B0F6A1F407D14919365').decode('hex'))).encode('hex').upper()
-    '00112233445566778899AABBCCDDEEFF'
-    >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex').upper()
-    '33B3DC87EDDD9B0F6A1F407D14919365'
+    >>> cipher = python_Serpent.new(codecs.decode('000102030405060708090A0B0C0D0E0F', 'hex'))
+    >>> codecs.encode(cipher.encrypt(codecs.decode('33B3DC87EDDD9B0F6A1F407D14919365', 'hex')), 'hex').upper()
+    b'00112233445566778899AABBCCDDEEFF'
+    >>> codecs.encode(cipher.decrypt(codecs.decode(_, 'hex')), 'hex').upper()
+    b'33B3DC87EDDD9B0F6A1F407D14919365'
 
-    >>> cipher = python_Serpent.new(('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD').decode('hex'))
-    >>> (cipher.encrypt(('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD').decode('hex'))).encode('hex').upper()
-    '81F9163BDF39B5BB2932AB91DF2A5FFC'
-    >>> ( cipher.decrypt((_).decode('hex')) ).encode('hex').upper()
-    'FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'
+    >>> cipher = python_Serpent.new(codecs.decode('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD', 'hex'))
+    >>> codecs.encode(cipher.encrypt(codecs.decode('FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD', 'hex')), 'hex').upper()
+    b'81F9163BDF39B5BB2932AB91DF2A5FFC'
+    >>> codecs.encode(cipher.decrypt(codecs.decode(_, 'hex')), 'hex').upper()
+    b'FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD'
 
     CBC EXAMPLE:
     -------------
-    >>> key = ('000102030405060708090A0B0C0D0E0F').decode('hex')
-    >>> IV = ('00000000000000000000000000000000').decode('hex')
-    >>> plaintext = ('33B3DC87EDDD9B0F6A1F407D14919365'*3).decode('hex')
+    >>> key = codecs.decode('000102030405060708090A0B0C0D0E0F', 'hex')
+    >>> IV = codecs.decode('00000000000000000000000000000000', 'hex')
+    >>> plaintext = codecs.decode('33B3DC87EDDD9B0F6A1F407D14919365'*3, 'hex')
     >>> cipher = python_Serpent.new(key,python_Serpent.MODE_CBC,IV)
     >>> ciphertext = cipher.encrypt(plaintext)
     >>> decipher = python_Serpent.new(key,python_Serpent.MODE_CBC,IV)
-    >>> ( decipher.decrypt(ciphertext)).encode('hex').upper()
-    '33B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D14919365'
+    >>> codecs.encode(decipher.decrypt(ciphertext), 'hex').upper()
+    b'33B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D1491936533B3DC87EDDD9B0F6A1F407D14919365'
     """
     return python_Serpent(key,mode,IV,counter,segment_size)
 

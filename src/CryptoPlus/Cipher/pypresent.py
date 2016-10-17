@@ -209,7 +209,8 @@ def string2number(i):
     Input: string (big-endian)
     Output: long or integer
     """
-    return int(i.encode('hex'),16)
+    import codecs
+    return int(codecs.encode(i, 'hex'),16)
 
 def number2string_N(i, N):
     """Convert a number to a string of fixed size
@@ -219,7 +220,8 @@ def number2string_N(i, N):
     Output: string (big-endian)
     """
     s = '%0*x' % (N*2, i)
-    return s.decode('hex')
+    import codecs
+    return codecs.decode(s, 'hex')
 
 def _test():
     import doctest

@@ -1,4 +1,4 @@
-import pywhirlpool
+from . import pywhirlpool
 
 __all__ = ['new','digest_size']
 
@@ -13,13 +13,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import python_whirlpool
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = python_whirlpool.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest().upper()
         '4E2448A4C6F486BB16B6562C73B4020BF3043E3A731BCE721AE1B303D97E6D4C7181EEBDB6C57E277D0E34957114CBD6C797FC9D95D8B582D225292076D4EEF5'
         
-        >>> message = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        >>> message = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         >>> hasher = python_whirlpool.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest().upper()

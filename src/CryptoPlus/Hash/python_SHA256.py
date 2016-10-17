@@ -1,4 +1,4 @@
-from pysha256 import sha256
+from .pysha256 import sha256
 
 __all__ = ['new','digest_size']
 
@@ -13,13 +13,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import python_SHA256
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = python_SHA256.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
         'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'
         
-        >>> message = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+        >>> message = b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
         >>> hasher = python_SHA256.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()

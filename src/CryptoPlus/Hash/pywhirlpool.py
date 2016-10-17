@@ -25,6 +25,7 @@
 ##
 ## This Python implementation is therefore also placed in the public domain.
 
+import codecs
 try:
     import psyco
     psyco.full()
@@ -60,11 +61,7 @@ class Whirlpool:
     def hexdigest(self):
         """hexdigest()"""
         dig = self.digest()
-        tempstr = b''
-        for d in dig:
-            xxx = '%02x' % (ord(d))
-            tempstr = tempstr + xxx
-        return tempstr
+        return "{}".format(codecs.encode(dig, 'hex').decode('ascii'))
     
     def copy(self):
         """copy()"""
@@ -641,7 +638,7 @@ def WhirlpoolInit(ctx):
     return
 
 def WhirlpoolAdd(source, sourceBits, ctx):
-    source = [ord(s)&0xff for s in source]
+    source = list(bytearray(source))
     
     carry = 0
     value = sourceBits
@@ -710,18 +707,18 @@ def WhirlpoolFinalize(ctx):
     for i in range(32):
         ctx.buffer[32+i] = ctx.bitLength[i]
     processBuffer(ctx)
-    digest = b''
+    digest = bytearray()
     for i in range(8):
-        digest += chr((ctx.hash[i] >> 56) % 0x100)
-        digest += chr((ctx.hash[i] >> 48) % 0x100)
-        digest += chr((ctx.hash[i] >> 40) % 0x100)
-        digest += chr((ctx.hash[i] >> 32) % 0x100)
-        digest += chr((ctx.hash[i] >> 24) % 0x100)
-        digest += chr((ctx.hash[i] >> 16) % 0x100)
-        digest += chr((ctx.hash[i] >> 8) % 0x100)
-        digest += chr((ctx.hash[i]) % 0x100)
+        digest.append((ctx.hash[i] >> 56) % 0x100)
+        digest.append((ctx.hash[i] >> 48) % 0x100)
+        digest.append((ctx.hash[i] >> 40) % 0x100)
+        digest.append((ctx.hash[i] >> 32) % 0x100)
+        digest.append((ctx.hash[i] >> 24) % 0x100)
+        digest.append((ctx.hash[i] >> 16) % 0x100)
+        digest.append((ctx.hash[i] >> 8) % 0x100)
+        digest.append((ctx.hash[i]) % 0x100)
     ctx.bufferPos = bufferPos
-    return digest
+    return bytes(digest)
 
 def CDo(buf, a0, a1, a2, a3, a4, a5, a6, a7):
     return C0[((buf[a0] >> 56) % 0x100000000) & 0xff] ^ \
@@ -786,10 +783,10 @@ def processBuffer(ctx):
 # Tests.
 #
 
-assert Whirlpool('The quick brown fox jumps over the lazy dog').hexdigest() == \
+assert Whirlpool(b'The quick brown fox jumps over the lazy dog').hexdigest() == \
        'b97de512e91e3828b40d2b0fdce9ceb3c4a71f9bea8d88e75c4fa854df36725fd2b52eb6544edcacd6f8beddfea403cb55ae31f03ad62a5ef54e42ee82c3fb35'
-assert Whirlpool('The quick brown fox jumps over the lazy eog').hexdigest() == \
+assert Whirlpool(b'The quick brown fox jumps over the lazy eog').hexdigest() == \
        'c27ba124205f72e6847f3e19834f925cc666d0974167af915bb462420ed40cc50900d85a1f923219d832357750492d5c143011a76988344c2635e69d06f2d38c'
-assert Whirlpool('').hexdigest() == \
+assert Whirlpool(b'').hexdigest() == \
        '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3'
 

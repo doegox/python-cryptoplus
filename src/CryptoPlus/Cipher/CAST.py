@@ -22,25 +22,26 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     **********
     IMPORTING:
     -----------
+    >>> import codecs
     >>> from CryptoPlus.Cipher import CAST
 
     ECB example: http://www.rfc-editor.org/rfc/rfc2144.txt
     -------------
     128 bit key
 
-    >>> key = "0123456712345678234567893456789A".decode('hex')
-    >>> plaintext = "0123456789ABCDEF".decode('hex')
+    >>> key = codecs.decode("0123456712345678234567893456789A", 'hex')
+    >>> plaintext = codecs.decode("0123456789ABCDEF", 'hex')
     >>> cipher = CAST.new(key,CAST.MODE_ECB,)
-    >>> cipher.encrypt(plaintext).encode('hex')
-    '238b4fe5847e44b2'
+    >>> codecs.encode(cipher.encrypt(plaintext), 'hex')
+    b'238b4fe5847e44b2'
 
     40 bit key
     >>> from CryptoPlus.Cipher import CAST
-    >>> key = "0123456712".decode('hex')
-    >>> plaintext = "0123456789ABCDEF".decode('hex')
+    >>> key = codecs.decode("0123456712", 'hex')
+    >>> plaintext = codecs.decode("0123456789ABCDEF", 'hex')
     >>> cipher = CAST.new(key,CAST.MODE_ECB,)
-    >>> cipher.encrypt(plaintext).encode('hex').upper()
-    '7AC816D16E9B302E'
+    >>> codecs.encode(cipher.encrypt(plaintext), 'hex').upper()
+    b'7AC816D16E9B302E'
     """
     return CAST(key,mode,IV,counter,segment_size)
 

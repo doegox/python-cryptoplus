@@ -87,7 +87,7 @@ def Mill(a, wl):
         A[i] = a[i] ^ ~((~a[(i+1)%MILL_SIZE]) & (a[(i+2)%MILL_SIZE]) )
     # Pi: Intra-word and inter-word dispersion
     for i in range(MILL_SIZE):
-        a[i] = rotateRight(A[(7*i)%MILL_SIZE], i*(i+1)/2, wl*8)
+        a[i] = rotateRight(A[(7*i)%MILL_SIZE], i*(i+1)//2, wl*8)
     # Theta: Diffusion
     for i in range(MILL_SIZE):
         A[i] = a[i] ^ a[(i+1)%MILL_SIZE] ^ a[(i+4)%MILL_SIZE]
@@ -110,7 +110,7 @@ class RadioGatunType:
                               " between 8 and 64")
 
         # word & block length in bytes
-        self.wordlength = wl/8
+        self.wordlength = wl//8
         self.blocklength = self.wordlength*BELT_WIDTH
         
         # Initial message length in bits(!).
@@ -118,7 +118,7 @@ class RadioGatunType:
         self.count = 0
 
         # Initial empty message as a sequence of bytes (8 bit characters).
-        self.input = ""
+        self.input = b""
 
         # Call a separate init function, that can be used repeatedly
         # to start from scratch on the same object.
@@ -135,7 +135,7 @@ class RadioGatunType:
 
         self.length = 0
         self.count = 0
-        self.input = ""
+        self.input = b""
 
     def _transform(self, inp):
         """Basic RadioGatun step transforming the digest based on the input.
@@ -168,7 +168,7 @@ class RadioGatunType:
         the hashed string.
         """
         # Amount of bytes given at input
-        leninBuf = long(len(inBuf))
+        leninBuf = int(len(inBuf))
 
         # Compute number of bytes mod 64.
         index = (self.count >> 3) % self.blocklength
@@ -212,14 +212,14 @@ class RadioGatunType:
         """
 
         S = self.S
-        inp = "" + self.input
+        inp = b"" + self.input
         count = self.count
 
         index = (self.count >> 3) % self.blocklength
 
         padLen = self.blocklength - index
 
-        padding = ['\001'] + ['\000'] * (padLen - 1)
+        padding = [b'\001'] + [b'\000'] * (padLen - 1)
         self.update(b''.join(padding))
 
         # Mangling = blank rounds
@@ -228,8 +228,8 @@ class RadioGatunType:
 
         # Extraction
         # Store state in digest.
-        digest = ""
-        for i in range((length)/self.wordlength/2):
+        digest = b""
+        for i in range((length)//self.wordlength//2):
             self.S = R(self.S, self.wordlength)
             # F_o
             digest += \
@@ -240,7 +240,7 @@ class RadioGatunType:
         self.input = inp
         self.count = count
 
-        return digest[:length/8]
+        return digest[:length//8]
 
 
     def hexdigest(self, length=256):
@@ -260,7 +260,8 @@ class RadioGatunType:
         value.
         """
 
-        return ''.join(['%02x' % ord(c) for c in self.digest(length)])
+        import codecs
+        return "{}".format(codecs.encode(self.digest(length), 'hex').decode('ascii'))
 
     def copy(self):
         """Return a clone object.
@@ -291,38 +292,38 @@ def new(arg=None, wl=64):
     radiogatun[64]
     ---------------
     >>> hasher = pyradiogatun.new()
-    >>> hasher.update('1234567890123456')
+    >>> hasher.update(b'1234567890123456')
     >>> hasher.hexdigest()
     'caaec14b5b4a7960d6854709770e3071d635d60224f58aa385867e549ef4cc42'
 
     >>> hasher = pyradiogatun.new()
-    >>> hasher.update('Santa Barbara, California')
+    >>> hasher.update(b'Santa Barbara, California')
     >>> hasher.hexdigest(480)
     '0d08daf2354fa95aaa5b6a50f514384ecdd35940252e0631002e600e13cd285f74adb0c0a666adeb1f2d20b1f2489e3d973dae4efc1f2cc5aaa13f2b'
     
     radiogatun[32]
     ---------------
     >>> hasher = pyradiogatun.new(wl=32)
-    >>> hasher.update('1234567890123456')
+    >>> hasher.update(b'1234567890123456')
     >>> hasher.hexdigest()
     '59612324f3f42d3096e69125d2733b86143ae668ae9ed561ad785e0eac8dba25'
 
     >>> hasher = pyradiogatun.new(wl=32)
-    >>> hasher.update('Santa Barbara, California')
+    >>> hasher.update(b'Santa Barbara, California')
     >>> hasher.hexdigest(512)
     '041666388ef9655d48996a66dada1193d6646012a7b25a24fb10e6075cf0fc54a162949f4022531dbb6f66b64c3579df49f0f3af5951df9d68af310f2703b06d'
 
     radiogatun[16]
     ---------------
     >>> hasher = pyradiogatun.new(wl=16)
-    >>> hasher.update('Santa Barbara, California')
+    >>> hasher.update(b'Santa Barbara, California')
     >>> hasher.hexdigest()
     'ab2203a8c3de943309b685513a29060339c001acce5900dcd6427a02c1fb8011'
 
     radiogatun[8]
     --------------
     >>> hasher = pyradiogatun.new(wl=8)
-    >>> hasher.update('Santa Barbara, California')
+    >>> hasher.update(b'Santa Barbara, California')
     >>> hasher.hexdigest()
     'e08f5cdbbfd8f5f3c479464a60ac186963e741d28f654e2c961d2f9bebc7de31'
     """
@@ -354,7 +355,8 @@ def string2number(i):
     Input: string (big-endian)
     Output: long or integer
     """
-    return int(i.encode('hex'), 16)
+    import codecs
+    return int(codecs.encode(i, 'hex'), 16)
 
 def number2string_N(i, N):
     """Convert a number to a string of fixed size
@@ -364,7 +366,8 @@ def number2string_N(i, N):
     Output: string (big-endian)
     """
     s = '%0*x' % (N*2, i)
-    return s.decode('hex')
+    import codecs
+    return codecs.decode(s, 'hex')
 
 # ======================================================================
 # DOCTEST ENABLER

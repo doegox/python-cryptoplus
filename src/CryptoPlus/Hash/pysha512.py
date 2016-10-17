@@ -2,6 +2,7 @@
 __author__ = 'Thomas Dixon'
 __license__ = 'MIT'
 
+import codecs
 import copy, struct, sys
 
 def new(m=None):
@@ -37,12 +38,12 @@ class sha512(object):
     digest_size = 64
 
     def __init__(self, m=None):
-        self._buffer = ''
+        self._buffer = b''
         self._counter = 0
 
         if m is not None:
-            if type(m) is not str:
-                raise TypeError('%s() argument 1 must be string, not %s' % (self.__class__.__name__, type(m).__name__))
+            if type(m) is not bytes:
+                raise TypeError('%s() argument 1 must be bytes, not %s' % (self.__class__.__name__, type(m).__name__))
             self.update(m)
 
     def _rotr(self, x, y):
@@ -81,8 +82,8 @@ class sha512(object):
     def update(self, m):
         if not m:
             return
-        if type(m) is not str:
-            raise TypeError('%s() argument 1 must be string, not %s' % (sys._getframe().f_code.co_name, type(m).__name__))
+        if type(m) is not bytes:
+            raise TypeError('%s() argument 1 must be bytes, not %s' % (sys._getframe().f_code.co_name, type(m).__name__))
 
         self._buffer += m
         self._counter += len(m)
@@ -101,11 +102,11 @@ class sha512(object):
             padlen = 239-mdi
 
         r = self.copy()
-        r.update('\x80'+('\x00'*(padlen+8))+length)
-        return ''.join([struct.pack('!Q', i) for i in r._h[:self._output_size]])
+        r.update(b'\x80'+(b'\x00'*(padlen+8))+length)
+        return b''.join([struct.pack('!Q', i) for i in r._h[:self._output_size]])
 
     def hexdigest(self):
-        return self.digest().encode('hex')
+        return "{}".format(codecs.encode(self.digest(), 'hex').decode('ascii'))
 
     def copy(self):
         return copy.deepcopy(self)
