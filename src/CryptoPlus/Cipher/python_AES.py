@@ -18,7 +18,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
                 see CTR example further on in the docstring
         segment_size = amount of bits to use from the keystream in each chain part
             -> supported values: multiple of 8 between 8 and the blocksize
-               of the cipher (only per byte access possible), default is 8
+               of the cipher (only per byte access possible)
             -> only needed for CFB mode
 
     Notes:
@@ -94,7 +94,7 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     >>> ciphertext = cipher.encrypt(plain)
     >>> ciphertext.encode('hex')
     '3b79424c9c0dd436bace9e0ed4586a4f'
-    >>> decipher = python_AES.new(key,python_AES.MODE_CFB,IV)
+    >>> decipher = python_AES.new(key,python_AES.MODE_CFB,IV,segment_size=8)
     >>> decipher.decrypt(ciphertext).encode('hex')
     '6bc1bee22e409f96e93d7e117393172a'
 
