@@ -1,4 +1,4 @@
-import pypbkdf2
+from . import pypbkdf2
 from CryptoPlus.Hash import SHA as SHA1, HMAC
 
 __all__ = ['new']
@@ -24,29 +24,29 @@ def new(passphrase, salt, iterations=1000, digestmodule=SHA1, macmodule=HMAC):
 
         >>> from CryptoPlus.Hash import python_PBKDF2
 
-        >>> passphrase = "password"
-        >>> salt = "ATHENA.MIT.EDUraeburn"
+        >>> passphrase = b"password"
+        >>> salt = b"ATHENA.MIT.EDUraeburn"
         >>> iterations = 1
         >>> hasher = python_PBKDF2.new(passphrase,salt,iterations)
         >>> hasher.hexread(16)
         'cdedb5281bb2f801565a1122b2563515'
 
-        >>> passphrase = "password"
-        >>> salt = "ATHENA.MIT.EDUraeburn"
+        >>> passphrase = b"password"
+        >>> salt = b"ATHENA.MIT.EDUraeburn"
         >>> iterations = 1200
         >>> hasher = python_PBKDF2.new(passphrase,salt,iterations)
         >>> hasher.hexread(32)
         '5c08eb61fdf71e4e4ec3cf6ba1f5512ba7e52ddbc5e5142f708a31e2e62b1e13'
 
-        >>> passphrase = "X"*64
-        >>> salt = "pass phrase equals block size"
+        >>> passphrase = b"X"*64
+        >>> salt = b"pass phrase equals block size"
         >>> iterations = 1200
         >>> hasher = python_PBKDF2.new(passphrase,salt,iterations)
         >>> hasher.hexread(32)
         '139c30c0966bc32ba55fdbf212530ac9c5ec59f1a452f5cc9ad940fea0598ed1'
 
-        >>> passphrase = "X"*65
-        >>> salt = "pass phrase exceeds block size"
+        >>> passphrase = b"X"*65
+        >>> salt = b"pass phrase exceeds block size"
         >>> iterations = 1200
         >>> hasher = python_PBKDF2.new(passphrase,salt,iterations)
         >>> hasher.hexread(32)

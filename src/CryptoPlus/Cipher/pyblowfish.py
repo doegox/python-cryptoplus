@@ -376,7 +376,7 @@ class Blowfish:
 
         # Cycle through the p-boxes and round-robin XOR the
         # key ordinals with the p-boxes
-        key_ord = map(ord, key)
+        key_ord = bytearray(key)
         key_len = len(key_ord)
         index = 0
         for i in range(len(self.p_boxes)):
@@ -439,10 +439,10 @@ class Blowfish:
     def crypt(self, data, direction):
         # Data must be padded
         assert len(data) % 8 == 0
-        result = b''
+        result = bytearray()
         for i in range(0, len(data), 8):
             # Use big endianess since that's what everyone else uses
-            chunk = map(ord, data[i : i + 8])
+            chunk = bytearray(data[i : i + 8])
             xl = chunk[3] | (chunk[2] << 8) | (chunk[1] << 16) | (chunk[0] << 24)
             xr = chunk[7] | (chunk[6] << 8) | (chunk[5] << 16) | (chunk[4] << 24)
             xl, xr = self.cipher(xl, xr, direction)
@@ -450,8 +450,8 @@ class Blowfish:
                 (xl >> 24) & 0xFF, (xl >> 16) & 0xFF, (xl >> 8) & 0xFF, xl & 0xFF,
                 (xr >> 24) & 0xFF, (xr >> 16) & 0xFF, (xr >> 8) & 0xFF, xr & 0xFF
             )
-            result += b''.join(map(chr, chunk))
-        return result
+            result += bytearray(chunk)
+        return bytes(result)
 
     def encrypt(self, data):
         return self.crypt(data, self.ENCRYPT)

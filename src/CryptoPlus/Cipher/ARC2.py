@@ -26,17 +26,18 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,effective_keyle
     **********
     IMPORTING:
     -----------
+    >>> import codecs
     >>> from CryptoPlus.Cipher import ARC2
 
     http://www.ietf.org/rfc/rfc2268.txt
     Doctest will fail when using pycrypto 2.0.1 and older
     ------------------------------------
-    >>> key = "0000000000000000".decode('hex')
-    >>> plaintext = "0000000000000000".decode('hex')
+    >>> key = codecs.decode("0000000000000000", 'hex')
+    >>> plaintext = codecs.decode("0000000000000000", 'hex')
     >>> ek = 63
     >>> cipher = ARC2.new(key,ARC2.MODE_ECB,effective_keylen=ek)
-    >>> cipher.encrypt(plaintext).encode('hex')
-    'ebb773f993278eff'
+    >>> codecs.encode(cipher.encrypt(plaintext), 'hex')
+    b'ebb773f993278eff'
     """
     return ARC2(key,mode,IV,counter,effective_keylen,segment_size)
 

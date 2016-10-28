@@ -46,12 +46,12 @@ def bitPadding (padData, direction, length=None):
             
             Example:
             =========
-            >>> import padding
+            >>> from CryptoPlus.Util import padding
 
-            >>> padding.bitPadding('test', padding.PAD, 8)
-            'test\\x80\\x00\\x00\\x00'
+            >>> padding.bitPadding(b'test', padding.PAD, 8)
+            b'test\\x80\\x00\\x00\\x00'
             >>> padding.bitPadding(_,padding.UNPAD)
-            'test'"""
+            b'test'"""
         if direction == PAD:
             if length == None:
                 raise ValueError("Supply a valid length")
@@ -62,12 +62,12 @@ def bitPadding (padData, direction, length=None):
             raise ValueError("Supply a valid direction")
 
 def __bitPadding (toPad,length):
-    padded = toPad + '\x80' + '\x00'*(length - len(toPad)%length -1)
+    padded = toPad + b'\x80' + b'\x00'*(length - len(toPad)%length -1)
     return padded
 
 def __bitPadding_unpad (padded):
-    if padded.rstrip('\x00')[-1] == '\x80':
-        return padded.rstrip('\x00')[:-1]
+    if padded.rstrip(b'\x00')[-1:] == b'\x80':
+        return padded.rstrip(b'\x00')[:-1]
     else:
         return padded
 
@@ -88,12 +88,12 @@ def zerosPadding (padData, direction, length=None):
             
             Example:
             =========
-            >>> import padding
+            >>> from CryptoPlus.Util import padding
 
-            >>> padding.zerosPadding('12345678',padding.PAD,16)
-            '12345678\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'
+            >>> padding.zerosPadding(b'12345678',padding.PAD,16)
+            b'12345678\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'
             >>> padding.zerosPadding(_,padding.UNPAD)
-            '12345678'"""
+            b'12345678'"""
         if direction == PAD:
             if length == None:
                 raise ValueError("Supply a valid length")
@@ -105,10 +105,10 @@ def zerosPadding (padData, direction, length=None):
 
 def __zerosPadding (toPad, length):
     padLength = (length - len(toPad))%length
-    return toPad + '\x00'*padLength
+    return toPad + b'\x00'*padLength
 
 def __zerosPadding_unpad (padded ):
-    return padded.rstrip('\x00')
+    return padded.rstrip(b'\x00')
 
 def PKCS7(padData, direction, length=None):
         """Pad a string using PKCS7
@@ -125,12 +125,12 @@ def PKCS7(padData, direction, length=None):
             
             Example:
             =========
-            >>> import padding
+            >>> from CryptoPlus.Util import padding
 
-            >>> padding.PKCS7('12345678',padding.PAD,16)
-            '12345678\\x08\\x08\\x08\\x08\\x08\\x08\\x08\\x08'
+            >>> padding.PKCS7(b'12345678',padding.PAD,16)
+            b'12345678\\x08\\x08\\x08\\x08\\x08\\x08\\x08\\x08'
             >>> padding.PKCS7(_,padding.UNPAD)
-            '12345678'"""
+            b'12345678'"""
         if direction == PAD:
             if length == None:
                 raise ValueError("Supply a valid length")
@@ -143,13 +143,13 @@ def PKCS7(padData, direction, length=None):
 
 def __PKCS7 (toPad, length):
     amount = length - len(toPad)%length
-    pattern = chr(amount)
+    pattern = bytearray([amount])
     pad = pattern*amount
-    return toPad + pad
+    return bytes(toPad + pad)
 
 def __PKCS7_unpad (padded):
-    pattern = padded[-1]
-    length = ord(pattern)
+    pattern = padded[-1:]
+    length = bytearray(pattern)[0]
     #check if the bytes to be removed are all the same pattern
     if padded.endswith(pattern*length):
         return padded[:-length]
@@ -172,12 +172,12 @@ def ANSI_X923 (padData, direction, length=None):
             
             Example:
             =========
-            >>> import padding
+            >>> from CryptoPlus.Util import padding
             
-            >>> padding.ANSI_X923('12345678',padding.PAD,16)
-            '12345678\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x08'
+            >>> padding.ANSI_X923(b'12345678',padding.PAD,16)
+            b'12345678\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x08'
             >>> padding.ANSI_X923(_,padding.UNPAD)
-            '12345678'"""
+            b'12345678'"""
         if direction == PAD:
             if length == None:
                 raise ValueError("Supply a valid length")
@@ -189,14 +189,14 @@ def ANSI_X923 (padData, direction, length=None):
 
 def __ANSI_X923 (toPad, length):
     bytesToPad = length - len(toPad)%length
-    trail = chr(bytesToPad)
-    pattern = '\x00'*(bytesToPad -1) + trail
+    trail = bytes(bytearray([bytesToPad]))
+    pattern = b'\x00'*(bytesToPad -1) + trail
     return toPad + pattern
 
 def __ANSI_X923_unpad (padded):
-    length =ord(padded[-1])
+    length = bytearray(padded)[-1]
     #check if the bytes to be removed are all zero
-    if padded.count('\x00',-length,-1) == length - 1:
+    if padded.count(b'\x00',-length,-1) == length - 1:
         return padded[:-length]
     else:
         print('error: padding pattern not recognized %s' % padded.count('\x00',-length,-1))
@@ -217,11 +217,11 @@ def ISO_10126 (padData, direction, length=None):
             
             Example:
             =========
-            >>> import padding
+            >>> from CryptoPlus.Util import padding
 
-            >>> padded = padding.ISO_10126('12345678',padding.PAD,16)
+            >>> padded = padding.ISO_10126(b'12345678',padding.PAD,16)
             >>> padding.ISO_10126(padded,padding.UNPAD)
-            '12345678'"""
+            b'12345678'"""
         if direction == PAD:
             if length == None:
                 raise ValueError("Supply a valid length")
@@ -233,11 +233,11 @@ def ISO_10126 (padData, direction, length=None):
 
 def __ISO_10126 (toPad, length):
     bytesToPad = length - len(toPad)%length
-    randomPattern = ''.join(chr(random.randint(0,255)) for x in range(0,bytesToPad-1))
-    return toPad + randomPattern + chr(bytesToPad)
+    randomPattern = bytearray(random.randint(0,255) for x in range(0,bytesToPad-1))
+    return bytes(toPad + randomPattern + bytearray([bytesToPad]))
 
 def __ISO_10126_unpad (padded):
-   return padded[0:len(padded)-ord(padded[-1])]
+   return padded[0:len(padded)-bytearray(padded)[-1]]
 
 def _test():
     import doctest

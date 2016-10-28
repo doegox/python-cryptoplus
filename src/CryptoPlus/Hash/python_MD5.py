@@ -1,4 +1,4 @@
-import pymd5
+from . import pymd5
 
 __all__ = ['new','digest_size']
 
@@ -13,13 +13,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import MD5
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = MD5.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
         '900150983cd24fb0d6963f7d28e17f72'
         
-        >>> message = "message digest"
+        >>> message = b"message digest"
         >>> hasher = MD5.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()

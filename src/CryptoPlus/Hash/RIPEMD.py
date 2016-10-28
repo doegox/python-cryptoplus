@@ -11,13 +11,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import RIPEMD
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = RIPEMD.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
         '8eb208f7e05d987a9b044a8e98c6b087f15a0bfc'
         
-        >>> message = "message digest"
+        >>> message = b"message digest"
         >>> hasher = RIPEMD.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()

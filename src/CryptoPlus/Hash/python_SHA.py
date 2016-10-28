@@ -1,4 +1,4 @@
-import pysha
+from . import pysha
 
 __all__ = ['new','digest_size']
 
@@ -13,13 +13,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import python_SHA
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = python_SHA.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
         'a9993e364706816aba3e25717850c26c9cd0d89d'
         
-        >>> message = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+        >>> message = b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
         >>> hasher = python_SHA.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()

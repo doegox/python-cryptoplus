@@ -1,4 +1,4 @@
-from pysha384 import sha384
+from .pysha384 import sha384
 
 __all__ = ['new','digest_size']
 
@@ -13,13 +13,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import python_SHA384
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = python_SHA384.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
         'cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7'
 
-        >>> message = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
+        >>> message = b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
         >>> hasher = python_SHA384.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()

@@ -2,7 +2,7 @@
 __author__ = 'Thomas Dixon'
 __license__ = 'MIT'
 
-from pysha256 import sha256
+from .pysha256 import sha256
 
 def new(m=None):
     return sha224(m)

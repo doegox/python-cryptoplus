@@ -59,8 +59,8 @@ class Serpent:
         return 16
 
 def reverse(toreverse):
-    out = ""
-    for i in range(len(toreverse)/2):
+    out = b""
+    for i in range(len(toreverse)//2):
         out += toreverse[len(toreverse)-i*2-2:len(toreverse)-i*2]
     return out
 # --------------------------------------------------------------
@@ -670,10 +670,10 @@ def keyLengthInBitsOf(k):
 
 bin2hex = {
     # Given a 4-char bitstring, return the corresponding 1-char hexstring
-    "0000": "0", "1000": "1", "0100": "2", "1100": "3",
-    "0010": "4", "1010": "5", "0110": "6", "1110": "7",
-    "0001": "8", "1001": "9", "0101": "a", "1101": "b",
-    "0011": "c", "1011": "d", "0111": "e", "1111": "f",
+    "0000": b"0", "1000": b"1", "0100": b"2", "1100": b"3",
+    "0010": b"4", "1010": b"5", "0110": b"6", "1110": b"7",
+    "0001": b"8", "1001": b"9", "0101": b"a", "1101": b"b",
+    "0011": b"c", "1011": b"d", "0111": b"e", "1111": b"f",
     }
 
 # Make the reverse lookup table too
@@ -685,7 +685,7 @@ for (bin, hex) in bin2hex.items():
 def bitstring2hexstring(b):
     """Take bitstring 'b' and return the corresponding hexstring."""
 
-    result = ""
+    result = b""
     l = len(b)
     if l % 4:
         b = b + "0" * (4-(l%4))
@@ -697,14 +697,14 @@ def hexstring2bitstring(h):
     """Take hexstring 'h' and return the corresponding bitstring."""
 
     result = ""
-    for c in reverseString(h):
-        result = result + hex2bin[c]
+    for c in bytearray(reverseString(h)):
+        result = result + hex2bin[bytes(bytearray([c]))]
     return result
 
 def reverseString(s):
-    l = list(s)
+    l = bytearray(s)
     l.reverse()
-    return string.join(l, "")
+    return bytes(l)
 
 
 
@@ -1255,7 +1255,7 @@ def convertToBitstring(input, numBits):
     'input', while otherwise syntactically correct, can't be represented in
     'numBits' bits)."""
 
-    if re.match("^[0-9a-f]+$", input):
+    if re.match(b"^[0-9a-f]+$", input):
         bitstring = hexstring2bitstring(input)
     else:
         raise ValueError("%s is not a valid hexstring" % input)

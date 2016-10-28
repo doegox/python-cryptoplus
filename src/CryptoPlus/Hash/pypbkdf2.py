@@ -74,6 +74,7 @@ from struct import pack
 from binascii import b2a_hex
 from random import randint
 import string
+import collections
 
 try:
     # Use PyCrypto (if available)
@@ -85,7 +86,7 @@ except ImportError:
     import sha as SHA1
 
 def strxor(a, b):
-    return "".join([chr(ord(x) ^ ord(y)) for (x, y) in zip(a, b)])
+    return bytes(bytearray([x ^ y for (x, y) in zip(bytearray(a), bytearray(b))]))
 
 def b64encode(data, chars="+/"):
     tt = string.maketrans("+/", chars)
@@ -138,7 +139,7 @@ class PBKDF2(object):
             block = self.__f(i)
             blocks.append(block)
             size += len(block)
-        buf = "".join(blocks)
+        buf = b"".join(blocks)
         retval = buf[:bytes]
         self.__buf = buf[bytes:]
         self.__blockNum = i
@@ -159,30 +160,34 @@ class PBKDF2(object):
 
         Note that len(obj.hexread(n)) == 2*n.
         """
-        return b2a_hex(self.read(octets))
+        return "{}".format(b2a_hex(self.read(octets)).decode('ascii'))
 
     def _setup(self, passphrase, salt, iterations, prf):
         # Sanity checks:
         
         # passphrase and salt must be str or unicode (in the latter
         # case, we convert to UTF-8)
-        if isinstance(passphrase, unicode):
+        if isinstance(passphrase, bytes):
+            pass
+        elif hasattr(passphrase, "encode") and callable(getattr(passphrase, "encode")):
             passphrase = passphrase.encode("UTF-8")
-        if not isinstance(passphrase, str):
+        if not isinstance(passphrase, bytes):
             raise TypeError("passphrase must be str or unicode")
-        if isinstance(salt, unicode):
+        if isinstance(salt, bytes):
+            pass
+        elif hasattr(salt, "encode") and callable(getattr(salt, "encode")):
             salt = salt.encode("UTF-8")
-        if not isinstance(salt, str):
+        if not isinstance(salt, bytes):
             raise TypeError("salt must be str or unicode")
 
         # iterations must be an integer >= 1
-        if not isinstance(iterations, (int, long)):
+        if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
         if iterations < 1:
             raise ValueError("iterations must be at least 1")
         
         # prf must be callable
-        if not callable(prf):
+        if not isinstance(prf, collections.Callable):
             raise TypeError("prf must be callable")
 
         self.__passphrase = passphrase
@@ -190,7 +195,7 @@ class PBKDF2(object):
         self.__iterations = iterations
         self.__prf = prf
         self.__blockNum = 0
-        self.__buf = ""
+        self.__buf = b""
         self.closed = False
     
     def close(self):
@@ -218,15 +223,19 @@ def crypt(word, salt=None, iterations=None):
         salt = _makesalt()
 
     # salt must be a string or the us-ascii subset of unicode
-    if isinstance(salt, unicode):
+    if isinstance(salt, bytes):
+        pass
+    elif hasattr(salt, "encode") and callable(getattr(salt, "encode")):
         salt = salt.encode("us-ascii")
-    if not isinstance(salt, str):
+    if not isinstance(salt, bytes):
         raise TypeError("salt must be a string")
 
     # word must be a string or unicode (in the latter case, we convert to UTF-8)
-    if isinstance(word, unicode):
+    if isinstance(word, bytes):
+        pass
+    elif hasattr(word, "encode") and callable(getattr(word, "encode")):
         word = word.encode("UTF-8")
-    if not isinstance(word, str):
+    if not isinstance(word, bytes):
         raise TypeError("word must be a string or unicode")
 
     # Try to extract the real salt and iteration count from the salt
@@ -342,7 +351,7 @@ def test_pbkdf2():
         raise RuntimeError("self-test failed")
     
     # crypt 4 (unicode)
-    result = crypt(u'\u0399\u03c9\u03b1\u03bd\u03bd\u03b7\u03c2',
+    result = crypt('\u0399\u03c9\u03b1\u03bd\u03bd\u03b7\u03c2',
         '$p5k2$$KosHgqNo$9mjN8gqjt02hDoP0c2J0ABtLIwtot8cQ')
     expected = '$p5k2$$KosHgqNo$9mjN8gqjt02hDoP0c2J0ABtLIwtot8cQ'
     if result != expected:

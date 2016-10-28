@@ -45,8 +45,8 @@ class Counter(str):
 
     Counter value is big endian"""
     def __init__(self, initial_ctr):
-        if not isinstance(initial_ctr, str):
-            raise TypeError("nonce must be str")
+        if not isinstance(initial_ctr, bytes):
+            raise TypeError("nonce must be bytes")
         self.c = int(binascii.hexlify(initial_ctr), 16)
     def __call__(self):
         # This might be slow, but it works as a demonstration

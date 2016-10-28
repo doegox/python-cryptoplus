@@ -22,18 +22,19 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None):
     **********
     IMPORTING:
     -----------
+    >>> import codecs
     >>> from CryptoPlus.Cipher import DES
 
     EXAMPLE (test vectors from NESSIE):
     -----------------------------------
 
-    >>> cipher = DES.new(('7CA110454A1A6E57').decode('hex'))
-    >>> ciphertext = cipher.encrypt(('01A1D6D039776742').decode('hex'))
-    >>> (ciphertext).encode('hex')
-    '690f5b0d9a26939b'
+    >>> cipher = DES.new(codecs.decode('7CA110454A1A6E57', 'hex'))
+    >>> ciphertext = cipher.encrypt(codecs.decode('01A1D6D039776742', 'hex'))
+    >>> codecs.encode(ciphertext, 'hex')
+    b'690f5b0d9a26939b'
     >>> plaintext = cipher.decrypt(ciphertext)
-    >>> (plaintext).encode('hex')
-    '01a1d6d039776742'
+    >>> codecs.encode(plaintext, 'hex')
+    b'01a1d6d039776742'
 
     """
     return DES(key,mode,IV,counter,segment_size)

@@ -1,5 +1,5 @@
-from blockcipher import *
-from pypresent import Present
+from .blockcipher import *
+from .pypresent import Present
 
 def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,rounds=32):
     """Create a new cipher object
@@ -30,47 +30,48 @@ def new(key,mode=MODE_ECB,IV=None,counter=None,segment_size=None,rounds=32):
         **********
         IMPORTING:
         -----------
+        >>> import codecs
         >>> from CryptoPlus.Cipher import python_PRESENT
 
         ECB Test Vectors:
         ------------------
-        >>> key = "00000000000000000000".decode('hex')
-        >>> plain = "0000000000000000".decode('hex')
+        >>> key = codecs.decode("00000000000000000000", 'hex')
+        >>> plain = codecs.decode("0000000000000000", 'hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB)
-        >>> cipher.encrypt(plain).encode('hex')
-        '5579c1387b228445'
+        >>> codecs.encode(cipher.encrypt(plain), 'hex')
+        b'5579c1387b228445'
         
-        >>> key = "00000000000000000000000000000000".decode('hex')
-        >>> plain = "0000000000000000".decode('hex')
+        >>> key = codecs.decode("00000000000000000000000000000000", 'hex')
+        >>> plain = codecs.decode("0000000000000000", 'hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=64)
-        >>> cipher.encrypt(plain).encode('hex')
-        '59a27d01607ebf05'
+        >>> codecs.encode(cipher.encrypt(plain), 'hex')
+        b'59a27d01607ebf05'
         
-        >>> key = "00000000000000000000".decode('hex')
-        >>> plain = "0000000000000000".decode('hex')
+        >>> key = codecs.decode("00000000000000000000", 'hex')
+        >>> plain = codecs.decode("0000000000000000", 'hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=64)
-        >>> cipher.encrypt(plain).encode('hex')
-        '13991dd588bc1288'
+        >>> codecs.encode(cipher.encrypt(plain), 'hex')
+        b'13991dd588bc1288'
         
         Test Vectors for maximum rounds supported by PRESENT reference C code:
         -----------------------------------------------------------------------
-        >>> key = "0123456789abcdef0123".decode('hex')
-        >>> plain = "0123456789abcdef".decode('hex')
+        >>> key = codecs.decode("0123456789abcdef0123", 'hex')
+        >>> plain = codecs.decode("0123456789abcdef", 'hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=65534)
         >>> ciphertext = cipher.encrypt(plain)
-        >>> ciphertext.encode('hex')
-        'a140dc5d7175ca20'
-        >>> cipher.decrypt(ciphertext).encode('hex')
-        '0123456789abcdef'
+        >>> codecs.encode(ciphertext, 'hex')
+        b'a140dc5d7175ca20'
+        >>> codecs.encode(cipher.decrypt(ciphertext), 'hex')
+        b'0123456789abcdef'
         
-        >>> key = "0123456789abcdef0123456789abcdef".decode('hex')
-        >>> plain = "0123456789abcdef".decode('hex')
+        >>> key = codecs.decode("0123456789abcdef0123456789abcdef", 'hex')
+        >>> plain = codecs.decode("0123456789abcdef", 'hex')
         >>> cipher = python_PRESENT.new(key,python_PRESENT.MODE_ECB,rounds=65534)
         >>> ciphertext = cipher.encrypt(plain)
-        >>> ciphertext.encode('hex')
-        '21007772e5d4ef14'
-        >>> cipher.decrypt(ciphertext).encode('hex')
-        '0123456789abcdef'
+        >>> codecs.encode(ciphertext, 'hex')
+        b'21007772e5d4ef14'
+        >>> codecs.encode(cipher.decrypt(ciphertext), 'hex')
+        b'0123456789abcdef'
         """
     return python_PRESENT(key,mode,IV,counter,rounds,segment_size)
 

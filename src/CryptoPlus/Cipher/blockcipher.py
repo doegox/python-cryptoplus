@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 # =============================================================================
 from __future__ import absolute_import
+import codecs
 from ..Util import util
 from ..Util import padding
 
@@ -52,7 +53,7 @@ class BlockCipher():
                 raise ValueError(self.key_error_message)
 
         if IV == None:
-            self.IV = '\x00'*self.blocksize
+            self.IV = b'\x00'*self.blocksize
         else:
             self.IV = IV
 
@@ -99,7 +100,7 @@ class BlockCipher():
         else:
                 raise Exception("Unknown chaining mode!")
 
-    def encrypt(self,plaintext,n=''):
+    def encrypt(self,plaintext,n=b''):
         """Encrypt some plaintext
 
             plaintext   = a string of binary data
@@ -146,7 +147,7 @@ class BlockCipher():
         else:
             return self.chain.update(plaintext,'e')
 
-    def decrypt(self,ciphertext,n=''):
+    def decrypt(self,ciphertext,n=b''):
         """Decrypt some ciphertext
 
             ciphertext  = a string of binary data
@@ -316,8 +317,8 @@ class CFB:
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
-        self.segment_size = segment_size/8
-        self.keystream = []
+        self.segment_size = segment_size//8
+        self.keystream = bytearray()
         self.totalbytes = 0
         
     def update(self, data, ed):
@@ -332,25 +333,25 @@ class CFB:
         The encrypt/decrypt functions will always process all of the supplied
           input data immediately. No cache will be kept.
         """
-        output = list(data)
+        output = bytearray(data)
 
         for i in range(len(data)):
             if ed =='e':
                 if len(self.keystream) == 0:
                     block = self.codebook.encrypt(self.IV)
-                    self.keystream = list(block)[:self.segment_size] # keystream consists of the s MSB's
+                    self.keystream = bytearray(block)[:self.segment_size] # keystream consists of the s MSB's
                     self.IV = self.IV[self.segment_size:] # keeping (b-s) LSB's
-                output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
-                self.IV += output[i] # the IV for the next block in the chain is being built byte per byte as the ciphertext flows in
+                output[i] = output[i] ^ self.keystream.pop(0)
+                self.IV += bytes(output[i:i+1]) # the IV for the next block in the chain is being built byte per byte as the ciphertext flows in
             else:
                 if len(self.keystream) == 0:
                     block = self.codebook.encrypt(self.IV)
-                    self.keystream = list(block)[:self.segment_size]
+                    self.keystream = bytearray(block)[:self.segment_size]
                     self.IV = self.IV[self.segment_size:]
-                self.IV += output[i]
-                output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0)))
+                self.IV += bytes(output[i:i+1])
+                output[i] = output[i] ^ self.keystream.pop(0)
         self.totalbytes += len(output)
-        return b''.join(output)
+        return bytes(output)
 
 class OFB:
     """OFB Chaining Mode
@@ -361,7 +362,7 @@ class OFB:
         self.codebook = codebook
         self.IV = IV
         self.blocksize = blocksize
-        self.keystream = []
+        self.keystream = bytearray()
         self.totalbytes = 0
         
     def update(self, data, ed):
@@ -379,16 +380,16 @@ class OFB:
         #no difference between encryption and decryption mode
         n = len(data)
         blocksize = self.blocksize
-        output = list(data)
+        output = bytearray(data)
 
         for i in range(n):
             if len(self.keystream) == 0: #encrypt a new counter block when the current keystream is fully used
                 self.IV = self.codebook.encrypt(self.IV)
-                self.keystream = list(self.IV)
-            output[i] = chr(ord(output[i]) ^ ord(self.keystream.pop(0))) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
+                self.keystream = bytearray(self.IV)
+            output[i] = output[i] ^ self.keystream.pop(0) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
         
         self.totalbytes += len(output)
-        return b''.join(output)
+        return bytes(output)
 
 class CTR:
     """CTR Chaining Mode
@@ -401,7 +402,7 @@ class CTR:
         self.codebook = codebook
         self.counter = counter
         self.blocksize = blocksize
-        self.keystream = [] #holds the output of the current encrypted counter value
+        self.keystream = bytearray() #holds the output of the current encrypted counter value
         self.totalbytes = 0
 
     def update(self, data, ed):
@@ -420,14 +421,14 @@ class CTR:
         n = len(data)
         blocksize = self.blocksize
 
-        output = list(data)
+        output = bytearray(data)
         for i in range(n):
             if len(self.keystream) == 0: #encrypt a new counter block when the current keystream is fully used
                 block = self.codebook.encrypt(self.counter())
-                self.keystream = list(block)
-            output[i] = chr(ord(output[i])^ord(self.keystream.pop(0))) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
+                self.keystream = bytearray(block)
+            output[i] = output[i]^self.keystream.pop(0) #as long as an encrypted counter value is available, the output is just "input XOR keystream"
         self.totalbytes += len(output)
-        return b''.join(output)
+        return bytes(output)
 
 class XTS:
     """XTS Chaining Mode
@@ -456,7 +457,7 @@ class XTS:
 
         # initializing T
         # e_k2_n = E_K2(tweak)
-        e_k2_n = self.codebook2.encrypt(tweak+ '\x00' * (16-len(tweak)))[::-1]
+        e_k2_n = self.codebook2.encrypt(tweak+ b'\x00' * (16-len(tweak)))[::-1]
         self.T = util.string2number(e_k2_n)
 
         i=0
@@ -541,10 +542,10 @@ class CMAC:
 
         self.Rb = self.__Rb_dictionary[blocksize*8]
 
-        mask1 = int(('\xff'*blocksize).encode('hex'),16)
-        mask2 = int(('\x80' + '\x00'*(blocksize-1) ).encode('hex'),16)
+        mask1 = int(codecs.encode(b'\xff'*blocksize, 'hex'),16)
+        mask2 = int(codecs.encode(b'\x80' + b'\x00'*(blocksize-1), 'hex'),16)
 
-        L = int(self.codebook.encrypt('\x00'*blocksize).encode('hex'),16)
+        L = int(codecs.encode(self.codebook.encrypt(b'\x00'*blocksize), 'hex'),16)
 
         if L & mask2:
             Lu = ((L << 1) & mask1) ^ self.Rb
@@ -577,7 +578,7 @@ class CMAC:
         assert ed == 'e'
         blocksize = self.blocksize
 
-        m = (len(data)+blocksize-1)/blocksize #m = amount of datablocks
+        m = (len(data)+blocksize-1)//blocksize #m = amount of datablocks
         i=0
         for i in range(1,m):
             self.IV = self.codebook.encrypt( util.xorstring(data[(i-1)*blocksize:(i)*blocksize],self.IV) )
@@ -585,7 +586,7 @@ class CMAC:
         if len(data[(i)*blocksize:])==blocksize:
             X = util.xorstring(util.xorstring(data[(i)*blocksize:],self.IV),self.Lu)
         else:
-            tmp = data[(i)*blocksize:] + '\x80' + '\x00'*(blocksize - len(data[(i)*blocksize:])-1)
+            tmp = data[(i)*blocksize:] + b'\x80' + b'\x00'*(blocksize - len(data[(i)*blocksize:])-1)
             X = util.xorstring(util.xorstring(tmp,self.IV),self.Lu2)
 
         T = self.codebook.encrypt(X)

@@ -1,4 +1,4 @@
-from pysha224 import sha224
+from .pysha224 import sha224
 
 __all__ = ['new','digest_size']
 
@@ -13,13 +13,13 @@ def new(data=None):
         
         >>> from CryptoPlus.Hash import python_SHA224
         
-        >>> message = "abc"
+        >>> message = b"abc"
         >>> hasher = python_SHA224.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
         '23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7'
         
-        >>> message = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+        >>> message = b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
         >>> hasher = python_SHA224.new()
         >>> hasher.update(message)
         >>> hasher.hexdigest()
